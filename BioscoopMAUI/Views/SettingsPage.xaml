@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    Shell.NavBarIsVisible="False"
+    x:Class="BioscoopMAUI.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto,*">
+            <controls:PageHeader
+                Grid.Row="0"
+                Style="{StaticResource PageHeaderStyle}"
+                Subtitle="App preferences and account options."
+                Title="Settings" />
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

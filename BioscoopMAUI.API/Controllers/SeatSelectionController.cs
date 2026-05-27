@@ -1,0 +1,237 @@
+using BioscoopMAUI.API.Data;
+using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.API.Services;
+using BioscoopMAUI.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace BioscoopMAUI.API.Controllers;
+
+[ApiController]
+[Route("api/seat-selection")]
+public class SeatSelectionController : ControllerBase
+{
+    private readonly BioscoopDbContext _context;
+
+    public SeatSelectionController(BioscoopDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpGet("{showtimeId}/available")]
+    public async Task<ActionResult<IEnumerable<SeatInfoDto>>> GetAvailableSeats(int showtimeId)
+    {
+        var showtime = await _context.Showtimes
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Rows)
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Seats)
+            .FirstOrDefaultAsync(s => s.Id == showtimeId);
+
+        if (showtime == null)
+            return NotFound("Showtime not found");
+
+        await EnsureSeatsInitializedForShowtime(showtime);
+
+        var occupiedSeatIds = await _context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == showtimeId && ss.ReservationId.HasValue)
+            .Select(ss => ss.SeatId)
+            .ToHashSetAsync();
+
+        var seats = await _context.Seats
+            .Where(s => s.RoomId == showtime.RoomId)
+            .OrderBy(s => s.Row)
+            .ThenBy(s => s.SeatNumber)
+            .ToListAsync();
+
+        var totalRows = showtime.Room.Rows.Any()
+            ? showtime.Room.Rows.Count
+            : seats.Select(s => s.Row).Distinct().Count();
+        var maxSeatsPerRow = showtime.Room.Rows.Any()
+            ? showtime.Room.Rows.Max(r => r.SeatCount)
+            : seats.GroupBy(s => s.Row).Select(g => g.Count()).DefaultIfEmpty(0).Max();
+
+        var seatInfos = seats.Select(seat => new SeatInfoDto(
+            seat.Id,
+            seat.Row,
+            seat.SeatNumber,
+            !occupiedSeatIds.Contains(seat.Id),
+            SeatSelectionService.CalculateSeatScore(seat.Row, seat.SeatNumber, totalRows, maxSeatsPerRow)
+        )).ToList();
+
+        return Ok(seatInfos);
+    }
+    
+    [HttpPost("{showtimeId}/suggest")]
+    public async Task<ActionResult<SeatSelectionResponseDto>> SuggestSeats(
+        int showtimeId,
+        [FromBody] SeatSelectionRequestDto request)
+    {
+        if (request.GroupSize <= 0 || request.GroupSize > 20)
+            return BadRequest("Group size must be between 1 and 20");
+
+        var showtime = await _context.Showtimes
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Rows)
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Seats)
+            .FirstOrDefaultAsync(s => s.Id == showtimeId);
+
+        if (showtime == null)
+            return NotFound("Showtime not found");
+
+        await EnsureSeatsInitializedForShowtime(showtime);
+
+        var showtimeSeatsQuery = _context.ShowtimeSeats.Where(ss => ss.ShowtimeId == showtimeId);
+
+        var result = SeatSelectionService.SelectBestSeats(showtime, request.GroupSize, showtimeSeatsQuery);
+
+        var suggestedSeatInfos = result.SelectedSeats.Select(seat => new SeatInfoDto(
+            seat.Id,
+            seat.Row,
+            seat.SeatNumber,
+            true,
+            SeatSelectionService.CalculateSeatScore(seat.Row, seat.SeatNumber,
+                showtime.Room.Rows.Count, showtime.Room.Rows.Max(r => r.SeatCount))
+        )).ToList();
+
+        var groupedSeatInfos = result.GroupedSeats.Select(group =>
+            group.Select(seat => new SeatInfoDto(
+                seat.Id,
+                seat.Row,
+                seat.SeatNumber,
+                true,
+                SeatSelectionService.CalculateSeatScore(seat.Row, seat.SeatNumber,
+                    showtime.Room.Rows.Count, showtime.Room.Rows.Max(r => r.SeatCount))
+            )).ToList()
+        ).ToList();
+
+        var response = new SeatSelectionResponseDto(
+            suggestedSeatInfos,
+            result.Message,
+            result.IsGroupedTogether,
+            groupedSeatInfos,
+            result.TotalScore
+        );
+
+        return Ok(response);
+    }
+
+    [HttpPost("{showtimeId}/initialize-seats")]
+    public async Task<ActionResult<string>> InitializeSeatsForShowtime(int showtimeId)
+    {
+        var showtime = await _context.Showtimes
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Seats)
+            .FirstOrDefaultAsync(s => s.Id == showtimeId);
+
+        if (showtime == null)
+            return NotFound("Showtime not found");
+
+        var existingShowtimeSeatsCount = await _context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == showtimeId)
+            .CountAsync();
+
+        if (existingShowtimeSeatsCount > 0)
+            return Ok($"Seats already initialized for showtime {showtimeId} ({existingShowtimeSeatsCount} seats)");
+
+        var roomSeats = showtime.Room.Seats.ToList();
+
+        if (!roomSeats.Any())
+            return BadRequest($"No seats found for room {showtime.RoomId}");
+
+        var showtimeSeats = roomSeats.Select(seat => new ShowtimeSeat
+        {
+            ShowtimeId = showtimeId,
+            SeatId = seat.Id,
+            ReservationId = null
+        }).ToList();
+
+        _context.ShowtimeSeats.AddRange(showtimeSeats);
+        await _context.SaveChangesAsync();
+
+        return Ok($"Successfully initialized {showtimeSeats.Count} seats for showtime {showtimeId} in room {showtime.Room.Name}");
+    }
+
+    [HttpGet("debug/{showtimeId}")]
+    public async Task<ActionResult<object>> DebugShowtime(int showtimeId)
+    {
+        var showtime = await _context.Showtimes
+            .Include(s => s.Room)
+            .ThenInclude(r => r.Seats)
+            .FirstOrDefaultAsync(s => s.Id == showtimeId);
+
+        if (showtime == null)
+            return NotFound("Showtime not found");
+
+        var showtimeSeats = await _context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == showtimeId)
+            .Include(ss => ss.Seat)
+            .ToListAsync();
+
+        var reservations = await _context.Reservations
+            .Where(r => r.ShowtimeId == showtimeId)
+            .ToListAsync();
+
+        return Ok(new
+        {
+            Showtime = new { showtime.Id, showtime.StartTime, RoomName = showtime.Room.Name },
+            TotalSeatsInRoom = showtime.Room.Seats.Count,
+            ShowtimeSeatsCount = showtimeSeats.Count,
+            OccupiedSeatsCount = showtimeSeats.Count(ss => ss.ReservationId.HasValue),
+            ReservationsCount = reservations.Count,
+            OccupiedSeats = showtimeSeats
+                .Where(ss => ss.ReservationId.HasValue)
+                .Select(ss => new { ss.Seat.Row, ss.Seat.SeatNumber, ss.ReservationId })
+                .ToList()
+        });
+    }
+
+    private async Task EnsureSeatsInitializedForShowtime(Showtime showtime)
+    {
+        var existingShowtimeSeatsCount = await _context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == showtime.Id)
+            .CountAsync();
+
+        if (existingShowtimeSeatsCount > 0)
+            return;
+
+        var roomSeats = await _context.Seats
+            .Where(s => s.RoomId == showtime.RoomId)
+            .ToListAsync();
+
+        if (!roomSeats.Any())
+        {
+            var roomRows = await _context.Rows
+                .Where(r => r.RoomId == showtime.RoomId)
+                .OrderBy(r => r.RowNumber)
+                .ToListAsync();
+
+            if (!roomRows.Any())
+                throw new InvalidOperationException($"No rows found for room {showtime.RoomId}");
+
+            roomSeats = roomRows
+                .SelectMany(row => Enumerable.Range(1, row.SeatCount).Select(seatNumber => new Seat
+                {
+                    RoomId = showtime.RoomId,
+                    Row = row.RowNumber,
+                    SeatNumber = seatNumber
+                }))
+                .ToList();
+
+            _context.Seats.AddRange(roomSeats);
+            await _context.SaveChangesAsync();
+        }
+
+        var showtimeSeats = roomSeats.Select(seat => new ShowtimeSeat
+        {
+            ShowtimeId = showtime.Id,
+            SeatId = seat.Id,
+            ReservationId = null
+        }).ToList();
+
+        _context.ShowtimeSeats.AddRange(showtimeSeats);
+        await _context.SaveChangesAsync();
+    }
+}
+

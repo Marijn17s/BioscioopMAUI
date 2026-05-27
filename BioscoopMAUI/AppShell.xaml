@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    FlyoutBehavior="Disabled"
+    Title="BioscoopMAUI"
+    x:Class="BioscoopMAUI.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:constants="clr-namespace:BioscoopMAUI.Constants"
+    xmlns:local="clr-namespace:BioscoopMAUI"
+    xmlns:views="clr-namespace:BioscoopMAUI.Views"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
+        <Tab Title="Home">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="MaterialIconsOutlined"
+                    Glyph="{x:Static constants:TabIconGlyphs.Home}"
+                    Size="24" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate views:HomePage}" />
+        </Tab>
+        <Tab Title="Movies">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="MaterialIconsOutlined"
+                    Glyph="{x:Static constants:TabIconGlyphs.Movies}"
+                    Size="24" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate views:MoviesPage}" />
+        </Tab>
+        <Tab Title="Screenings">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="MaterialIconsOutlined"
+                    Glyph="{x:Static constants:TabIconGlyphs.Screenings}"
+                    Size="24" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate views:ShowtimesPage}" />
+        </Tab>
+        <Tab Title="Reservations">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="MaterialIconsOutlined"
+                    Glyph="{x:Static constants:TabIconGlyphs.Reservations}"
+                    Size="24" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate views:ReservationsPage}" />
+        </Tab>
+        <Tab Title="Settings">
+            <Tab.Icon>
+                <FontImageSource
+                    FontFamily="MaterialIconsOutlined"
+                    Glyph="{x:Static constants:TabIconGlyphs.Settings}"
+                    Size="24" />
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" />
+        </Tab>
+    </FlyoutItem>
+</Shell>

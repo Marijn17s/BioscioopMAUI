@@ -1,0 +1,94 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using BioscoopMAUI.API.Data;
+using BioscoopMAUI.API.Services;
+using BioscoopMAUI.Models.Helpers;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddLocalization();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+// Configure CORS to allow the Blazor WebAssembly frontend to make requests
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var keyString = builder.Configuration["JwtConfig:Secret"] ?? "SuperSecretKeyForBioscoopCasusApiWhichNeedsToBeAtLeast32BytesLong!";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(keyString))
+    };
+});
+
+// Register the database context
+builder.Services.AddDbContext<BioscoopDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32)));
+});
+
+builder.Services.AddScoped<QrCodeHelper>();
+builder.Services.AddScoped<OccupancyAnalyticsService>();
+builder.Services.AddScoped<RevenueAnalyticsService>();
+
+var app = builder.Build();
+
+var supportedCultures = new[] { "en", "nl" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
+
+// Apply migrations and seed data on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BioscoopDbContext>();
+    await db.Database.MigrateAsync();
+    await BioscoopDbSeeder.SeedAsync(db);
+}
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowBlazorClient");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

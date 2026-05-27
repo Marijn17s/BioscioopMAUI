@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="BioscoopMAUI.API/BioscoopMAUI.API.csproj" />
+  <Project Path="BioscoopMAUI.Interfaces/BioscoopMAUI.Interfaces.csproj" />
+  <Project Path="BioscoopMAUI.Models/BioscoopMAUI.Models.csproj" />
+  <Project Path="BioscoopMAUI.Services/BioscoopMAUI.Services.csproj" />
+  <Project Path="BioscoopMAUI/BioscoopMAUI.csproj" />
+</Solution>
