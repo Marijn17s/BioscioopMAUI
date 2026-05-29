@@ -42,6 +42,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
                     r.Showtime.Id,
                     r.Showtime.MovieId,
                     r.Showtime.RoomId,
+                    r.Showtime.Room.Name,
                     r.Showtime.StartTime,
                     0
                 ),
@@ -83,6 +84,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
                 reservation.Showtime.Id,
                 reservation.Showtime.MovieId,
                 reservation.Showtime.RoomId,
+                reservation.Showtime.Room.Name,
                 reservation.Showtime.StartTime,
                 0
             ),

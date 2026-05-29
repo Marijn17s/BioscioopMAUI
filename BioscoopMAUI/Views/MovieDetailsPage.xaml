@@ -173,7 +173,7 @@
                                                         FontFamily="OpenSansSemibold"
                                                         FontSize="15"
                                                         Text="{Binding StartTime, StringFormat='{0:dddd d MMMM}'}" />
-                                                    <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding RoomId, StringFormat='Room {0}'}" />
+                                                    <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding RoomName}" />
                                                 </VerticalStackLayout>
 
                                                 <Border

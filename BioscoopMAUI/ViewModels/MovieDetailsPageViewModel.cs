@@ -66,9 +66,7 @@ public partial class MovieDetailsPageViewModel : ObservableObject
     public async Task InitializeAsync(int movieId)
     {
         if (IsBusy)
-        {
             return;
-        }
 
         IsBusy = true;
         ErrorMessage = string.Empty;

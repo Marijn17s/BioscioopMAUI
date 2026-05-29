@@ -48,6 +48,7 @@ public class ShowtimesController : ControllerBase
                 s.Id,
                 s.MovieId,
                 s.RoomId,
+                s.Room.Name,
                 s.StartTime,
                 0 // Ticket price is out of scope
             ))
@@ -100,10 +101,16 @@ public class ShowtimesController : ControllerBase
         _context.Showtimes.Add(showtime);
         await _context.SaveChangesAsync();
 
+        var roomName = await _context.Rooms
+            .Where(room => room.Id == showtime.RoomId)
+            .Select(room => room.Name)
+            .FirstAsync();
+
         var response = new ShowtimeResponseDto(
             showtime.Id,
             showtime.MovieId,
             showtime.RoomId,
+            roomName,
             showtime.StartTime,
             0
         );
@@ -130,6 +137,9 @@ public class ShowtimesController : ControllerBase
         var minTime = bulkDto.Showtimes.Min(s => s.StartTime);
         var maxTime = bulkDto.Showtimes.Max(s => s.StartTime.AddMinutes(240)); // rough max duration buffer
         var roomIds = bulkDto.Showtimes.Select(s => s.RoomId).Distinct().ToList();
+        var rooms = await _context.Rooms
+            .Where(room => roomIds.Contains(room.Id))
+            .ToDictionaryAsync(room => room.Id);
 
         // Fetch existing showtimes in that timeframe
         var existingShowtimes = await _context.Showtimes
@@ -185,6 +195,7 @@ public class ShowtimesController : ControllerBase
                 showtime.Id,
                 showtime.MovieId,
                 showtime.RoomId,
+                rooms[dto.RoomId].Name,
                 showtime.StartTime,
                 0
             ));
@@ -192,6 +203,19 @@ public class ShowtimesController : ControllerBase
 
         await _context.Showtimes.AddRangeAsync(showtimeEntities);
         await _context.SaveChangesAsync();
+
+        for (var index = 0; index < showtimeEntities.Count; index++)
+        {
+            var savedShowtime = showtimeEntities[index];
+            var dto = bulkDto.Showtimes[index];
+            responseDtos[index] = new ShowtimeResponseDto(
+                savedShowtime.Id,
+                savedShowtime.MovieId,
+                savedShowtime.RoomId,
+                rooms[dto.RoomId].Name,
+                savedShowtime.StartTime,
+                0);
+        }
 
         return Ok(responseDtos);
     }
@@ -239,10 +263,16 @@ public class ShowtimesController : ControllerBase
 
         await _context.SaveChangesAsync();
 
+        var roomName = await _context.Rooms
+            .Where(room => room.Id == showtime.RoomId)
+            .Select(room => room.Name)
+            .FirstAsync();
+
         return Ok(new ShowtimeResponseDto(
             showtime.Id,
             showtime.MovieId,
             showtime.RoomId,
+            roomName,
             showtime.StartTime,
             0
         ));

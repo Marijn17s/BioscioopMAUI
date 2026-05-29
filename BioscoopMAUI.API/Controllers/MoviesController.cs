@@ -56,6 +56,7 @@ public class MoviesController : ControllerBase
 
         var movie = await _context.Movies
             .Include(m => m.Showtimes)
+                .ThenInclude(s => s.Room)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)
@@ -65,6 +66,7 @@ public class MoviesController : ControllerBase
             s.Id,
             s.MovieId,
             s.RoomId,
+            s.Room.Name,
             s.StartTime,
             0 // Ticket price is out of scope for now
         )).OrderBy(s => s.StartTime).ToList();

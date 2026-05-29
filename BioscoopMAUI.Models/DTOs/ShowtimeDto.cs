@@ -4,6 +4,7 @@ public record ShowtimeResponseDto(
     int Id,
     int MovieId,
     int RoomId,
+    string RoomName,
     DateTime StartTime,
     double TicketPrice
 );
