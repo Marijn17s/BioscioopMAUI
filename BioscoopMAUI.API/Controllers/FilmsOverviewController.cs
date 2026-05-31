@@ -1,5 +1,4 @@
 using BioscoopMAUI.API.Data;
-using BioscoopMAUI.API.Entities;
 using BioscoopMAUI.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,22 +7,15 @@ namespace BioscoopMAUI.API.Controllers;
 
 [ApiController]
 [Route("api/films-overview")]
-public class FilmsOverviewController : ControllerBase
+public class FilmsOverviewController(BioscoopDbContext context) : ControllerBase
 {
-    private readonly BioscoopDbContext _context;
-
-    public FilmsOverviewController(BioscoopDbContext context)
-    {
-        _context = context;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<FilmsOverviewDto>>> GetFilmsOverview()
     {
         var now = DateTime.Now;
         var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
-        var showtimes = await _context.Showtimes
+        var showtimes = await context.Showtimes
             .Include(s => s.Movie)
             .Where(s => s.StartTime >= now)
             .OrderBy(s => s.StartTime)

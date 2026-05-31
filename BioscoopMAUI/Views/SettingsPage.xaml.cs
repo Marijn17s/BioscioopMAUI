@@ -1,15 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BioscoopMAUI.ViewModels;
 
 namespace BioscoopMAUI.Views;
 
 public partial class SettingsPage : ContentPage
 {
-    public SettingsPage()
+    private readonly SettingsPageViewModel _viewModel;
+
+    public SettingsPage(SettingsPageViewModel viewModel)
     {
+        _viewModel = viewModel;
+        BindingContext = viewModel;
         InitializeComponent();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _viewModel.InitializeAsync();
     }
 }

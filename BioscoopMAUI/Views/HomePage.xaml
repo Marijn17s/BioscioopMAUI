@@ -10,7 +10,7 @@
             <controls:PageHeader
                 Grid.Row="0"
                 Style="{StaticResource PageHeaderStyle}"
-                Subtitle="Welcome to your cinema."
+                Subtitle="Welcome to our cinema."
                 Title="Home" />
         </Grid>
     </ContentPage.Content>

@@ -1,6 +1,7 @@
 using BioscoopCasus.API.Resources;
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +12,8 @@ namespace BioscoopMAUI.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ShowtimesController : ControllerBase
+public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<SharedResource> localizer) : ControllerBase
 {
-    private readonly BioscoopDbContext _context;
-    private readonly IStringLocalizer<SharedResource> _localizer;
-
-    public ShowtimesController(BioscoopDbContext context, IStringLocalizer<SharedResource> localizer)
-    {
-        _context = context;
-        _localizer = localizer;
-    }
-
     // GET /api/showtimes
     // Optionally pass ?movieId=... or ?date=...
     [HttpGet]
@@ -29,7 +21,7 @@ public class ShowtimesController : ControllerBase
         [FromQuery] int? movieId,
         [FromQuery] DateTime? date)
     {
-        var query = _context.Showtimes.AsQueryable();
+        var query = context.Showtimes.AsQueryable();
 
         if (movieId.HasValue)
         {
@@ -59,27 +51,27 @@ public class ShowtimesController : ControllerBase
 
     // POST /api/showtimes
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<ShowtimeResponseDto>> CreateShowtime(ShowtimeCreateDto dto)
     {
-        if (!await _context.Movies.AnyAsync(m => m.Id == dto.MovieId))
-            return BadRequest(_localizer["InvalidMovieId"].Value);
+        if (!await context.Movies.AnyAsync(m => m.Id == dto.MovieId))
+            return BadRequest(localizer["InvalidMovieId"].Value);
 
-        var movie = await _context.Movies.FindAsync(dto.MovieId);
+        var movie = await context.Movies.FindAsync(dto.MovieId);
         if (movie == null)
-            return BadRequest(_localizer["InvalidMovieId"].Value);
+            return BadRequest(localizer["InvalidMovieId"].Value);
 
-        if (!await _context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
-            return BadRequest(_localizer["InvalidRoomId"].Value);
+        if (!await context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
+            return BadRequest(localizer["InvalidRoomId"].Value);
 
         if (dto.StartTime < DateTime.Now)
-            return BadRequest(_localizer["ShowtimeInPast"].Value);
+            return BadRequest(localizer["ShowtimeInPast"].Value);
 
         // Calculate end time (duration + 30 min cleaning buffer)
         var newEndTime = dto.StartTime.AddMinutes(movie.DurationMinutes + 30);
 
         // Check for double bookings in the requested room
-        var hasConflict = await _context.Showtimes
+        var hasConflict = await context.Showtimes
             .Include(s => s.Movie)
             .AnyAsync(s => s.RoomId == dto.RoomId &&
                            ((dto.StartTime >= s.StartTime && dto.StartTime < s.StartTime.AddMinutes(s.Movie.DurationMinutes + 30)) ||
@@ -88,7 +80,7 @@ public class ShowtimesController : ControllerBase
 
         if (hasConflict)
         {
-            return BadRequest(_localizer["RoomAlreadyBooked"].Value);
+            return BadRequest(localizer["RoomAlreadyBooked"].Value);
         }
 
         var showtime = new Showtime
@@ -98,10 +90,10 @@ public class ShowtimesController : ControllerBase
             StartTime = dto.StartTime
         };
 
-        _context.Showtimes.Add(showtime);
-        await _context.SaveChangesAsync();
+        context.Showtimes.Add(showtime);
+        await context.SaveChangesAsync();
 
-        var roomName = await _context.Rooms
+        var roomName = await context.Rooms
             .Where(room => room.Id == showtime.RoomId)
             .Select(room => room.Name)
             .FirstAsync();
@@ -120,7 +112,7 @@ public class ShowtimesController : ControllerBase
 
     // POST /api/showtimes/bulk
     [HttpPost("bulk")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<IEnumerable<ShowtimeResponseDto>>> BulkCreateShowtimes(ShowtimeBulkCreateDto bulkDto)
     {
         if (bulkDto.Showtimes == null || !bulkDto.Showtimes.Any())
@@ -131,18 +123,18 @@ public class ShowtimesController : ControllerBase
 
         // Pre-fetch all movies for duration checks to avoid N+1 queries
         var movieIds = bulkDto.Showtimes.Select(s => s.MovieId).Distinct().ToList();
-        var movies = await _context.Movies.Where(m => movieIds.Contains(m.Id)).ToDictionaryAsync(m => m.Id);
+        var movies = await context.Movies.Where(m => movieIds.Contains(m.Id)).ToDictionaryAsync(m => m.Id);
 
         // Get the date range for existing showtimes
         var minTime = bulkDto.Showtimes.Min(s => s.StartTime);
         var maxTime = bulkDto.Showtimes.Max(s => s.StartTime.AddMinutes(240)); // rough max duration buffer
         var roomIds = bulkDto.Showtimes.Select(s => s.RoomId).Distinct().ToList();
-        var rooms = await _context.Rooms
+        var rooms = await context.Rooms
             .Where(room => roomIds.Contains(room.Id))
             .ToDictionaryAsync(room => room.Id);
 
         // Fetch existing showtimes in that timeframe
-        var existingShowtimes = await _context.Showtimes
+        var existingShowtimes = await context.Showtimes
             .Include(s => s.Movie)
             .Where(s => roomIds.Contains(s.RoomId) && s.StartTime >= minTime.AddDays(-1) && s.StartTime <= maxTime.AddDays(1))
             .ToListAsync();
@@ -150,7 +142,7 @@ public class ShowtimesController : ControllerBase
         foreach (var dto in bulkDto.Showtimes)
         {
             if (!movies.TryGetValue(dto.MovieId, out var movie))
-                return BadRequest(_localizer["InvalidMovieId"].Value);
+                return BadRequest(localizer["InvalidMovieId"].Value);
 
             var newEndTime = dto.StartTime.AddMinutes(movie.DurationMinutes + 30); // 30 min cleaning
 
@@ -174,12 +166,12 @@ public class ShowtimesController : ControllerBase
 
             if (dto.StartTime < DateTime.Now)
             {
-                return BadRequest(_localizer["ShowtimeInPast"].Value);
+                return BadRequest(localizer["ShowtimeInPast"].Value);
             }
 
             if (dbConflict || inMemoryConflict)
             {
-                return BadRequest(_localizer["RoomSchedulingConflict", dto.RoomId, dto.StartTime].Value);
+                return BadRequest(localizer["RoomSchedulingConflict", dto.RoomId, dto.StartTime].Value);
             }
 
             var showtime = new Showtime
@@ -201,8 +193,8 @@ public class ShowtimesController : ControllerBase
             ));
         }
 
-        await _context.Showtimes.AddRangeAsync(showtimeEntities);
-        await _context.SaveChangesAsync();
+        await context.Showtimes.AddRangeAsync(showtimeEntities);
+        await context.SaveChangesAsync();
 
         for (var index = 0; index < showtimeEntities.Count; index++)
         {
@@ -222,30 +214,30 @@ public class ShowtimesController : ControllerBase
 
     // PUT /api/showtimes/{id}
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<ShowtimeResponseDto>> UpdateShowtime(int id, ShowtimeCreateDto dto)
     {
-        var showtime = await _context.Showtimes.FindAsync(id);
+        var showtime = await context.Showtimes.FindAsync(id);
         if (showtime == null)
         {
             return NotFound("Show not found");
         }
         
-        var movie = await _context.Movies.FindAsync(dto.MovieId);
+        var movie = await context.Movies.FindAsync(dto.MovieId);
         if (movie == null)
-            return BadRequest(_localizer["InvalidMovieId"].Value);
+            return BadRequest(localizer["InvalidMovieId"].Value);
 
-        if (!await _context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
-            return BadRequest(_localizer["InvalidRoomId"].Value);
+        if (!await context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
+            return BadRequest(localizer["InvalidRoomId"].Value);
 
         if (dto.StartTime < DateTime.Now)
-            return BadRequest(_localizer["ShowtimeInPast"].Value);
+            return BadRequest(localizer["ShowtimeInPast"].Value);
 
         // Calculate end time (duration + 30 min cleaning buffer)
         var newEndTime = dto.StartTime.AddMinutes(movie.DurationMinutes + 30);
 
         // Check for double bookings excluding the current showtime
-        var hasConflict = await _context.Showtimes
+        var hasConflict = await context.Showtimes
             .Include(s => s.Movie)
             .AnyAsync(s => s.Id != id && s.RoomId == dto.RoomId &&
                            ((dto.StartTime >= s.StartTime && dto.StartTime < s.StartTime.AddMinutes(s.Movie.DurationMinutes + 30)) ||
@@ -254,16 +246,16 @@ public class ShowtimesController : ControllerBase
 
         if (hasConflict)
         {
-            return BadRequest(_localizer["RoomAlreadyBooked"].Value);
+            return BadRequest(localizer["RoomAlreadyBooked"].Value);
         }
 
         showtime.MovieId = dto.MovieId;
         showtime.RoomId = dto.RoomId;
         showtime.StartTime = dto.StartTime;
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-        var roomName = await _context.Rooms
+        var roomName = await context.Rooms
             .Where(room => room.Id == showtime.RoomId)
             .Select(room => room.Name)
             .FirstAsync();
@@ -280,15 +272,15 @@ public class ShowtimesController : ControllerBase
 
     // DELETE /api/showtimes/{id}
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<IActionResult> DeleteShowtime(int id)
     {
-        var showtime = await _context.Showtimes.FindAsync(id);
+        var showtime = await context.Showtimes.FindAsync(id);
         if (showtime == null)
             return NotFound();
 
-        _context.Showtimes.Remove(showtime);
-        await _context.SaveChangesAsync();
+        context.Showtimes.Remove(showtime);
+        await context.SaveChangesAsync();
 
         return NoContent();
     }

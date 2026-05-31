@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    Shell.FlyoutItemIsVisible="False"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    x:Class="BioscoopMAUI.Views.LoginPage"
+    x:DataType="viewModels:LoginPageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentPage.Content>
+        <Grid Padding="24" RowDefinitions="Auto,*,Auto">
+            <controls:PageHeader
+                Grid.Row="0"
+                Style="{StaticResource PageHeaderStyle}"
+                Subtitle="Sign in or create an account to book tickets and view your reservations."
+                Title="Welcome" />
+
+            <VerticalStackLayout Grid.Row="2" Spacing="16">
+                <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="18"
+                            Text="Sign in failed" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                    </VerticalStackLayout>
+                </controls:GlassPanel>
+
+                <ActivityIndicator
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}" />
+
+                <Button
+                    Command="{Binding LoginCommand}"
+                    IsEnabled="{Binding IsLoginEnabled}"
+                    Text="Log in / Sign up" />
+            </VerticalStackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

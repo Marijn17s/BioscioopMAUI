@@ -6,15 +6,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BioscoopMAUI.ViewModels;
 
-public partial class MovieDetailsPageViewModel : ObservableObject
+public partial class MovieDetailsPageViewModel(IMovieService movieService) : ObservableObject
 {
-    private readonly IMovieService _movieService;
     private static readonly TimeSpan ShowtimeLookAhead = TimeSpan.FromDays(7);
-
-    public MovieDetailsPageViewModel(IMovieService movieService)
-    {
-        _movieService = movieService;
-    }
 
     public ObservableCollection<ShowtimeResponseDto> Showtimes { get; } = [];
 
@@ -73,7 +67,7 @@ public partial class MovieDetailsPageViewModel : ObservableObject
 
         try
         {
-            Movie = await _movieService.GetMovieByIdAsync(movieId);
+            Movie = await movieService.GetMovieByIdAsync(movieId);
             Showtimes.Clear();
 
             var now = DateTime.Now;

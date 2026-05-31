@@ -1,5 +1,6 @@
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,20 +10,13 @@ namespace BioscoopMAUI.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class RoomsController : ControllerBase
+public class RoomsController(BioscoopDbContext context) : ControllerBase
 {
-    private readonly BioscoopDbContext _context;
-
-    public RoomsController(BioscoopDbContext context)
-    {
-        _context = context;
-    }
-
     // GET /api/rooms
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetRooms()
     {
-        var rooms = await _context.Rooms
+        var rooms = await context.Rooms
             .Include(r => r.Rows)
             .OrderBy(r => r.Number)
             .Select(r => new RoomResponseDto(
@@ -46,7 +40,7 @@ public class RoomsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RoomResponseDto>> GetRoom(int id)
     {
-        var room = await _context.Rooms
+        var room = await context.Rooms
             .Include(r => r.Rows)
             .FirstOrDefaultAsync(r => r.Id == id);
 
@@ -71,11 +65,11 @@ public class RoomsController : ControllerBase
 
     // POST /api/rooms
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<RoomResponseDto>> CreateRoom(RoomCreateDto dto)
     {
         // First check if a room with this number already exists
-        if (await _context.Rooms.AnyAsync(r => r.Number == dto.Number))
+        if (await context.Rooms.AnyAsync(r => r.Number == dto.Number))
         {
             return BadRequest($"Room number {dto.Number} already exists.");
         }
@@ -101,8 +95,8 @@ public class RoomsController : ControllerBase
 
         AddSeatsForRoomLayout(room);
 
-        _context.Rooms.Add(room);
-        await _context.SaveChangesAsync();
+        context.Rooms.Add(room);
+        await context.SaveChangesAsync();
 
         var response = new RoomResponseDto(
             room.Id,
@@ -122,10 +116,10 @@ public class RoomsController : ControllerBase
 
     // PUT /api/rooms/{id}
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<IActionResult> UpdateRoom(int id, RoomUpdateDto dto)
     {
-        var room = await _context.Rooms
+        var room = await context.Rooms
             .Include(r => r.Rows)
             .Include(r => r.Seats)
             .FirstOrDefaultAsync(r => r.Id == id);
@@ -134,7 +128,7 @@ public class RoomsController : ControllerBase
             return NotFound();
 
         // Check if updating to a number that is already taken by ANOTHER room
-        if (room.Number != dto.Number && await _context.Rooms.AnyAsync(r => r.Number == dto.Number))
+        if (room.Number != dto.Number && await context.Rooms.AnyAsync(r => r.Number == dto.Number))
         {
             return BadRequest($"Room number {dto.Number} is already taken by another room.");
         }
@@ -142,7 +136,7 @@ public class RoomsController : ControllerBase
         var existingSeatIds = room.Seats.Select(s => s.Id).ToList();
         if (existingSeatIds.Count > 0)
         {
-            var hasReservations = await _context.ShowtimeSeats
+            var hasReservations = await context.ShowtimeSeats
                 .AnyAsync(ss => existingSeatIds.Contains(ss.SeatId) && ss.ReservationId.HasValue);
 
             if (hasReservations)
@@ -150,12 +144,12 @@ public class RoomsController : ControllerBase
                 return BadRequest("Cannot change room layout because there are already reservations for this room.");
             }
 
-            var showtimeSeatsToDelete = await _context.ShowtimeSeats
+            var showtimeSeatsToDelete = await context.ShowtimeSeats
                 .Where(ss => existingSeatIds.Contains(ss.SeatId))
                 .ToListAsync();
 
-            _context.ShowtimeSeats.RemoveRange(showtimeSeatsToDelete);
-            _context.Seats.RemoveRange(room.Seats);
+            context.ShowtimeSeats.RemoveRange(showtimeSeatsToDelete);
+            context.Seats.RemoveRange(room.Seats);
             room.Seats.Clear();
         }
 
@@ -165,7 +159,7 @@ public class RoomsController : ControllerBase
         room.IsWheelchairAccessible = dto.IsWheelchairAccessible;
 
         // Easiest way to update rows: clear existing and insert new ones
-        _context.Rows.RemoveRange(room.Rows);
+        context.Rows.RemoveRange(room.Rows);
         room.Rows.Clear();
 
         foreach (var rowDto in dto.Rows)
@@ -180,22 +174,22 @@ public class RoomsController : ControllerBase
 
         AddSeatsForRoomLayout(room);
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return NoContent();
     }
 
     // DELETE /api/rooms/{id}
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<IActionResult> DeleteRoom(int id)
     {
-        var room = await _context.Rooms.FindAsync(id);
+        var room = await context.Rooms.FindAsync(id);
         if (room == null)
             return NotFound();
 
-        _context.Rooms.Remove(room);
-        await _context.SaveChangesAsync();
+        context.Rooms.Remove(room);
+        await context.SaveChangesAsync();
 
         return NoContent();
     }

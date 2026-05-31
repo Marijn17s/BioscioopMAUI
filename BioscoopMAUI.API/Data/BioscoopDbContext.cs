@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BioscoopMAUI.API.Data;
 
-public class BioscoopDbContext : DbContext
+public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : DbContext(options)
 {
-    public BioscoopDbContext(DbContextOptions<BioscoopDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Room> Rooms { get; set; }
     public DbSet<Row> Rows { get; set; }
@@ -91,6 +86,9 @@ public class BioscoopDbContext : DbContext
 
         modelBuilder.Entity<ShowtimeSeat>()
             .HasIndex(ss => ss.ReservationId);
+
+        modelBuilder.Entity<Reservation>()
+            .HasIndex(r => r.Auth0UserId);
 
         // Reservation belongs to Showtime
         modelBuilder.Entity<Reservation>()

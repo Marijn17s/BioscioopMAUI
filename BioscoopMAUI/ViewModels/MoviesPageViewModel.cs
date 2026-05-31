@@ -75,9 +75,7 @@ public partial class MoviesPageViewModel : ObservableObject
     private async Task OpenMovieDetailsAsync(MovieResponseDto? movie)
     {
         if (movie is null)
-        {
             return;
-        }
         
         await _navigationService.GoToAsync(NavigationRoutes.MovieDetails,
             new Dictionary<string, object>

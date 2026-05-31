@@ -10,7 +10,7 @@
             <controls:PageHeader
                 Grid.Row="0"
                 Style="{StaticResource PageHeaderStyle}"
-                Subtitle="View and manage your bookings."
+                Subtitle="View and manage your reservations."
                 Title="Reservations" />
 
             <ScrollView Grid.Row="1">

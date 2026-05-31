@@ -2,8 +2,10 @@
 <ContentPage
     Shell.NavBarIsVisible="False"
     x:Class="BioscoopMAUI.Views.SettingsPage"
+    x:DataType="viewModels:SettingsPageViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*">
@@ -12,6 +14,31 @@
                 Style="{StaticResource PageHeaderStyle}"
                 Subtitle="App preferences and account options."
                 Title="Settings" />
+
+            <ScrollView Grid.Row="1" Padding="24">
+                <VerticalStackLayout Spacing="20">
+                    <Label
+                        IsVisible="{Binding HasError}"
+                        Style="{StaticResource DescriptionLabelStyle}"
+                        Text="{Binding ErrorMessage}" />
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Account" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding DisplayName}" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Email}" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Role, StringFormat='Role: {0}'}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout IsVisible="{Binding IsEmployee}" Spacing="8">
+                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Employee" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="TODO" />
+                    </VerticalStackLayout>
+
+                    <Button Command="{Binding LogoutCommand}" Text="Log out" />
+                </VerticalStackLayout>
+            </ScrollView>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

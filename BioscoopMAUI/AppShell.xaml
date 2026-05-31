@@ -6,54 +6,59 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:constants="clr-namespace:BioscoopMAUI.Constants"
     xmlns:local="clr-namespace:BioscoopMAUI"
+    xmlns:navigation="clr-namespace:BioscoopMAUI.Navigation"
     xmlns:views="clr-namespace:BioscoopMAUI.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+    <FlyoutItem FlyoutItemIsVisible="False">
+        <ShellContent ContentTemplate="{DataTemplate views:LoginPage}" Route="{x:Static navigation:NavigationRoutes.Login}" />
+    </FlyoutItem>
+
     <FlyoutItem FlyoutDisplayOptions="AsMultipleItems">
-        <Tab Title="Home">
+        <Tab Route="{x:Static navigation:NavigationRoutes.Home}" Title="Home">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="MaterialIconsOutlined"
                     Glyph="{x:Static constants:TabIconGlyphs.Home}"
                     Size="24" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate views:HomePage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:HomePage}" Route="{x:Static navigation:NavigationRoutes.Home}" />
         </Tab>
-        <Tab Title="Movies">
+        <Tab Route="{x:Static navigation:NavigationRoutes.Movies}" Title="Movies">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="MaterialIconsOutlined"
                     Glyph="{x:Static constants:TabIconGlyphs.Movies}"
                     Size="24" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate views:MoviesPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:MoviesPage}" Route="{x:Static navigation:NavigationRoutes.Movies}" />
         </Tab>
-        <Tab Title="Screenings">
+        <Tab Route="{x:Static navigation:NavigationRoutes.Showtimes}" Title="Screenings">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="MaterialIconsOutlined"
                     Glyph="{x:Static constants:TabIconGlyphs.Screenings}"
                     Size="24" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate views:ShowtimesPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:ShowtimesPage}" Route="{x:Static navigation:NavigationRoutes.Showtimes}" />
         </Tab>
-        <Tab Title="Reservations">
+        <Tab Route="{x:Static navigation:NavigationRoutes.Reservations}" Title="Reservations">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="MaterialIconsOutlined"
                     Glyph="{x:Static constants:TabIconGlyphs.Reservations}"
                     Size="24" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate views:ReservationsPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:ReservationsPage}" Route="{x:Static navigation:NavigationRoutes.Reservations}" />
         </Tab>
-        <Tab Title="Settings">
+        <Tab Route="{x:Static navigation:NavigationRoutes.Settings}" Title="Settings">
             <Tab.Icon>
                 <FontImageSource
                     FontFamily="MaterialIconsOutlined"
                     Glyph="{x:Static constants:TabIconGlyphs.Settings}"
                     Size="24" />
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="{x:Static navigation:NavigationRoutes.Settings}" />
         </Tab>
     </FlyoutItem>
 </Shell>

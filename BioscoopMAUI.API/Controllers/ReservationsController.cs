@@ -1,8 +1,11 @@
+using System.Security.Claims;
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Entities;
 using BioscoopMAUI.API.Services;
+using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.DTOs;
 using BioscoopMAUI.Models.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,21 +15,27 @@ namespace BioscoopMAUI.API.Controllers;
 [Route("api/[controller]")]
 public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCodeHelper) : ControllerBase
 {
-    // GET /api/reservations
+    private string? GetAuth0UserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    private bool IsEmployee() => User.IsInRole(AuthConstants.EmployeeRole);
+
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<ReservationResponseDto>>> Get()
     {
-        var reservations = await context.Reservations
+        var query = context.Reservations
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Room)
             .Include(r => r.ShowtimeSeats)
                 .ThenInclude(ss => ss.Seat)
-            .ToListAsync();
+            .AsQueryable();
 
-        var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        if (!IsEmployee())
+            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
 
+        var reservations = await query.ToListAsync();
         var response = reservations.Select(r =>
         {
             var seats = r.ShowtimeSeats
@@ -55,18 +64,23 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         return Ok(response);
     }
 
-    // GET /api/reservations/{id}
     [HttpGet("{id:int}")]
+    [Authorize]
     public async Task<ActionResult<ReservationResponseDto>> Get(int id)
     {
-        var reservation = await context.Reservations
+        var query = context.Reservations
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Room)
             .Include(r => r.ShowtimeSeats)
                 .ThenInclude(ss => ss.Seat)
-            .FirstOrDefaultAsync(r => r.Id == id);
+            .AsQueryable();
+
+        if (!IsEmployee())
+            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
+
+        var reservation = await query.FirstOrDefaultAsync(r => r.Id == id);
 
         if (reservation is null)
             return NotFound();
@@ -96,13 +110,13 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         return Ok(response);
     }
 
-    // POST /api/reservations/validate-qr
     [HttpPost("validate-qr")]
+    [Authorize]
     public async Task<ActionResult<QrCodeValidationResponseDto>> ValidateQrCode([FromBody] QrCodeValidationRequestDto request)
     {
         if (string.IsNullOrWhiteSpace(request.QrCode))
             return BadRequest(new QrCodeValidationResponseDto(false, null, "QR code is required"));
-        
+
         var qrCodeData = qrCodeHelper.ParseQrCode(request.QrCode);
 
         if (qrCodeData is null)
@@ -111,9 +125,22 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         if (!qrCodeHelper.VerifyChecksum(request.QrCode))
             return Ok(new QrCodeValidationResponseDto(false, null, "Invalid QR code checksum"));
 
-        var reservation = await context.Reservations
+        if (qrCodeData.ReservationId is null)
+            return Ok(new QrCodeValidationResponseDto(false, null, "Reservation not found"));
+
+        var query = context.Reservations
             .Include(r => r.Showtime)
-            .FirstOrDefaultAsync(r => qrCodeData.ReservationId != null && r.Id == qrCodeData.ReservationId.Value);
+                .ThenInclude(s => s.Movie)
+            .Include(r => r.Showtime)
+                .ThenInclude(s => s.Room)
+            .Include(r => r.ShowtimeSeats)
+                .ThenInclude(ss => ss.Seat)
+            .AsQueryable();
+
+        if (!IsEmployee())
+            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
+
+        var reservation = await query.FirstOrDefaultAsync(r => r.Id == qrCodeData.ReservationId.Value);
 
         if (reservation is null)
             return Ok(new QrCodeValidationResponseDto(false, null, "Reservation not found"));
@@ -123,13 +150,17 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
 
         return Ok(new QrCodeValidationResponseDto(true, reservation.Id, null));
     }
-    
-    // POST /api/reservations/{showtimeId:int}/reserve
+
     [HttpPost("{showtimeId:int}/reserve")]
+    [Authorize]
     public async Task<ActionResult<ReservationConfirmResponseDto>> ConfirmReservation(
         int showtimeId,
         [FromBody] ReservationConfirmRequestDto request)
     {
+        var auth0UserId = GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
         switch (request.SeatIds.Count)
         {
             case 0:
@@ -163,6 +194,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         var reservation = new Reservation
         {
             ShowtimeId = showtimeId,
+            Auth0UserId = auth0UserId,
             TotalPrice = request.TotalPrice
         };
 
@@ -182,15 +214,13 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
 
         context.Reservations.Add(reservation);
         await context.SaveChangesAsync();
-        
+
         var existingShowtimeSeats = await context.ShowtimeSeats
             .Where(ss => ss.ShowtimeId == showtimeId && request.SeatIds.Contains(ss.SeatId))
             .ToListAsync();
 
         foreach (var showtimeSeat in existingShowtimeSeats)
-        {
             showtimeSeat.ReservationId = reservation.Id;
-        }
 
         await context.SaveChangesAsync();
 

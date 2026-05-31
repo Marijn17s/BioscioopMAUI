@@ -1,10 +1,11 @@
-using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Services;
+using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.Helpers;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,9 @@ builder.Services.AddCors(options =>
         });
 });
 
-// Configure JWT Authentication
+var auth0Domain = builder.Configuration["Auth0:Domain"] ?? throw new InvalidOperationException("Auth0:Domain not configured.");
+var auth0Audience = builder.Configuration["Auth0:Audience"] ?? throw new InvalidOperationException("Auth0:Audience not configured.");
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,14 +37,16 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    var keyString = builder.Configuration["JwtConfig:Secret"] ?? "SuperSecretKeyForBioscoopCasusApiWhichNeedsToBeAtLeast32BytesLong!";
+    options.Authority = $"https://{auth0Domain}/";
+    options.Audience = auth0Audience;
+    options.MapInboundClaims = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(keyString))
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = AuthConstants.RolesClaimType
     };
 });
 
@@ -53,10 +58,11 @@ builder.Services.AddDbContext<BioscoopDbContext>(options =>
 });
 
 builder.Services.AddScoped<QrCodeHelper>();
-builder.Services.AddScoped<OccupancyAnalyticsService>();
-builder.Services.AddScoped<RevenueAnalyticsService>();
 
 var app = builder.Build();
+
+if (string.IsNullOrWhiteSpace(app.Configuration["Auth0:Domain"]) || string.IsNullOrWhiteSpace(app.Configuration["Auth0:Audience"]))
+    throw new InvalidOperationException("Auth0:Domain and Auth0:Audience not configured.");
 
 var supportedCultures = new[] { "en", "nl" };
 var localizationOptions = new RequestLocalizationOptions()

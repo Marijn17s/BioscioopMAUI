@@ -1,5 +1,6 @@
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,22 +10,15 @@ namespace BioscoopMAUI.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MoviesController : ControllerBase
+public class MoviesController(BioscoopDbContext context) : ControllerBase
 {
-    private readonly BioscoopDbContext _context;
-
-    public MoviesController(BioscoopDbContext context)
-    {
-        _context = context;
-    }
-
     // GET /api/movies
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MovieResponseDto>>> GetMovies()
     {
         var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         
-        var movies = await _context.Movies
+        var movies = await context.Movies
             .OrderByDescending(m => m.ReleaseDate)
             .ToListAsync();
 
@@ -54,7 +48,7 @@ public class MoviesController : ControllerBase
     {
         var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
-        var movie = await _context.Movies
+        var movie = await context.Movies
             .Include(m => m.Showtimes)
                 .ThenInclude(s => s.Room)
             .FirstOrDefaultAsync(m => m.Id == id);
@@ -90,7 +84,7 @@ public class MoviesController : ControllerBase
 
     // POST /api/movies
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<MovieResponseDto>> CreateMovie(MovieCreateDto dto)
     {
         var movie = new Movie
@@ -104,8 +98,8 @@ public class MoviesController : ControllerBase
             ReleaseDate = dto.ReleaseDate
         };
 
-        _context.Movies.Add(movie);
-        await _context.SaveChangesAsync();
+        context.Movies.Add(movie);
+        await context.SaveChangesAsync();
 
         var response = new MovieResponseDto(
             movie.Id,
@@ -126,10 +120,10 @@ public class MoviesController : ControllerBase
 
     // PUT /api/movies/{id}
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<IActionResult> UpdateMovie(int id, MovieUpdateDto dto)
     {
-        var movie = await _context.Movies
+        var movie = await context.Movies
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)
@@ -145,22 +139,22 @@ public class MoviesController : ControllerBase
         movie.DurationMinutes = dto.DurationMinutes;
         movie.ReleaseDate = dto.ReleaseDate;
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return NoContent();
     }
 
     // DELETE /api/movies/{id}
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<IActionResult> DeleteMovie(int id)
     {
-        var movie = await _context.Movies.FindAsync(id);
+        var movie = await context.Movies.FindAsync(id);
         if (movie == null)
             return NotFound();
 
-        _context.Movies.Remove(movie);
-        await _context.SaveChangesAsync();
+        context.Movies.Remove(movie);
+        await context.SaveChangesAsync();
 
         return NoContent();
     }
