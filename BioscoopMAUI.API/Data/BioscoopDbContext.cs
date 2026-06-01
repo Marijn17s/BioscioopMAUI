@@ -14,6 +14,7 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
     public DbSet<ShowtimeSeat> ShowtimeSeats { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<PopcornOrder> PopcornOrders { get; set; }
+    public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -103,5 +104,18 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
             .WithMany(r => r.PopcornOrders)
             .HasForeignKey(p => p.ReservationId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FavoriteMovie>()
+            .HasOne(f => f.Movie)
+            .WithMany()
+            .HasForeignKey(f => f.MovieId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FavoriteMovie>()
+            .HasIndex(f => new { f.Auth0UserId, f.MovieId })
+            .IsUnique();
+
+        modelBuilder.Entity<FavoriteMovie>()
+            .HasIndex(f => f.Auth0UserId);
     }
 }

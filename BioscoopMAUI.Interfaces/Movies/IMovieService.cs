@@ -6,4 +6,6 @@ public interface IMovieService
 {
     Task<IEnumerable<MovieResponseDto>> GetAllMoviesAsync();
     Task<MovieResponseDto?> GetMovieByIdAsync(int id);
+    Task<IEnumerable<MovieResponseDto>> GetFavoriteMoviesAsync();
+    Task<bool> SetFavoriteStatusAsync(int movieId, bool isFavorite);
 }

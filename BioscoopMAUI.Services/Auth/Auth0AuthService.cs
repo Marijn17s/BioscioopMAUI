@@ -101,8 +101,7 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
         else
             SecureStorage.Default.Remove(RefreshTokenKey);
 
-        var userId = user?.FindFirst("sub")?.Value
-            ?? user?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+        var userId = user?.FindFirst(AuthConstants.Auth0UserIdClaimType)?.Value
             ?? string.Empty;
         var email = user?.FindFirst(ClaimTypes.Email)?.Value
             ?? user?.FindFirst("email")?.Value

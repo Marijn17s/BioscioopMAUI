@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
-        NameClaimType = ClaimTypes.NameIdentifier,
+        NameClaimType = AuthConstants.Auth0UserIdClaimType,
         RoleClaimType = AuthConstants.RolesClaimType
     };
 });

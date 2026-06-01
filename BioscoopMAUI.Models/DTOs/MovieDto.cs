@@ -11,7 +11,8 @@ public record MovieResponseDto(
     int AgeRating,
     int DurationMinutes,
     DateTime ReleaseDate,
-    List<ShowtimeResponseDto>? Showtimes = null
+    List<ShowtimeResponseDto>? Showtimes = null,
+    bool IsFavorite = false
 );
 
 public record MovieCreateDto(
@@ -37,3 +38,7 @@ public record MovieUpdateDto(
     int DurationMinutes,
     DateTime ReleaseDate
 );
+
+public record FavoriteMovieStatusDto(bool IsFavorite);
+
+public record SetFavoriteMovieRequestDto(bool IsFavorite);

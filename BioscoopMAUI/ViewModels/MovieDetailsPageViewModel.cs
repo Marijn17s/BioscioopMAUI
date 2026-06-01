@@ -9,6 +9,9 @@ namespace BioscoopMAUI.ViewModels;
 public partial class MovieDetailsPageViewModel(IMovieService movieService) : ObservableObject
 {
     private static readonly TimeSpan ShowtimeLookAhead = TimeSpan.FromDays(7);
+    private static readonly TimeSpan FavoriteErrorDisplayDuration = TimeSpan.FromSeconds(5);
+    
+    private CancellationTokenSource? _favoriteErrorDismissCancellation;
 
     public ObservableCollection<ShowtimeResponseDto> Showtimes { get; } = [];
 
@@ -22,9 +25,17 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
 
     public bool HasNoShowtimes => !HasShowtimes;
 
-    public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+    public bool HasLoadError => !string.IsNullOrWhiteSpace(LoadErrorMessage);
+
+    public bool HasFavoriteError => !string.IsNullOrWhiteSpace(FavoriteErrorMessage);
 
     public bool HasTrailer => !string.IsNullOrWhiteSpace(Movie?.TrailerUrl);
+
+    public bool CanToggleFavorite => !IsBusy && !IsTogglingFavorite;
+
+    public string FavoriteIcon => IsFavorite
+        ? Constants.TabIconGlyphs.Favorite
+        : Constants.TabIconGlyphs.FavoriteBorder;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasMovie))]
@@ -39,7 +50,18 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
         if (!string.IsNullOrWhiteSpace(value?.Genres))
             foreach (var genre in value.Genres.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                 Genres.Add(genre);
+
+        IsFavorite = value?.IsFavorite ?? false;
     }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FavoriteIcon))]
+    [NotifyPropertyChangedFor(nameof(CanToggleFavorite))]
+    private bool _isFavorite;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanToggleFavorite))]
+    private bool _isTogglingFavorite;
 
     [RelayCommand(CanExecute = nameof(HasTrailer))]
     private async Task OpenTrailerAsync()
@@ -50,12 +72,51 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
         await Launcher.Default.OpenAsync(new Uri(Movie.TrailerUrl));
     }
 
+    [RelayCommand(CanExecute = nameof(CanToggleFavorite))]
+    private async Task ToggleFavoriteAsync()
+    {
+        if (!CanToggleFavorite || Movie is null)
+            return;
+
+        IsTogglingFavorite = true;
+        FavoriteErrorMessage = string.Empty;
+
+        try
+        {
+            IsFavorite = await movieService.SetFavoriteStatusAsync(Movie.Id, !IsFavorite);
+        }
+        catch (Exception)
+        {
+            FavoriteErrorMessage = "We could not update your favourite. Please try again.";
+        }
+        finally
+        {
+            IsTogglingFavorite = false;
+        }
+    }
+
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanToggleFavorite))]
     private bool _isBusy;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasError))]
-    private string _errorMessage = string.Empty;
+    [NotifyPropertyChangedFor(nameof(HasLoadError))]
+    private string _loadErrorMessage = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasFavoriteError))]
+    private string _favoriteErrorMessage = string.Empty;
+
+    partial void OnFavoriteErrorMessageChanged(string value)
+    {
+        CancelFavoriteErrorDismiss();
+
+        if (string.IsNullOrWhiteSpace(value))
+            return;
+
+        _favoriteErrorDismissCancellation = new CancellationTokenSource();
+        _ = DismissFavoriteErrorAfterDelayAsync(_favoriteErrorDismissCancellation.Token);
+    }
 
     public async Task InitializeAsync(int movieId)
     {
@@ -63,7 +124,8 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
             return;
 
         IsBusy = true;
-        ErrorMessage = string.Empty;
+        LoadErrorMessage = string.Empty;
+        FavoriteErrorMessage = string.Empty;
 
         try
         {
@@ -86,11 +148,30 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
         }
         catch (Exception)
         {
-            ErrorMessage = "We kunnen deze film nu niet laden. Probeer het later opnieuw.";
+            LoadErrorMessage = "We kunnen deze film nu niet laden. Probeer het later opnieuw.";
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    private async Task DismissFavoriteErrorAfterDelayAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Delay(FavoriteErrorDisplayDuration, cancellationToken);
+            await MainThread.InvokeOnMainThreadAsync(() => FavoriteErrorMessage = string.Empty);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void CancelFavoriteErrorDismiss()
+    {
+        _favoriteErrorDismissCancellation?.Cancel();
+        _favoriteErrorDismissCancellation?.Dispose();
+        _favoriteErrorDismissCancellation = null;
     }
 }

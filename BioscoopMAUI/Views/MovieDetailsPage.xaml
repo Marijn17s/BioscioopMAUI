@@ -49,6 +49,59 @@
                             </VerticalStackLayout>
 
                             <Image Aspect="AspectFill" Source="{Binding Movie.PosterUrl}" />
+
+                            <Border
+                                BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                HorizontalOptions="End"
+                                IsVisible="{Binding HasMovie}"
+                                Margin="16"
+                                Padding="10"
+                                StrokeThickness="0"
+                                VerticalOptions="Start">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20" />
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleFavoriteCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label
+                                    FontFamily="MaterialIconsOutlined"
+                                    FontSize="24"
+                                    Text="{Binding FavoriteIcon}"
+                                    TextColor="{StaticResource PrimaryDark}"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <controls:GlassPanel
+                                HorizontalOptions="Fill"
+                                IsVisible="{Binding HasFavoriteError}"
+                                Margin="12"
+                                Stroke="{StaticResource SecondaryDarkText}"
+                                Style="{StaticResource GlassPanelStyle}"
+                                VerticalOptions="End">
+                                <VerticalStackLayout Spacing="6">
+                                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                                        <Label
+                                            FontFamily="MaterialIconsOutlined"
+                                            FontSize="18"
+                                            Text="{x:Static constants:TabIconGlyphs.Error}"
+                                            TextColor="{StaticResource PrimaryDark}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="14"
+                                            Text="Couldn't save favourite"
+                                            TextColor="{StaticResource SecondaryDarkText}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Label
+                                        HorizontalTextAlignment="Center"
+                                        LineBreakMode="WordWrap"
+                                        Text="{Binding FavoriteErrorMessage}"
+                                        TextColor="{StaticResource SecondaryDarkText}" />
+                                </VerticalStackLayout>
+                            </controls:GlassPanel>
                         </Grid>
                     </Border>
 
@@ -216,7 +269,7 @@
 
             <controls:GlassPanel
                 HorizontalOptions="Fill"
-                IsVisible="{Binding HasError}"
+                IsVisible="{Binding HasLoadError}"
                 Margin="20"
                 Style="{StaticResource GlassPanelStyle}"
                 VerticalOptions="Center">
@@ -226,7 +279,7 @@
                         FontFamily="OpenSansSemibold"
                         FontSize="18"
                         Text="Movie unavailable" />
-                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
                 </VerticalStackLayout>
             </controls:GlassPanel>
         </Grid>

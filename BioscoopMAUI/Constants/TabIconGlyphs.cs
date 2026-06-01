@@ -8,4 +8,7 @@ public struct TabIconGlyphs
     public const string Screenings = "\ue878";
     public const string Reservations = "\ue638";
     public const string Settings = "\ue8b8";
+    public const string Favorite = "\ue87d";
+    public const string FavoriteBorder = "\ue87e";
+    public const string Error = "\ue000";
 }

@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using BioscoopMAUI.API.Data;
+using BioscoopMAUI.API.Extensions;
 using BioscoopMAUI.API.Entities;
 using BioscoopMAUI.API.Services;
 using BioscoopMAUI.Models.Auth;
@@ -15,8 +15,6 @@ namespace BioscoopMAUI.API.Controllers;
 [Route("api/[controller]")]
 public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCodeHelper) : ControllerBase
 {
-    private string? GetAuth0UserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
-
     private bool IsEmployee() => User.IsInRole(AuthConstants.EmployeeRole);
 
     [HttpGet]
@@ -33,7 +31,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
 
         var reservations = await query.ToListAsync();
         var response = reservations.Select(r =>
@@ -78,7 +76,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
 
         var reservation = await query.FirstOrDefaultAsync(r => r.Id == id);
 
@@ -138,7 +136,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
 
         var reservation = await query.FirstOrDefaultAsync(r => r.Id == qrCodeData.ReservationId.Value);
 
@@ -157,7 +155,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         int showtimeId,
         [FromBody] ReservationConfirmRequestDto request)
     {
-        var auth0UserId = GetAuth0UserId();
+        var auth0UserId = User.GetAuth0UserId();
         if (string.IsNullOrWhiteSpace(auth0UserId))
             return Unauthorized();
 

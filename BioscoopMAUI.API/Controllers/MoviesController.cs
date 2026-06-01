@@ -1,5 +1,6 @@
 using BioscoopMAUI.API.Data;
 using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.API.Extensions;
 using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -12,48 +13,70 @@ namespace BioscoopMAUI.API.Controllers;
 [Route("api/[controller]")]
 public class MoviesController(BioscoopDbContext context) : ControllerBase
 {
-    // GET /api/movies
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MovieResponseDto>>> GetMovies()
     {
-        var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-        
         var movies = await context.Movies
             .OrderByDescending(m => m.ReleaseDate)
             .ToListAsync();
 
-        var result = movies.Select(m => 
-        {
-            return new MovieResponseDto(
-                m.Id,
-                m.Title,
-                m.Description,
-                m.PosterUrl,
-                m.Actors,
-                m.TrailerUrl,
-                m.Genres,
-                m.AgeRating,
-                m.DurationMinutes,
-                m.ReleaseDate,
-                null
-            );
-        }).ToList();
+        var result = movies.Select(m => new MovieResponseDto(
+            m.Id,
+            m.Title,
+            m.Description,
+            m.PosterUrl,
+            m.Actors,
+            m.TrailerUrl,
+            m.Genres,
+            m.AgeRating,
+            m.DurationMinutes,
+            m.ReleaseDate
+        )).ToList();
 
         return Ok(result);
     }
 
-    // GET /api/movies/{id}
-    [HttpGet("{id}")]
+    [HttpGet("favorites")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<MovieResponseDto>>> GetFavoriteMovies()
+    {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
+        var movies = await context.FavoriteMovies
+            .Where(favorite => favorite.Auth0UserId == auth0UserId)
+            .Select(favorite => favorite.Movie)
+            .OrderByDescending(movie => movie.ReleaseDate)
+            .ToListAsync();
+
+        var result = movies.Select(m => new MovieResponseDto(
+            m.Id,
+            m.Title,
+            m.Description,
+            m.PosterUrl,
+            m.Actors,
+            m.TrailerUrl,
+            m.Genres,
+            m.AgeRating,
+            m.DurationMinutes,
+            m.ReleaseDate,
+            null,
+            true
+        )).ToList();
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieResponseDto>> GetMovie(int id)
     {
-        var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-
         var movie = await context.Movies
             .Include(m => m.Showtimes)
                 .ThenInclude(s => s.Room)
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (movie == null)
+        if (movie is null)
             return NotFound();
 
         var showtimeDtos = movie.Showtimes.Select(s => new ShowtimeResponseDto(
@@ -64,6 +87,14 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
             s.StartTime,
             0 // Ticket price is out of scope for now
         )).OrderBy(s => s.StartTime).ToList();
+
+        var isFavorite = false;
+        var auth0UserId = User.GetAuth0UserId();
+        if (!string.IsNullOrWhiteSpace(auth0UserId))
+        {
+            isFavorite = await context.FavoriteMovies
+                .AnyAsync(favorite => favorite.Auth0UserId == auth0UserId && favorite.MovieId == id);
+        }
 
         var response = new MovieResponseDto(
             movie.Id,
@@ -76,13 +107,51 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
             movie.AgeRating,
             movie.DurationMinutes,
             movie.ReleaseDate,
-            showtimeDtos
+            showtimeDtos,
+            isFavorite
         );
 
         return Ok(response);
     }
 
-    // POST /api/movies
+    [HttpPut("{id:int}/favorite")]
+    [Authorize]
+    public async Task<ActionResult<FavoriteMovieStatusDto>> SetFavoriteStatus(int id, [FromBody] SetFavoriteMovieRequestDto request)
+    {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
+        var movieExists = await context.Movies.AnyAsync(movie => movie.Id == id);
+        if (!movieExists)
+            return NotFound();
+
+        var existingFavorite = await context.FavoriteMovies
+            .FirstOrDefaultAsync(favorite => favorite.Auth0UserId == auth0UserId && favorite.MovieId == id);
+
+        if (request.IsFavorite)
+        {
+            if (existingFavorite is not null) return Ok(new FavoriteMovieStatusDto(true));
+            
+            context.FavoriteMovies.Add(new FavoriteMovie
+            {
+                Auth0UserId = auth0UserId,
+                MovieId = id,
+                CreatedAt = DateTime.UtcNow
+            });
+            await context.SaveChangesAsync();
+
+            return Ok(new FavoriteMovieStatusDto(true));
+        }
+
+        if (existingFavorite is null) return Ok(new FavoriteMovieStatusDto(false));
+        
+        context.FavoriteMovies.Remove(existingFavorite);
+        await context.SaveChangesAsync();
+
+        return Ok(new FavoriteMovieStatusDto(false));
+    }
+
     [HttpPost]
     [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<MovieResponseDto>> CreateMovie(MovieCreateDto dto)
@@ -126,7 +195,7 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
         var movie = await context.Movies
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (movie == null)
+        if (movie is null)
             return NotFound();
 
         movie.Title = dto.Title;
@@ -150,7 +219,7 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
     public async Task<IActionResult> DeleteMovie(int id)
     {
         var movie = await context.Movies.FindAsync(id);
-        if (movie == null)
+        if (movie is null)
             return NotFound();
 
         context.Movies.Remove(movie);
