@@ -14,8 +14,6 @@ public class MoviesOverviewController(BioscoopDbContext context) : ControllerBas
     {
         var filterDate = date?.Date ?? DateTime.Today;
 
-        var culture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-
         var movies = await context.Movies
             .Include(m => m.Showtimes)
             .Where(m => m.Showtimes.Any(s => s.StartTime.Date == filterDate))

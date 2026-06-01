@@ -62,7 +62,6 @@ public partial class MoviesPageViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            var test = ex.Message;
             ErrorMessage = "We kunnen de films nu niet laden. Controleer je verbinding en probeer opnieuw.";
         }
         finally
