@@ -1,12 +1,14 @@
 using System.Collections.ObjectModel;
 using BioscoopMAUI.Interfaces.Movies;
+using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Models.DTOs;
+using BioscoopMAUI.Navigation;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace BioscoopMAUI.ViewModels;
 
-public partial class MovieDetailsPageViewModel(IMovieService movieService) : ObservableObject
+public partial class MovieDetailsPageViewModel(IMovieService movieService, INavigationService navigationService) : ObservableObject
 {
     private static readonly TimeSpan ShowtimeLookAhead = TimeSpan.FromDays(7);
     private static readonly TimeSpan FavoriteErrorDisplayDuration = TimeSpan.FromSeconds(5);
@@ -70,6 +72,20 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService) : Obs
             return;
 
         await Launcher.Default.OpenAsync(new Uri(Movie.TrailerUrl));
+    }
+
+    [RelayCommand]
+    private async Task OpenShowtimeDetailsAsync(ShowtimeResponseDto? showtime)
+    {
+        if (showtime is null || Movie is null)
+            return;
+
+        await navigationService.GoToAsync(NavigationRoutes.ShowtimeDetails,
+            new Dictionary<string, object>
+            {
+                [NavigationRoutes.ShowtimeIdParameter] = showtime.Id,
+                [NavigationRoutes.MovieIdParameter] = Movie.Id
+            });
     }
 
     [RelayCommand(CanExecute = nameof(CanToggleFavorite))]

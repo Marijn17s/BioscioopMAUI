@@ -4,6 +4,7 @@
     Title="{Binding Movie.Title}"
     x:Class="BioscoopMAUI.Views.MovieDetailsPage"
     x:DataType="viewModels:MovieDetailsPageViewModel"
+    x:Name="MovieDetailsPageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:constants="clr-namespace:BioscoopMAUI.Constants"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
@@ -214,6 +215,9 @@
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="models:ShowtimeResponseDto">
                                         <Border Style="{StaticResource ShowtimeCardStyle}">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenShowtimeDetailsCommand, Source={x:Reference MovieDetailsPageRoot}}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
                                             <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="14">
                                                 <BoxView
                                                     BackgroundColor="{StaticResource Primary}"

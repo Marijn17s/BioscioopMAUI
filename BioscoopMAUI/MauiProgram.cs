@@ -3,10 +3,12 @@ using Auth0.OidcClient;
 using BioscoopMAUI.Interfaces.Auth;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
+using BioscoopMAUI.Interfaces.Showtimes;
 using BioscoopMAUI.Models.Configuration;
 using BioscoopMAUI.Services.Auth;
 using BioscoopMAUI.Services.Movies;
 using BioscoopMAUI.Services.Navigation;
+using BioscoopMAUI.Services.Showtimes;
 using BioscoopMAUI.ViewModels;
 using BioscoopMAUI.Views;
 using Microsoft.Extensions.Configuration;
@@ -85,12 +87,15 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
         builder.Services.AddSingleton<IMovieService, MovieService>();
+        builder.Services.AddSingleton<IShowtimeService, ShowtimeService>();
 
         builder.Services.AddSingleton<AppShell>();
 
         builder.Services.AddTransient<MainPageViewModel>();
         builder.Services.AddTransient<MoviesPageViewModel>();
         builder.Services.AddTransient<MovieDetailsPageViewModel>();
+        builder.Services.AddTransient<ShowtimesPageViewModel>();
+        builder.Services.AddTransient<ShowtimeDetailsPageViewModel>();
         builder.Services.AddTransient<LoginPageViewModel>();
         builder.Services.AddTransient<SettingsPageViewModel>();
 
@@ -98,6 +103,8 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<MoviesPage>();
         builder.Services.AddTransient<MovieDetailsPage>();
+        builder.Services.AddTransient<ShowtimesPage>();
+        builder.Services.AddTransient<ShowtimeDetailsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

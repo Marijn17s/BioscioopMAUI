@@ -11,4 +11,5 @@ public struct TabIconGlyphs
     public const string Favorite = "\ue87d";
     public const string FavoriteBorder = "\ue87e";
     public const string Error = "\ue000";
+    public const string Search = "\ue8b6";
 }

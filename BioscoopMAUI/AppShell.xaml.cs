@@ -23,6 +23,7 @@ public partial class AppShell : Shell
     private static void RegisterRoutes()
     {
         Routing.RegisterRoute(NavigationRoutes.MovieDetails, typeof(MovieDetailsPage));
+        Routing.RegisterRoute(NavigationRoutes.ShowtimeDetails, typeof(ShowtimeDetailsPage));
         // TODO: other deatails pages
     }
 

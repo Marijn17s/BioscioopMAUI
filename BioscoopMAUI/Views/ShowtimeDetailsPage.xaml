@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    Shell.NavBarIsVisible="True"
+    Title="Screening Details"
+    x:Class="BioscoopMAUI.Views.ShowtimeDetailsPage"
+    x:DataType="viewModels:ShowtimeDetailsPageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentPage.Content>
+        <Grid>
+            <ScrollView IsVisible="{Binding HasMovie}">
+                <VerticalStackLayout Padding="20" Spacing="18">
+                    <Border HeightRequest="320" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="28" />
+                        </Border.StrokeShape>
+                        <Grid>
+                            <Grid.Background>
+                                <LinearGradientBrush EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
+                                    <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                                </LinearGradientBrush>
+                            </Grid.Background>
+
+                            <VerticalStackLayout
+                                Padding="28"
+                                Spacing="12"
+                                VerticalOptions="Center">
+                                <BoxView
+                                    BackgroundColor="{StaticResource Primary}"
+                                    CornerRadius="4"
+                                    HeightRequest="5"
+                                    HorizontalOptions="Center"
+                                    WidthRequest="42" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="22"
+                                    HorizontalTextAlignment="Center"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding Movie.Title}"
+                                    TextColor="{StaticResource TextMuted}" />
+                            </VerticalStackLayout>
+
+                            <Image Aspect="AspectFill" Source="{Binding Movie.PosterUrl}" />
+                        </Grid>
+                    </Border>
+
+                    <VerticalStackLayout IsVisible="{Binding HasGenres}" Spacing="10">
+                        <Label
+                            FontSize="12"
+                            Text="Genres"
+                            TextColor="{StaticResource TextMuted}"
+                            TextTransform="Uppercase" />
+                        <FlexLayout
+                            AlignItems="Start"
+                            BindableLayout.ItemsSource="{Binding Genres}"
+                            Direction="Row"
+                            JustifyContent="Start"
+                            Wrap="Wrap">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="{x:Type x:String}">
+                                    <Border Style="{StaticResource GenrePillBorderStyle}">
+                                        <Label Style="{StaticResource GenrePillLabelStyle}" Text="{Binding .}" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+
+                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                        <VerticalStackLayout Spacing="14">
+                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Movie" />
+                            <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding Movie.Title}" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Border
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    Padding="10,5"
+                                    StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16" />
+                                    </Border.StrokeShape>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="12"
+                                        Text="{Binding Movie.AgeRating, StringFormat='{0}+'}"
+                                        TextColor="{StaticResource PrimaryDark}" />
+                                </Border>
+                                <Label
+                                    Style="{StaticResource MutedLabelStyle}"
+                                    Text="{Binding Movie.DurationMinutes, StringFormat='{0} min'}"
+                                    VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </controls:GlassPanel>
+
+                    <controls:GlassPanel IsVisible="{Binding HasShowtime}" Style="{StaticResource GlassPanelStyle}">
+                        <VerticalStackLayout Spacing="14">
+                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Screening" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="18"
+                                Text="{Binding Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy}'}" />
+                            <HorizontalStackLayout Spacing="10">
+                                <Border
+                                    BackgroundColor="{StaticResource Secondary}"
+                                    Padding="12,7"
+                                    StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16" />
+                                    </Border.StrokeShape>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="15"
+                                        Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
+                                        TextColor="{StaticResource PrimaryDark}" />
+                                </Border>
+                                <Label
+                                    Style="{StaticResource MutedLabelStyle}"
+                                    Text="{Binding Showtime.RoomName}"
+                                    VerticalTextAlignment="Center" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </controls:GlassPanel>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Button
+                            IsEnabled="{Binding CanBookTickets}"
+                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            Text="Book Tickets" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center" />
+
+            <controls:GlassPanel
+                HorizontalOptions="Fill"
+                IsVisible="{Binding HasLoadError}"
+                Margin="20"
+                Style="{StaticResource GlassPanelStyle}"
+                VerticalOptions="Center">
+                <VerticalStackLayout Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="18"
+                        Text="Screening unavailable" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
+                </VerticalStackLayout>
+            </controls:GlassPanel>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

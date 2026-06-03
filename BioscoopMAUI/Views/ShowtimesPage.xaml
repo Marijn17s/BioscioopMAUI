@@ -2,16 +2,449 @@
 <ContentPage
     Shell.NavBarIsVisible="False"
     x:Class="BioscoopMAUI.Views.ShowtimesPage"
+    x:DataType="viewModels:ShowtimesPageViewModel"
+    x:Name="ShowtimesPageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:constants="clr-namespace:BioscoopMAUI.Constants"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:models="clr-namespace:BioscoopMAUI.Models.DTOs;assembly=BioscoopMAUI.Models"
+    xmlns:ui="clr-namespace:BioscoopMAUI.ViewModels.UI"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*">
             <controls:PageHeader
                 Grid.Row="0"
                 Style="{StaticResource PageHeaderStyle}"
-                Subtitle="Find a screening by date and room."
+                Subtitle="Find a screening by date and movie."
                 Title="Screenings" />
+
+            <Grid Grid.Row="1">
+                <RefreshView
+                    Command="{Binding LoadScreeningsCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding ShowScreeningsList}">
+                    <Grid RowDefinitions="Auto,*">
+                        <controls:GlassPanel
+                            Grid.Row="0"
+                            Margin="20,14,20,10"
+                            Padding="12"
+                            Style="{StaticResource GlassPanelStyle}">
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="1">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="15"
+                                            Text="Filter screenings" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="Date, time, or movie"
+                                            TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+                                    <Border
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        Grid.Column="1"
+                                        Padding="10,5"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="14" />
+                                        </Border.StrokeShape>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="11"
+                                            Text="{Binding Screenings.Count, StringFormat='{0} shown'}"
+                                            TextColor="{StaticResource PrimaryDark}" />
+                                    </Border>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                    <Border
+                                        BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                        Padding="10,8"
+                                        Stroke="{StaticResource AppStroke}"
+                                        StrokeThickness="1">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18" />
+                                        </Border.StrokeShape>
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsDateFilterExpanded}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                                <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleDateFilterCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label
+                                                FontSize="11"
+                                                Text="Date"
+                                                TextColor="{StaticResource TextMuted}" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="13"
+                                                LineBreakMode="TailTruncation"
+                                                Text="{Binding SelectedDateLabel}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+
+                                    <Border
+                                        BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                        Grid.Column="1"
+                                        Padding="10,8"
+                                        Stroke="{StaticResource AppStroke}"
+                                        StrokeThickness="1">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18" />
+                                        </Border.StrokeShape>
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsTimeFilterExpanded}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                                <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleTimeFilterCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label
+                                                FontSize="11"
+                                                Text="Time"
+                                                TextColor="{StaticResource TextMuted}" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="13"
+                                                LineBreakMode="TailTruncation"
+                                                Text="{Binding SelectedTimeLabel}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+
+                                    <Border
+                                        BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                        Grid.Column="2"
+                                        Padding="10,8"
+                                        Stroke="{StaticResource AppStroke}"
+                                        StrokeThickness="1">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="18" />
+                                        </Border.StrokeShape>
+                                        <Border.Triggers>
+                                            <DataTrigger
+                                                Binding="{Binding IsMovieFilterExpanded}"
+                                                TargetType="Border"
+                                                Value="True">
+                                                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                                <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ToggleMovieFilterCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label
+                                                FontSize="11"
+                                                Text="Movie"
+                                                TextColor="{StaticResource TextMuted}" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="13"
+                                                LineBreakMode="TailTruncation"
+                                                Text="{Binding SelectedMovieLabel}" />
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </Grid>
+
+                                <VerticalStackLayout IsVisible="{Binding IsDateFilterExpanded}" Spacing="8">
+                                    <HorizontalStackLayout BindableLayout.ItemsSource="{Binding DateFilterOptions}" Spacing="8">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="ui:ShowtimeFilterOption">
+                                                <Border
+                                                    BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                                    Padding="11,6"
+                                                    Stroke="{StaticResource AppStroke}"
+                                                    StrokeThickness="1">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="16" />
+                                                    </Border.StrokeShape>
+                                                    <Border.Triggers>
+                                                        <DataTrigger
+                                                            Binding="{Binding IsSelected}"
+                                                            TargetType="Border"
+                                                            Value="True">
+                                                            <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                                            <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectDateFilterCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label
+                                                        FontFamily="OpenSansSemibold"
+                                                        FontSize="12"
+                                                        Text="{Binding Label}"
+                                                        TextColor="{StaticResource TextPrimary}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger
+                                                                Binding="{Binding IsSelected}"
+                                                                TargetType="Label"
+                                                                Value="True">
+                                                                <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Border>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </HorizontalStackLayout>
+
+                                    <DatePicker
+                                        BackgroundColor="Transparent"
+                                        Date="{Binding SelectedCalendarDate}"
+                                        MaximumDate="{Binding MaximumFilterDate}"
+                                        MinimumDate="{Binding MinimumFilterDate}"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout
+                                    BindableLayout.ItemsSource="{Binding TimeFilterOptions}"
+                                    IsVisible="{Binding IsTimeFilterExpanded}"
+                                    Spacing="8">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="ui:ShowtimeFilterOption">
+                                            <Border
+                                                BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                                Padding="11,6"
+                                                Stroke="{StaticResource AppStroke}"
+                                                StrokeThickness="1">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="16" />
+                                                </Border.StrokeShape>
+                                                <Border.Triggers>
+                                                    <DataTrigger
+                                                        Binding="{Binding IsSelected}"
+                                                        TargetType="Border"
+                                                        Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
+                                                        <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.SelectTimeFilterCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label
+                                                    FontFamily="OpenSansSemibold"
+                                                    FontSize="12"
+                                                    Text="{Binding Label}"
+                                                    TextColor="{StaticResource TextPrimary}">
+                                                    <Label.Triggers>
+                                                        <DataTrigger
+                                                            Binding="{Binding IsSelected}"
+                                                            TargetType="Label"
+                                                            Value="True">
+                                                            <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+
+                                <Grid
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="8"
+                                    IsVisible="{Binding IsMovieFilterExpanded}"
+                                    Margin="0,-4,0,0">
+                                    <Entry
+                                        BackgroundColor="Transparent"
+                                        ClearButtonVisibility="WhileEditing"
+                                        Placeholder="Search by movie title..."
+                                        PlaceholderColor="{StaticResource TextMuted}"
+                                        ReturnCommand="{Binding SearchMovieCommand}"
+                                        Text="{Binding PendingMovieSearchText}"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                    <Border
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        Grid.Column="1"
+                                        HeightRequest="44"
+                                        Stroke="{StaticResource Tertiary}"
+                                        StrokeThickness="1"
+                                        VerticalOptions="Center"
+                                        WidthRequest="44">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="16" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SearchMovieCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            FontFamily="MaterialIconsOutlined"
+                                            FontSize="20"
+                                            HorizontalOptions="Center"
+                                            Text="{x:Static constants:TabIconGlyphs.Search}"
+                                            TextColor="{StaticResource PrimaryDark}"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+
+                        <CollectionView
+                            Grid.Row="1"
+                            ItemsSource="{Binding Screenings}"
+                            Margin="20,0,20,20"
+                            RemainingItemsThreshold="5"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                            SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <controls:GlassPanel Margin="0,8,0,20" Style="{StaticResource GlassPanelStyle}">
+                                    <VerticalStackLayout Spacing="10">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="18"
+                                            Text="No matching screenings" />
+                                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
+                                    </VerticalStackLayout>
+                                </controls:GlassPanel>
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:FilmsOverviewDto">
+                                    <Border Style="{StaticResource ShowtimeCardStyle}">
+                                        <Border.Background>
+                                            <LinearGradientBrush EndPoint="1,1">
+                                                <GradientStop Color="{StaticResource AppSurface}" Offset="0" />
+                                                <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.OpenScreeningDetailsCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+
+                                        <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="14">
+                                            <Border
+                                                HeightRequest="85"
+                                                StrokeThickness="0"
+                                                WidthRequest="60">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="12" />
+                                                </Border.StrokeShape>
+                                                <Grid>
+                                                    <Grid.Background>
+                                                        <LinearGradientBrush EndPoint="1,1">
+                                                            <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
+                                                            <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                                                        </LinearGradientBrush>
+                                                    </Grid.Background>
+                                                    <Image Aspect="AspectFill" Source="{Binding PosterUrl}" />
+                                                </Grid>
+                                            </Border>
+
+                                            <VerticalStackLayout
+                                                Grid.Column="1"
+                                                Spacing="5"
+                                                VerticalOptions="Center">
+                                                <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding Title}" />
+                                                <Label
+                                                    LineBreakMode="TailTruncation"
+                                                    Style="{StaticResource MutedLabelStyle}"
+                                                    Text="{Binding Genres}" />
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding DurationMinutes, StringFormat='{0} min'}" />
+                                                    <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding StartTime, StringFormat='{0:ddd d MMM}'}" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
+                                            <Border
+                                                BackgroundColor="{StaticResource Secondary}"
+                                                Grid.Column="2"
+                                                Padding="12,7"
+                                                StrokeThickness="0"
+                                                VerticalOptions="Center">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="16" />
+                                                </Border.StrokeShape>
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontFamily="OpenSansSemibold"
+                                                    FontSize="15"
+                                                    Text="{Binding StartTime, StringFormat='{0:HH:mm}'}"
+                                                    TextColor="{StaticResource PrimaryDark}" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+                </RefreshView>
+
+                <ActivityIndicator
+                    HeightRequest="44"
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsInitialLoading}"
+                    IsVisible="{Binding IsInitialLoading}"
+                    VerticalOptions="Center"
+                    WidthRequest="44" />
+
+                <RefreshView
+                    Command="{Binding LoadScreeningsCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding HasError}">
+                    <ScrollView>
+                        <controls:GlassPanel
+                            Margin="20"
+                            Style="{StaticResource GlassPanelStyle}"
+                            VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="14">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="Something went wrong" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                                <Button Command="{Binding LoadScreeningsCommand}" Text="Try again" />
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+                    </ScrollView>
+                </RefreshView>
+
+                <RefreshView
+                    Command="{Binding LoadScreeningsCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding IsEmptyStateVisible}">
+                    <ScrollView>
+                        <controls:GlassPanel
+                            Margin="20"
+                            Style="{StaticResource GlassPanelStyle}"
+                            VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="10">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="No screenings yet" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once screenings are available." />
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+                    </ScrollView>
+                </RefreshView>
+            </Grid>
         </Grid>
     </ContentPage.Content>
 </ContentPage>
