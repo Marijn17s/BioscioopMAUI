@@ -18,7 +18,7 @@ public partial class MoviesPage : ContentPage
     {
         base.OnAppearing();
 
-        if (!_viewModel.HasMovies && _viewModel.LoadMoviesCommand.CanExecute(null))
+        if (!_viewModel.HasLoadedOnce && _viewModel.LoadMoviesCommand.CanExecute(null))
         {
             _viewModel.LoadMoviesCommand.Execute(null);
         }

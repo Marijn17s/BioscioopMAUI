@@ -18,11 +18,11 @@
                 Subtitle="Browse our collection of movies."
                 Title="Movies" />
 
-            <RefreshView
-                Command="{Binding LoadMoviesCommand}"
-                Grid.Row="1"
-                IsRefreshing="{Binding IsBusy, Mode=OneWay}">
-                <Grid>
+            <Grid Grid.Row="1">
+                <RefreshView
+                    Command="{Binding LoadMoviesCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding ShowMoviesList}">
                     <CollectionView ItemsSource="{Binding Movies}" SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:MovieResponseDto">
@@ -107,49 +107,59 @@
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
+                </RefreshView>
 
-                    <ActivityIndicator
-                        HeightRequest="44"
-                        HorizontalOptions="Center"
-                        IsRunning="{Binding IsBusy}"
-                        IsVisible="{Binding IsBusy}"
-                        VerticalOptions="Center"
-                        WidthRequest="44" />
+                <ActivityIndicator
+                    HeightRequest="44"
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsInitialLoading}"
+                    IsVisible="{Binding IsInitialLoading}"
+                    VerticalOptions="Center"
+                    WidthRequest="44" />
 
-                    <controls:GlassPanel
-                        HorizontalOptions="Fill"
-                        IsVisible="{Binding HasError}"
-                        Margin="20"
-                        Style="{StaticResource GlassPanelStyle}"
-                        VerticalOptions="Center">
-                        <VerticalStackLayout Spacing="14">
-                            <Label
-                                FontAttributes="Bold"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="18"
-                                Text="Something went wrong" />
-                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
-                            <Button Command="{Binding LoadMoviesCommand}" Text="Try again" />
-                        </VerticalStackLayout>
-                    </controls:GlassPanel>
+                <RefreshView
+                    Command="{Binding LoadMoviesCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding HasError}">
+                    <ScrollView>
+                        <controls:GlassPanel
+                            Margin="20"
+                            Style="{StaticResource GlassPanelStyle}"
+                            VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="14">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="Something went wrong" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                                <Button Command="{Binding LoadMoviesCommand}" Text="Try again" />
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+                    </ScrollView>
+                </RefreshView>
 
-                    <controls:GlassPanel
-                        HorizontalOptions="Fill"
-                        IsVisible="{Binding IsEmptyStateVisible}"
-                        Margin="20"
-                        Style="{StaticResource GlassPanelStyle}"
-                        VerticalOptions="Center">
-                        <VerticalStackLayout Spacing="10">
-                            <Label
-                                FontAttributes="Bold"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="18"
-                                Text="No movies yet" />
-                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once movies are available." />
-                        </VerticalStackLayout>
-                    </controls:GlassPanel>
-                </Grid>
-            </RefreshView>
+                <RefreshView
+                    Command="{Binding LoadMoviesCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding IsEmptyStateVisible}">
+                    <ScrollView>
+                        <controls:GlassPanel
+                            Margin="20"
+                            Style="{StaticResource GlassPanelStyle}"
+                            VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="10">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="No movies yet" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once movies are available." />
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+                    </ScrollView>
+                </RefreshView>
+            </Grid>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

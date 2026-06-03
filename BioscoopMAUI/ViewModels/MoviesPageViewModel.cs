@@ -25,20 +25,34 @@ public partial class MoviesPageViewModel : ObservableObject
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    public bool IsEmptyStateVisible => !IsBusy && !HasError && LoadedMovieCount is 0;
+    public bool IsEmptyStateVisible => !IsBusy && !HasError && HasLoadedOnce && LoadedMovieCount is 0;
+
+    public bool ShowMoviesList => HasLoadedOnce && !HasError && !IsEmptyStateVisible;
+
+    public bool IsInitialLoading => IsBusy && !HasLoadedOnce;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
+    [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    private bool _hasLoadedOnce;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasMovies))]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
     private int _loadedMovieCount;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
+    [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
     private bool _isBusy;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
     private string _errorMessage = string.Empty;
 
     [RelayCommand]
@@ -59,10 +73,14 @@ public partial class MoviesPageViewModel : ObservableObject
             {
                 Movies.Add(movie);
             }
+
+            HasLoadedOnce = true;
+            LoadedMovieCount = Movies.Count;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = "We kunnen de films nu niet laden. Controleer je verbinding en probeer opnieuw.";
+            if (!HasLoadedOnce)
+                ErrorMessage = "We kunnen de films nu niet laden. Controleer je verbinding en probeer opnieuw.";
         }
         finally
         {
