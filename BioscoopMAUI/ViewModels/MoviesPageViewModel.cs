@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Models.DTOs;
@@ -18,17 +17,20 @@ public partial class MoviesPageViewModel : ObservableObject
     {
         _movieService = movieService;
         _navigationService = navigationService;
-
-        Movies.CollectionChanged += OnMoviesChanged;
     }
 
     public ObservableCollection<MovieResponseDto> Movies { get; } = [];
 
-    public bool HasMovies => Movies.Count > 0;
+    public bool HasMovies => LoadedMovieCount > 0;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    public bool IsEmptyStateVisible => !IsBusy && !HasError && Movies.Count == 0;
+    public bool IsEmptyStateVisible => !IsBusy && !HasError && LoadedMovieCount is 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMovies))]
+    [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    private int _loadedMovieCount;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
@@ -43,9 +45,7 @@ public partial class MoviesPageViewModel : ObservableObject
     private async Task LoadMoviesAsync()
     {
         if (IsBusy)
-        {
             return;
-        }
 
         IsBusy = true;
         ErrorMessage = string.Empty;
@@ -75,17 +75,11 @@ public partial class MoviesPageViewModel : ObservableObject
     {
         if (movie is null)
             return;
-        
+
         await _navigationService.GoToAsync(NavigationRoutes.MovieDetails,
             new Dictionary<string, object>
             {
                 [NavigationRoutes.MovieIdParameter] = movie.Id
             });
-    }
-
-    private void OnMoviesChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(HasMovies));
-        OnPropertyChanged(nameof(IsEmptyStateVisible));
     }
 }

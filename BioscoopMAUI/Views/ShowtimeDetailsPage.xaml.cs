@@ -15,7 +15,7 @@ public partial class ShowtimeDetailsPage : ContentPage, IQueryAttributable
         InitializeComponent();
     }
 
-    public void ApplyNavigationAttributes(IDictionary<string, object> query)
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (!query.TryGetValue(NavigationRoutes.ShowtimeIdParameter, out var showtimeIdValue) ||
             !query.TryGetValue(NavigationRoutes.MovieIdParameter, out var movieIdValue))

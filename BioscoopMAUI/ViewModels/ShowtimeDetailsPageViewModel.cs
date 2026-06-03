@@ -13,7 +13,11 @@ public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : 
 
     public bool HasShowtime => Showtime is not null;
 
-    public bool HasGenres => Genres.Count > 0;
+    public bool HasGenres => GenreCount > 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGenres))]
+    private int _genreCount;
 
     public bool HasLoadError => !string.IsNullOrWhiteSpace(LoadErrorMessage);
 
@@ -70,6 +74,8 @@ public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : 
                 foreach (var genre in movie.Genres.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                     Genres.Add(genre);
             }
+
+            GenreCount = Genres.Count;
         }
         catch (Exception)
         {

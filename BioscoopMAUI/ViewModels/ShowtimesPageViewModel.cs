@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Showtimes;
 using BioscoopMAUI.Models.DTOs;
@@ -21,8 +20,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
     private List<FilmsOverviewDto> _allScreenings = [];
     private List<FilmsOverviewDto> _filteredScreenings = [];
     private int _displayedCount;
-    private bool _hasLoadedOnce;
-    private DateTime? _selectedDate;
     private bool _isUpdatingSelectedCalendarDate;
 
     public ShowtimesPageViewModel(IShowtimeService showtimeService, INavigationService navigationService)
@@ -30,7 +27,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
         _showtimeService = showtimeService;
         _navigationService = navigationService;
 
-        Screenings.CollectionChanged += OnScreeningsChanged;
         InitializeFilterOptions();
     }
 
@@ -40,21 +36,33 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     public ObservableCollection<ShowtimeFilterOption> TimeFilterOptions { get; } = [];
 
-    public bool HasScreenings => Screenings.Count > 0;
+    public bool HasScreenings => DisplayedScreeningCount > 0;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    public bool IsEmptyStateVisible => !IsBusy && !HasError && _hasLoadedOnce && _allScreenings.Count == 0;
+    public bool IsEmptyStateVisible => !IsBusy && !HasError && HasLoadedOnce && LoadedScreeningCount == 0;
 
-    public bool ShowScreeningsList => _hasLoadedOnce && !HasError && !IsEmptyStateVisible;
+    public bool ShowScreeningsList => HasLoadedOnce && !HasError && !IsEmptyStateVisible;
 
-    public bool IsInitialLoading => IsBusy && !_hasLoadedOnce;
-
-    public bool HasLoadedOnce => _hasLoadedOnce;
+    public bool IsInitialLoading => IsBusy && !HasLoadedOnce;
 
     public DateTime MinimumFilterDate { get; } = DateTime.Today;
 
     public DateTime MaximumFilterDate { get; } = DateTime.Today.AddDays(ScreeningLookAhead.Days - 1);
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    [NotifyPropertyChangedFor(nameof(ShowScreeningsList))]
+    [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    private bool _hasLoadedOnce;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
+    private int _loadedScreeningCount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasScreenings))]
+    private int _displayedScreeningCount;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
@@ -83,7 +91,15 @@ public partial class ShowtimesPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(MovieFilterChevron))]
     private bool _isMovieFilterExpanded;
 
-    public string SelectedDateLabel => _selectedDate switch
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedDateLabel))]
+    private DateTime? _selectedDate;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedTimeLabel))]
+    private string _selectedTimeFilterKey = "All";
+
+    public string SelectedDateLabel => SelectedDate switch
     {
         null => "All",
         var date when date.Value.Date == DateTime.Today => "Today",
@@ -91,7 +107,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
         var date => date.Value.ToString("ddd d MMM")
     };
 
-    public string SelectedTimeLabel => TimeFilterOptions.FirstOrDefault(option => option.IsSelected)?.Label ?? "All";
+    public string SelectedTimeLabel => TimeFilterOptions.FirstOrDefault(option => option.Key == SelectedTimeFilterKey)?.Label ?? "All";
 
     public string SelectedMovieLabel => string.IsNullOrWhiteSpace(MovieSearchText) ? "All movies" : MovieSearchText;
 
@@ -164,20 +180,18 @@ public partial class ShowtimesPageViewModel : ObservableObject
                 .Where(screening => screening.StartTime >= now && screening.StartTime <= maximumScreeningDate)
                 .OrderBy(screening => screening.StartTime)
                 .ToList();
-            _hasLoadedOnce = true;
+            HasLoadedOnce = true;
+            LoadedScreeningCount = _allScreenings.Count;
             ApplyFiltersAndResetDisplay();
         }
         catch (Exception)
         {
-            if (!_hasLoadedOnce)
+            if (!HasLoadedOnce)
                 ErrorMessage = "We kunnen de voorstellingen nu niet laden. Controleer je verbinding en probeer opnieuw.";
         }
         finally
         {
             IsBusy = false;
-            OnPropertyChanged(nameof(IsEmptyStateVisible));
-            OnPropertyChanged(nameof(ShowScreeningsList));
-            OnPropertyChanged(nameof(IsInitialLoading));
         }
     }
 
@@ -211,7 +225,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
         PendingMovieSearchText = string.Empty;
         MovieSearchText = string.Empty;
         ApplyFiltersAndResetDisplay();
-        OnPropertyChanged(nameof(SelectedMovieLabel));
     }
 
     [RelayCommand]
@@ -219,7 +232,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
     {
         MovieSearchText = PendingMovieSearchText.Trim();
         ApplyFiltersAndResetDisplay();
-        OnPropertyChanged(nameof(SelectedMovieLabel));
     }
 
     [RelayCommand]
@@ -240,8 +252,8 @@ public partial class ShowtimesPageViewModel : ObservableObject
         foreach (var option in TimeFilterOptions)
             option.IsSelected = option.Key == chip.Key;
 
+        SelectedTimeFilterKey = chip.Key;
         IsTimeFilterExpanded = false;
-        OnPropertyChanged(nameof(SelectedTimeLabel));
         ApplyFiltersAndResetDisplay();
     }
 
@@ -277,34 +289,25 @@ public partial class ShowtimesPageViewModel : ObservableObject
     {
         _filteredScreenings = ApplyFilters(_allScreenings);
         ResetDisplayedScreenings();
-        OnPropertyChanged(nameof(IsEmptyStateVisible));
     }
 
     private List<FilmsOverviewDto> ApplyFilters(IReadOnlyList<FilmsOverviewDto> screenings)
     {
-        var selectedTime = TimeFilterOptions.FirstOrDefault(option => option.IsSelected);
-
         IEnumerable<FilmsOverviewDto> filtered = screenings;
 
-        if (_selectedDate is DateTime targetDate)
-        {
+        if (SelectedDate is { } targetDate)
             filtered = filtered.Where(screening => screening.StartTime.Date == targetDate.Date);
-        }
 
-        if (selectedTime?.Key is "Morning")
-        {
+        if (SelectedTimeFilterKey is "Morning")
             filtered = filtered.Where(screening => screening.StartTime.TimeOfDay < TimeSpan.FromHours(12));
-        }
-        else if (selectedTime?.Key is "Afternoon")
+        else if (SelectedTimeFilterKey is "Afternoon")
         {
             filtered = filtered.Where(screening =>
                 screening.StartTime.TimeOfDay >= TimeSpan.FromHours(12)
                 && screening.StartTime.TimeOfDay < TimeSpan.FromHours(17));
         }
-        else if (selectedTime?.Key is "Evening")
-        {
+        else if (SelectedTimeFilterKey is "Evening")
             filtered = filtered.Where(screening => screening.StartTime.TimeOfDay >= TimeSpan.FromHours(17));
-        }
 
         if (!string.IsNullOrWhiteSpace(MovieSearchText))
         {
@@ -319,29 +322,25 @@ public partial class ShowtimesPageViewModel : ObservableObject
     {
         _displayedCount = 0;
         Screenings.Clear();
+        DisplayedScreeningCount = 0;
         AppendNextChunk();
     }
 
     private void SetSelectedDate(DateTime? date, bool closeFilter)
     {
-        _selectedDate = date?.Date;
+        SelectedDate = date?.Date;
 
         foreach (var option in DateFilterOptions)
-            option.IsSelected = option.Date?.Date == _selectedDate;
+            option.IsSelected = option.Date?.Date == SelectedDate;
 
-        if (_selectedDate is null)
-        {
+        if (SelectedDate is null)
             DateFilterOptions.First(option => option.Date is null).IsSelected = true;
-        }
         else
-        {
-            UpdateSelectedCalendarDate(_selectedDate.Value);
-        }
+            UpdateSelectedCalendarDate(SelectedDate.Value);
 
         if (closeFilter)
             IsDateFilterExpanded = false;
 
-        OnPropertyChanged(nameof(SelectedDateLabel));
         ApplyFiltersAndResetDisplay();
     }
 
@@ -363,10 +362,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
             Screenings.Add(_filteredScreenings[index]);
 
         _displayedCount += count;
-    }
-
-    private void OnScreeningsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(HasScreenings));
+        DisplayedScreeningCount = Screenings.Count;
     }
 }

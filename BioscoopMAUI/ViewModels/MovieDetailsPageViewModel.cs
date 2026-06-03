@@ -21,11 +21,20 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
 
     public bool HasMovie => Movie is not null;
 
-    public bool HasGenres => Genres.Count > 0;
+    public bool HasGenres => GenreCount > 0;
 
-    public bool HasShowtimes => Showtimes.Count > 0;
+    public bool HasShowtimes => ShowtimeCount > 0;
 
     public bool HasNoShowtimes => !HasShowtimes;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasGenres))]
+    private int _genreCount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasShowtimes))]
+    [NotifyPropertyChangedFor(nameof(HasNoShowtimes))]
+    private int _showtimeCount;
 
     public bool HasLoadError => !string.IsNullOrWhiteSpace(LoadErrorMessage);
 
@@ -53,6 +62,7 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
             foreach (var genre in value.Genres.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                 Genres.Add(genre);
 
+        GenreCount = Genres.Count;
         IsFavorite = value?.IsFavorite ?? false;
     }
 
@@ -159,8 +169,7 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
                 Showtimes.Add(showtime);
             }
 
-            OnPropertyChanged(nameof(HasShowtimes));
-            OnPropertyChanged(nameof(HasNoShowtimes));
+            ShowtimeCount = Showtimes.Count;
         }
         catch (Exception)
         {
