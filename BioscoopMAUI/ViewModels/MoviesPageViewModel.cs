@@ -8,17 +8,8 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BioscoopMAUI.ViewModels;
 
-public partial class MoviesPageViewModel : ObservableObject
+public partial class MoviesPageViewModel(IMovieService movieService, INavigationService navigationService) : ObservableObject
 {
-    private readonly IMovieService _movieService;
-    private readonly INavigationService _navigationService;
-
-    public MoviesPageViewModel(IMovieService movieService, INavigationService navigationService)
-    {
-        _movieService = movieService;
-        _navigationService = navigationService;
-    }
-
     public ObservableCollection<MovieResponseDto> Movies { get; } = [];
 
     public bool HasMovies => LoadedMovieCount > 0;
@@ -66,7 +57,7 @@ public partial class MoviesPageViewModel : ObservableObject
 
         try
         {
-            var movies = await _movieService.GetAllMoviesAsync();
+            var movies = await movieService.GetAllMoviesAsync();
 
             Movies.Clear();
             foreach (var movie in movies)
@@ -94,7 +85,7 @@ public partial class MoviesPageViewModel : ObservableObject
         if (movie is null)
             return;
 
-        await _navigationService.GoToAsync(NavigationRoutes.MovieDetails,
+        await navigationService.GoToAsync(NavigationRoutes.MovieDetails,
             new Dictionary<string, object>
             {
                 [NavigationRoutes.MovieIdParameter] = movie.Id
