@@ -22,45 +22,47 @@
 
             <Grid Grid.Row="1">
                 <RefreshView
-                    Command="{Binding LoadScreeningsCommand}"
+                    Command="{Binding LoadShowtimesCommand}"
                     IsRefreshing="{Binding IsBusy, Mode=OneWay}"
-                    IsVisible="{Binding ShowScreeningsList}">
-                    <Grid RowDefinitions="Auto,*">
-                        <controls:GlassPanel
-                            Grid.Row="0"
-                            Margin="20,14,20,10"
-                            Padding="12"
-                            Style="{StaticResource GlassPanelStyle}">
-                            <VerticalStackLayout Spacing="10">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                    <VerticalStackLayout Spacing="1">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontFamily="OpenSansSemibold"
-                                            FontSize="15"
-                                            Text="Filter screenings" />
-                                        <Label
-                                            FontSize="12"
-                                            Text="Date, time, or movie"
-                                            TextColor="{StaticResource TextMuted}" />
-                                    </VerticalStackLayout>
-                                    <Border
-                                        BackgroundColor="{StaticResource Secondary}"
-                                        Grid.Column="1"
-                                        Padding="10,5"
-                                        StrokeThickness="0"
-                                        VerticalOptions="Center">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="14" />
-                                        </Border.StrokeShape>
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontFamily="OpenSansSemibold"
-                                            FontSize="11"
-                                            Text="{Binding Screenings.Count, StringFormat='{0} shown'}"
-                                            TextColor="{StaticResource PrimaryDark}" />
-                                    </Border>
-                                </Grid>
+                    IsVisible="{Binding ShowShowtimesList}">
+                    <ScrollView>
+                        <VerticalStackLayout
+                            Margin="20,0,20,20"
+                            Spacing="0">
+                            <controls:GlassPanel
+                                Margin="0,14,0,10"
+                                Padding="12"
+                                Style="{StaticResource GlassPanelStyle}">
+                                <VerticalStackLayout Spacing="10">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                        <VerticalStackLayout Spacing="1">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="15"
+                                                Text="Filter screenings" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="Date, time, or movie"
+                                                TextColor="{StaticResource TextMuted}" />
+                                        </VerticalStackLayout>
+                                        <Border
+                                            BackgroundColor="{StaticResource Secondary}"
+                                            Grid.Column="1"
+                                            Padding="10,5"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="14" />
+                                            </Border.StrokeShape>
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="11"
+                                                Text="{Binding Showtimes.Count, StringFormat='{0} shown'}"
+                                                TextColor="{StaticResource PrimaryDark}" />
+                                        </Border>
+                                    </Grid>
 
                                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                                     <Border
@@ -300,41 +302,38 @@
                                             VerticalOptions="Center" />
                                     </Border>
                                 </Grid>
-                            </VerticalStackLayout>
+                                </VerticalStackLayout>
                         </controls:GlassPanel>
 
-                        <CollectionView
-                            Grid.Row="1"
-                            ItemsSource="{Binding Screenings}"
-                            Margin="20,0,20,20"
-                            RemainingItemsThreshold="5"
-                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-                            SelectionMode="None">
-                            <CollectionView.EmptyView>
-                                <controls:GlassPanel Margin="0,8,0,20" Style="{StaticResource GlassPanelStyle}">
-                                    <VerticalStackLayout Spacing="10">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontFamily="OpenSansSemibold"
-                                            FontSize="18"
-                                            Text="No matching screenings" />
-                                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
-                                    </VerticalStackLayout>
-                                </controls:GlassPanel>
-                            </CollectionView.EmptyView>
+                            <controls:GlassPanel
+                                IsVisible="{Binding HasNoMatchingShowtimes}"
+                                Margin="0,8,0,20"
+                                Style="{StaticResource GlassPanelStyle}">
+                                <VerticalStackLayout Spacing="10">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="18"
+                                        Text="No matching screenings" />
+                                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
+                                </VerticalStackLayout>
+                            </controls:GlassPanel>
 
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="models:FilmsOverviewDto">
-                                    <Border Style="{StaticResource ShowtimeCardStyle}">
-                                        <Border.Background>
-                                            <LinearGradientBrush EndPoint="1,1">
-                                                <GradientStop Color="{StaticResource AppSurface}" Offset="0" />
-                                                <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="1" />
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.OpenScreeningDetailsCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
-                                        </Border.GestureRecognizers>
+                            <VerticalStackLayout
+                                BindableLayout.ItemsSource="{Binding Showtimes}"
+                                Spacing="0">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:FilmsOverviewDto">
+                                        <Border Style="{StaticResource ShowtimeCardStyle}">
+                                            <Border.Background>
+                                                <LinearGradientBrush EndPoint="1,1">
+                                                    <GradientStop Color="{StaticResource AppSurface}" Offset="0" />
+                                                    <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenShowtimeDetailsCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
 
                                         <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="14">
                                             <Border
@@ -387,11 +386,19 @@
                                                     TextColor="{StaticResource PrimaryDark}" />
                                             </Border>
                                         </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
-                    </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+
+                            <Button
+                                Command="{Binding LoadMoreCommand}"
+                                IsVisible="{Binding HasMoreShowtimes}"
+                                Margin="0,4,0,0"
+                                Style="{StaticResource SecondaryActionButtonStyle}"
+                                Text="Load more" />
+                        </VerticalStackLayout>
+                    </ScrollView>
                 </RefreshView>
 
                 <ActivityIndicator
@@ -403,7 +410,7 @@
                     WidthRequest="44" />
 
                 <RefreshView
-                    Command="{Binding LoadScreeningsCommand}"
+                    Command="{Binding LoadShowtimesCommand}"
                     IsRefreshing="{Binding IsBusy, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
@@ -418,14 +425,14 @@
                                     FontSize="18"
                                     Text="Something went wrong" />
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
-                                <Button Command="{Binding LoadScreeningsCommand}" Text="Try again" />
+                                <Button Command="{Binding LoadShowtimesCommand}" Text="Try again" />
                             </VerticalStackLayout>
                         </controls:GlassPanel>
                     </ScrollView>
                 </RefreshView>
 
                 <RefreshView
-                    Command="{Binding LoadScreeningsCommand}"
+                    Command="{Binding LoadShowtimesCommand}"
                     IsRefreshing="{Binding IsBusy, Mode=OneWay}"
                     IsVisible="{Binding IsEmptyStateVisible}">
                     <ScrollView>

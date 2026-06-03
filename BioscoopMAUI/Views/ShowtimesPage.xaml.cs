@@ -18,7 +18,7 @@ public partial class ShowtimesPage : ContentPage
     {
         base.OnAppearing();
 
-        if (!_viewModel.HasLoadedOnce && _viewModel.LoadScreeningsCommand.CanExecute(null))
-            _viewModel.LoadScreeningsCommand.Execute(null);
+        if (!_viewModel.HasLoadedOnce && _viewModel.LoadShowtimesCommand.CanExecute(null))
+            _viewModel.LoadShowtimesCommand.Execute(null);
     }
 }
