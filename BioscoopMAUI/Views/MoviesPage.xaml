@@ -101,19 +101,6 @@
                                                 Grid.Row="3"
                                                 Style="{StaticResource DescriptionLabelStyle}"
                                                 Text="{Binding Description}" />
-
-                                            <Border
-                                                Grid.Row="4"
-                                                HorizontalOptions="Start"
-                                                Style="{StaticResource DetailsActionBorderStyle}">
-                                                <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference MoviesPageRoot}}" CommandParameter="{Binding .}" />
-                                                </Border.GestureRecognizers>
-                                                <HorizontalStackLayout Spacing="8">
-                                                    <Label Style="{StaticResource DetailsActionLabelStyle}" Text="Details" />
-                                                    <Label Style="{StaticResource DetailsActionLabelStyle}" Text="&gt;" />
-                                                </HorizontalStackLayout>
-                                            </Border>
                                         </Grid>
                                     </Grid>
                                 </Border>
