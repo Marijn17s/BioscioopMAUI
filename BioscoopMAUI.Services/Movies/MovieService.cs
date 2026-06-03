@@ -28,6 +28,15 @@ public class MovieService(IHttpClientFactory httpClientFactory) : IMovieService
         return result ?? [];
     }
 
+    public async Task<IEnumerable<MovieResponseDto>> GetRecommendedMoviesAsync()
+    {
+        var client = httpClientFactory.CreateClient("BioscoopAPI");
+        var response = await client.GetAsync("api/movies/recommendations");
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<IEnumerable<MovieResponseDto>>();
+        return result ?? [];
+    }
+
     public async Task<bool> SetFavoriteStatusAsync(int movieId, bool isFavorite)
     {
         var client = httpClientFactory.CreateClient("BioscoopAPI");

@@ -68,6 +68,71 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("recommendations")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<MovieResponseDto>>> GetRecommendations()
+    {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
+        var reservedMovies = await context.Reservations
+            .Where(reservation => reservation.Auth0UserId == auth0UserId)
+            .Select(reservation => reservation.Showtime.Movie)
+            .ToListAsync();
+
+        if (reservedMovies.Count == 0)
+            return Ok(Enumerable.Empty<MovieResponseDto>());
+
+        var genreFrequencies = new Dictionary<string, int>();
+        foreach (var reservedMovie in reservedMovies)
+        {
+            foreach (var genre in reservedMovie.Genres.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                genreFrequencies[genre] = genreFrequencies.GetValueOrDefault(genre) + 1;
+        }
+
+        var topGenres = genreFrequencies
+            .OrderByDescending(genre => genre.Value)
+            .Select(genre => genre.Key)
+            .ToHashSet();
+
+        var reservedMovieIds = reservedMovies
+            .Select(movie => movie.Id)
+            .ToHashSet();
+
+        var candidateMovies = await context.Movies
+            .Where(movie => !reservedMovieIds.Contains(movie.Id))
+            .ToListAsync();
+
+        var recommendedMovies = candidateMovies
+            .Select(movie => new
+            {
+                Movie = movie,
+                GenreOverlap = movie.Genres
+                    .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                    .Count(genre => topGenres.Contains(genre))
+            })
+            .Where(scored => scored.GenreOverlap > 0)
+            .OrderByDescending(scored => scored.GenreOverlap)
+            .ThenByDescending(scored => scored.Movie.ReleaseDate)
+            .Take(3)
+            .Select(scored => new MovieResponseDto(
+                scored.Movie.Id,
+                scored.Movie.Title,
+                scored.Movie.Description,
+                scored.Movie.PosterUrl,
+                scored.Movie.Actors,
+                scored.Movie.TrailerUrl,
+                scored.Movie.Genres,
+                scored.Movie.AgeRating,
+                scored.Movie.DurationMinutes,
+                scored.Movie.ReleaseDate
+            ))
+            .ToList();
+
+        return Ok(recommendedMovies);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieResponseDto>> GetMovie(int id)
     {

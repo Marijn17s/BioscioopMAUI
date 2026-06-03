@@ -21,6 +21,8 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
     [Authorize]
     public async Task<ActionResult<IEnumerable<ReservationResponseDto>>> Get()
     {
+        var auth0UserId = User.GetAuth0UserId();
+
         var query = context.Reservations
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
@@ -31,7 +33,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == auth0UserId);
 
         var reservations = await query.ToListAsync();
         var response = reservations.Select(r =>
@@ -66,6 +68,8 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
     [Authorize]
     public async Task<ActionResult<ReservationResponseDto>> Get(int id)
     {
+        var auth0UserId = User.GetAuth0UserId();
+
         var query = context.Reservations
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
@@ -76,7 +80,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == auth0UserId);
 
         var reservation = await query.FirstOrDefaultAsync(r => r.Id == id);
 
@@ -112,6 +116,10 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
     [Authorize]
     public async Task<ActionResult<QrCodeValidationResponseDto>> ValidateQrCode([FromBody] QrCodeValidationRequestDto request)
     {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
         if (string.IsNullOrWhiteSpace(request.QrCode))
             return BadRequest(new QrCodeValidationResponseDto(false, null, "QR code is required"));
 
@@ -136,7 +144,7 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             .AsQueryable();
 
         if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == User.GetAuth0UserId());
+            query = query.Where(r => r.Auth0UserId == auth0UserId);
 
         var reservation = await query.FirstOrDefaultAsync(r => r.Id == qrCodeData.ReservationId.Value);
 

@@ -2,9 +2,63 @@
 <ContentPage
     Shell.NavBarIsVisible="False"
     x:Class="BioscoopMAUI.Views.HomePage"
+    x:DataType="viewModels:HomePageViewModel"
+    x:Name="HomePageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:models="clr-namespace:BioscoopMAUI.Models.DTOs;assembly=BioscoopMAUI.Models"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="MoviePosterCardTemplate" x:DataType="models:MovieResponseDto">
+            <VerticalStackLayout Spacing="8" WidthRequest="120">
+                <VerticalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference HomePageRoot}}" CommandParameter="{Binding .}" />
+                </VerticalStackLayout.GestureRecognizers>
+
+                <Border
+                    HeightRequest="180"
+                    StrokeThickness="0"
+                    WidthRequest="120">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20" />
+                    </Border.StrokeShape>
+                    <Grid>
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="1,1">
+                                <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
+                                <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+
+                        <VerticalStackLayout
+                            Padding="10"
+                            Spacing="8"
+                            VerticalOptions="Center">
+                            <BoxView
+                                BackgroundColor="{StaticResource Primary}"
+                                CornerRadius="3"
+                                HeightRequest="4"
+                                HorizontalOptions="Center"
+                                WidthRequest="28" />
+                            <Label Style="{StaticResource PosterPlaceholderLabelStyle}" Text="{Binding Title}" />
+                        </VerticalStackLayout>
+
+                        <Image Aspect="AspectFill" Source="{Binding PosterUrl}" />
+                    </Grid>
+                </Border>
+
+                <Label
+                    FontSize="13"
+                    LineBreakMode="TailTruncation"
+                    MaxLines="2"
+                    Text="{Binding Title}"
+                    TextColor="{StaticResource TextPrimary}" />
+            </VerticalStackLayout>
+        </DataTemplate>
+    </ContentPage.Resources>
+
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*">
             <controls:PageHeader
@@ -12,6 +66,122 @@
                 Style="{StaticResource PageHeaderStyle}"
                 Subtitle="Welcome to our cinema."
                 Title="Home" />
+
+            <Grid Grid.Row="1">
+                <RefreshView
+                    Command="{Binding LoadHomeCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding ShowContent}">
+                    <ScrollView>
+                        <VerticalStackLayout Padding="20" Spacing="24">
+                            <VerticalStackLayout IsVisible="{Binding ShowRecommendations}" Spacing="12">
+                                <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Recommended for you" />
+                                <CollectionView
+                                    HeightRequest="248"
+                                    ItemTemplate="{StaticResource MoviePosterCardTemplate}"
+                                    ItemsSource="{Binding RecommendedMovies}"
+                                    SelectionMode="None">
+                                    <CollectionView.ItemsLayout>
+                                        <LinearItemsLayout ItemSpacing="14" Orientation="Horizontal" />
+                                    </CollectionView.ItemsLayout>
+                                </CollectionView>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="12">
+                                <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Your favourites" />
+                                <CollectionView
+                                    HeightRequest="248"
+                                    IsVisible="{Binding HasFavorites}"
+                                    ItemTemplate="{StaticResource MoviePosterCardTemplate}"
+                                    ItemsSource="{Binding FavoriteMovies}"
+                                    SelectionMode="None">
+                                    <CollectionView.ItemsLayout>
+                                        <LinearItemsLayout ItemSpacing="14" Orientation="Horizontal" />
+                                    </CollectionView.ItemsLayout>
+                                </CollectionView>
+                                <controls:GlassPanel IsVisible="{Binding ShowFavoritesEmpty}" Style="{StaticResource GlassPanelStyle}">
+                                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="You haven't added any favourites yet. Tap the heart on a movie to save it here." />
+                                </controls:GlassPanel>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="12">
+                                <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Upcoming reservations" />
+                                <VerticalStackLayout
+                                    BindableLayout.ItemsSource="{Binding UpcomingReservations}"
+                                    IsVisible="{Binding HasUpcomingReservations}"
+                                    Spacing="12">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:ReservationResponseDto">
+                                            <Border Style="{StaticResource ShowtimeCardStyle}">
+                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                                                    <VerticalStackLayout Spacing="6">
+                                                        <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding MovieTitle}" />
+                                                        <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding Showtime.StartTime, StringFormat='{0:ddd d MMM yyyy}'}" />
+                                                        <HorizontalStackLayout Spacing="8">
+                                                            <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding RoomName}" />
+                                                            <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding Seats.Count, StringFormat='· {0} seat(s)'}" />
+                                                        </HorizontalStackLayout>
+                                                    </VerticalStackLayout>
+
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        BackgroundColor="{StaticResource Secondary}"
+                                                        Padding="10,8"
+                                                        StrokeThickness="0"
+                                                        VerticalOptions="Center">
+                                                        <Border.StrokeShape>
+                                                            <RoundRectangle CornerRadius="14" />
+                                                        </Border.StrokeShape>
+                                                        <Label
+                                                            FontAttributes="Bold"
+                                                            FontFamily="OpenSansSemibold"
+                                                            FontSize="15"
+                                                            Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
+                                                            TextColor="{StaticResource PrimaryDark}" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                                <controls:GlassPanel IsVisible="{Binding ShowUpcomingEmpty}" Style="{StaticResource GlassPanelStyle}">
+                                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="You have no upcoming reservations." />
+                                </controls:GlassPanel>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </RefreshView>
+
+                <ActivityIndicator
+                    HeightRequest="44"
+                    HorizontalOptions="Center"
+                    IsRunning="{Binding IsInitialLoading}"
+                    IsVisible="{Binding IsInitialLoading}"
+                    VerticalOptions="Center"
+                    WidthRequest="44" />
+
+                <RefreshView
+                    Command="{Binding LoadHomeCommand}"
+                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsVisible="{Binding HasError}">
+                    <ScrollView>
+                        <controls:GlassPanel
+                            Margin="20"
+                            Style="{StaticResource GlassPanelStyle}"
+                            VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="14">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="Something went wrong" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                                <Button Command="{Binding LoadHomeCommand}" Text="Try again" />
+                            </VerticalStackLayout>
+                        </controls:GlassPanel>
+                    </ScrollView>
+                </RefreshView>
+            </Grid>
         </Grid>
     </ContentPage.Content>
 </ContentPage>
