@@ -196,7 +196,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
         catch (Exception)
         {
             if (!HasLoadedOnce)
-                ErrorMessage = "We kunnen de voorstellingen nu niet laden. Controleer je verbinding en probeer opnieuw.";
+                ErrorMessage = "We can't load the showtimes. Please check your connection and try again.";
         }
         finally
         {

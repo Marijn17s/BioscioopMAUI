@@ -173,7 +173,7 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
         }
         catch (Exception)
         {
-            LoadErrorMessage = "We kunnen deze film nu niet laden. Probeer het later opnieuw.";
+            LoadErrorMessage = "We can't load this movie. Please try again later.";
         }
         finally
         {

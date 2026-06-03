@@ -80,7 +80,7 @@ public partial class MoviesPageViewModel : ObservableObject
         catch (Exception)
         {
             if (!HasLoadedOnce)
-                ErrorMessage = "We kunnen de films nu niet laden. Controleer je verbinding en probeer opnieuw.";
+                ErrorMessage = "We can't load the movies. Please check your connection and try again.";
         }
         finally
         {
