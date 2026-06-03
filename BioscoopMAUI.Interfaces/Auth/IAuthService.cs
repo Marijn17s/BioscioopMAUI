@@ -1,3 +1,5 @@
+using BioscoopMAUI.Models.Auth;
+
 namespace BioscoopMAUI.Interfaces.Auth;
 
 public interface IAuthService

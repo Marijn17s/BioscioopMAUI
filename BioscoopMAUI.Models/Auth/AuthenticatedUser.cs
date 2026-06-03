@@ -1,4 +1,4 @@
-namespace BioscoopMAUI.Interfaces.Auth;
+namespace BioscoopMAUI.Models.Auth;
 
 public record AuthenticatedUser(
     string UserId,
