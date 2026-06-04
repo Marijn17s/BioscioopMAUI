@@ -42,7 +42,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
                 s.RoomId,
                 s.Room.Name,
                 s.StartTime,
-                0 // Ticket price is out of scope
+                0,
+                s.DiscountPercentage
             ))
             .ToListAsync();
 
@@ -67,6 +68,9 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
         if (dto.StartTime < DateTime.Now)
             return BadRequest(localizer["ShowtimeInPast"].Value);
 
+        if (dto.DiscountPercentage < 0 || dto.DiscountPercentage > 100)
+            return BadRequest("Discount percentage must be between 0 and 100.");
+
         // Calculate end time (duration + 30 min cleaning buffer)
         var newEndTime = dto.StartTime.AddMinutes(movie.DurationMinutes + 30);
 
@@ -87,7 +91,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
         {
             MovieId = dto.MovieId,
             RoomId = dto.RoomId,
-            StartTime = dto.StartTime
+            StartTime = dto.StartTime,
+            DiscountPercentage = dto.DiscountPercentage
         };
 
         context.Showtimes.Add(showtime);
@@ -104,7 +109,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
             showtime.RoomId,
             roomName,
             showtime.StartTime,
-            0
+            0,
+            showtime.DiscountPercentage
         );
 
         return CreatedAtAction(nameof(GetShowtimes), new { id = showtime.Id }, response);
@@ -169,6 +175,9 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
                 return BadRequest(localizer["ShowtimeInPast"].Value);
             }
 
+            if (dto.DiscountPercentage < 0 || dto.DiscountPercentage > 100)
+                return BadRequest("Discount percentage must be between 0 and 100.");
+
             if (dbConflict || inMemoryConflict)
             {
                 return BadRequest(localizer["RoomSchedulingConflict", dto.RoomId, dto.StartTime].Value);
@@ -178,7 +187,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
             {
                 MovieId = dto.MovieId,
                 RoomId = dto.RoomId,
-                StartTime = dto.StartTime
+                StartTime = dto.StartTime,
+                DiscountPercentage = dto.DiscountPercentage
             };
 
             showtimeEntities.Add(showtime);
@@ -189,7 +199,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
                 showtime.RoomId,
                 rooms[dto.RoomId].Name,
                 showtime.StartTime,
-                0
+                0,
+                showtime.DiscountPercentage
             ));
         }
 
@@ -206,7 +217,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
                 savedShowtime.RoomId,
                 rooms[dto.RoomId].Name,
                 savedShowtime.StartTime,
-                0);
+                0,
+                savedShowtime.DiscountPercentage);
         }
 
         return Ok(responseDtos);
@@ -222,7 +234,7 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
         {
             return NotFound("Show not found");
         }
-        
+
         var movie = await context.Movies.FindAsync(dto.MovieId);
         if (movie == null)
             return BadRequest(localizer["InvalidMovieId"].Value);
@@ -232,6 +244,9 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
 
         if (dto.StartTime < DateTime.Now)
             return BadRequest(localizer["ShowtimeInPast"].Value);
+
+        if (dto.DiscountPercentage < 0 || dto.DiscountPercentage > 100)
+            return BadRequest("Discount percentage must be between 0 and 100.");
 
         // Calculate end time (duration + 30 min cleaning buffer)
         var newEndTime = dto.StartTime.AddMinutes(movie.DurationMinutes + 30);
@@ -252,6 +267,7 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
         showtime.MovieId = dto.MovieId;
         showtime.RoomId = dto.RoomId;
         showtime.StartTime = dto.StartTime;
+        showtime.DiscountPercentage = dto.DiscountPercentage;
 
         await context.SaveChangesAsync();
 
@@ -266,7 +282,8 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
             showtime.RoomId,
             roomName,
             showtime.StartTime,
-            0
+            0,
+            showtime.DiscountPercentage
         ));
     }
 

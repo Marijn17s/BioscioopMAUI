@@ -10,6 +10,8 @@ public class Showtime
 
     public DateTime StartTime { get; set; }
 
+    public decimal DiscountPercentage { get; set; }
+
     // Navigation properties
     public Movie Movie { get; set; }
     public Room Room { get; set; }

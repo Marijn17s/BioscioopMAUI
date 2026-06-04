@@ -6,13 +6,15 @@ public record ShowtimeResponseDto(
     int RoomId,
     string RoomName,
     DateTime StartTime,
-    double TicketPrice
+    double TicketPrice,
+    decimal DiscountPercentage
 );
 
 public record ShowtimeCreateDto(
     int MovieId,
     int RoomId,
-    DateTime StartTime
+    DateTime StartTime,
+    decimal DiscountPercentage = 0
 );
 
 public record ShowtimeBulkCreateDto(

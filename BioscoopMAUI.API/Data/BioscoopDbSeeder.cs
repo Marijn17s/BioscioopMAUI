@@ -159,6 +159,7 @@ public static class BioscoopDbSeeder
     private static List<Showtime> CreateShowtimes(List<Movie> movies, List<Room> rooms)
     {
         var showtimes = new List<Showtime>();
+        var random = new Random(42);
 
         // Calculate the Monday of the current week
         var today = DateTime.Today;
@@ -166,13 +167,13 @@ public static class BioscoopDbSeeder
         var currentMonday = today.AddDays(-daysSinceMonday);
 
         // Seed current week (Mon-Sun)
-        AddWeekShowtimes(showtimes, movies, rooms, currentMonday);
+        AddWeekShowtimes(showtimes, movies, rooms, currentMonday, random);
 
         // If today is Thursday (3) or later in the week, also seed next week
         if (daysSinceMonday >= 3) // Thursday = 3 (Mon=0, Tue=1, Wed=2, Thu=3)
         {
             var nextMonday = currentMonday.AddDays(7);
-            AddWeekShowtimes(showtimes, movies, rooms, nextMonday);
+            AddWeekShowtimes(showtimes, movies, rooms, nextMonday, random);
         }
 
         return showtimes;
@@ -182,7 +183,8 @@ public static class BioscoopDbSeeder
         List<Showtime> showtimes,
         List<Movie> movies,
         List<Room> rooms,
-        DateTime monday)
+        DateTime monday,
+        Random random)
     {
         // Time slots for showtimes
         var timeSlots = new[] { 14, 17, 20 }; // 14:00, 17:00, 20:00
@@ -204,11 +206,22 @@ public static class BioscoopDbSeeder
                         Movie = movie,
                         Room = room,
                         StartTime = date.AddHours(timeSlots[slotIndex]),
+                        DiscountPercentage = GetRandomDiscountPercentage(random)
                     });
                 }
                 roomOffset++;
             }
         }
+    }
+
+    private static decimal GetRandomDiscountPercentage(Random random)
+    {
+        // Give 1 of 5 showtimes a discount
+        if (random.NextDouble() >= 0.2)
+            return 0m;
+
+        var discountPercentages = new[] { 10m, 15m, 20m, 25m };
+        return discountPercentages[random.Next(discountPercentages.Length)];
     }
 
     private static List<PinCard> CreatePinCards()

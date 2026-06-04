@@ -7,5 +7,6 @@ public record FilmsOverviewDto(
     string Genres,
     int DurationMinutes,
     DateTime StartTime,
-    string PosterUrl
+    string PosterUrl,
+    decimal DiscountPercentage
 );

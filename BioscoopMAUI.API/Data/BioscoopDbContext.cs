@@ -64,6 +64,10 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
             .HasForeignKey(s => s.RoomId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<Showtime>()
+            .Property(s => s.DiscountPercentage)
+            .HasPrecision(5, 2);
+
         // ShowtimeSeat configuration
         modelBuilder.Entity<ShowtimeSeat>()
             .HasKey(ss => new { ss.ShowtimeId, ss.SeatId });

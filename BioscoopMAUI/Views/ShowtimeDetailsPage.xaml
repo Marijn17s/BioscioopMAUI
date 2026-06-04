@@ -72,21 +72,33 @@
                     </VerticalStackLayout>
 
                     <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
-                        <VerticalStackLayout Spacing="14">
-                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Movie" />
-                            <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding Movie.Title}" />
+                        <VerticalStackLayout Spacing="12">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="13"
+                                Text="Movie"
+                                TextColor="{StaticResource TextMuted}"
+                                TextTransform="Uppercase" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="20"
+                                LineBreakMode="WordWrap"
+                                Text="{Binding Movie.Title}"
+                                TextColor="{StaticResource TextPrimary}" />
                             <HorizontalStackLayout Spacing="10">
                                 <Border
                                     BackgroundColor="{StaticResource Secondary}"
-                                    Padding="10,5"
+                                    Padding="12,6"
                                     StrokeThickness="0">
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="16" />
+                                        <RoundRectangle CornerRadius="18" />
                                     </Border.StrokeShape>
                                     <Label
                                         FontAttributes="Bold"
                                         FontFamily="OpenSansSemibold"
-                                        FontSize="12"
+                                        FontSize="13"
                                         Text="{Binding Movie.AgeRating, StringFormat='{0}+'}"
                                         TextColor="{StaticResource PrimaryDark}" />
                                 </Border>
@@ -99,34 +111,70 @@
                     </controls:GlassPanel>
 
                     <controls:GlassPanel IsVisible="{Binding HasShowtime}" Style="{StaticResource GlassPanelStyle}">
-                        <VerticalStackLayout Spacing="14">
-                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Screening" />
+                        <Grid
+                            ColumnDefinitions="*,Auto"
+                            RowDefinitions="Auto,Auto,Auto"
+                            RowSpacing="12">
                             <Label
                                 FontAttributes="Bold"
                                 FontFamily="OpenSansSemibold"
-                                FontSize="18"
-                                Text="{Binding Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy}'}" />
-                            <HorizontalStackLayout Spacing="10">
-                                <Border
-                                    BackgroundColor="{StaticResource Secondary}"
-                                    Padding="12,7"
-                                    StrokeThickness="0">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="16" />
-                                    </Border.StrokeShape>
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontFamily="OpenSansSemibold"
-                                        FontSize="15"
-                                        Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
-                                        TextColor="{StaticResource PrimaryDark}" />
-                                </Border>
+                                FontSize="13"
+                                Text="Screening"
+                                TextColor="{StaticResource TextMuted}"
+                                TextTransform="Uppercase"
+                                VerticalOptions="Center" />
+                            <Border
+                                BackgroundColor="{StaticResource Secondary}"
+                                Grid.Column="1"
+                                IsVisible="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToBoolConverter}}"
+                                Padding="12,7"
+                                StrokeThickness="0"
+                                VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="16" />
+                                </Border.StrokeShape>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="14"
+                                    Text="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToLabelConverter}}"
+                                    TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+
+                            <VerticalStackLayout
+                                Grid.ColumnSpan="2"
+                                Grid.Row="1"
+                                Spacing="4">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="20"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy}'}"
+                                    TextColor="{StaticResource TextPrimary}" />
                                 <Label
                                     Style="{StaticResource MutedLabelStyle}"
-                                    Text="{Binding Showtime.RoomName}"
-                                    VerticalTextAlignment="Center" />
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
+                                    Text="{Binding Showtime.RoomName}" />
+                            </VerticalStackLayout>
+
+                            <Border
+                                BackgroundColor="{StaticResource Secondary}"
+                                Grid.ColumnSpan="2"
+                                Grid.Row="2"
+                                HorizontalOptions="Start"
+                                Padding="12,7"
+                                StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="16" />
+                                </Border.StrokeShape>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="15"
+                                    Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
+                                    TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                        </Grid>
                     </controls:GlassPanel>
 
                     <VerticalStackLayout Spacing="8">

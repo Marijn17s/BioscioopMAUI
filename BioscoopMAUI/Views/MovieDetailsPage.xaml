@@ -230,7 +230,27 @@
                                                         FontFamily="OpenSansSemibold"
                                                         FontSize="15"
                                                         Text="{Binding StartTime, StringFormat='{0:dddd d MMMM}'}" />
-                                                    <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding RoomName}" />
+                                                    <HorizontalStackLayout Spacing="8">
+                                                        <Label
+                                                            Style="{StaticResource MutedLabelStyle}"
+                                                            Text="{Binding RoomName}"
+                                                            VerticalTextAlignment="Center" />
+                                                        <Border
+                                                            BackgroundColor="{StaticResource Secondary}"
+                                                            IsVisible="{Binding DiscountPercentage, Converter={StaticResource DiscountPercentageToBoolConverter}}"
+                                                            Padding="9,4"
+                                                            StrokeThickness="0">
+                                                            <Border.StrokeShape>
+                                                                <RoundRectangle CornerRadius="14" />
+                                                            </Border.StrokeShape>
+                                                            <Label
+                                                                FontAttributes="Bold"
+                                                                FontFamily="OpenSansSemibold"
+                                                                FontSize="11"
+                                                                Text="{Binding DiscountPercentage, Converter={StaticResource DiscountPercentageToLabelConverter}}"
+                                                                TextColor="{StaticResource PrimaryDark}" />
+                                                        </Border>
+                                                    </HorizontalStackLayout>
                                                 </VerticalStackLayout>
 
                                                 <Border

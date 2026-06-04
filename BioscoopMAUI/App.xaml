@@ -1,10 +1,14 @@
 ﻿<?xml version = "1.0" encoding = "UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:converters="clr-namespace:BioscoopMAUI.Converters"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:BioscoopMAUI"
              x:Class="BioscoopMAUI.App">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:DiscountPercentageToBoolConverter x:Key="DiscountPercentageToBoolConverter" />
+            <converters:DiscountPercentageToLabelConverter x:Key="DiscountPercentageToLabelConverter" />
+
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />

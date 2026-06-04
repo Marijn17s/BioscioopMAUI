@@ -150,7 +150,8 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
             s.RoomId,
             s.Room.Name,
             s.StartTime,
-            0 // Ticket price is out of scope for now
+            0,
+            s.DiscountPercentage
         )).OrderBy(s => s.StartTime).ToList();
 
         var isFavorite = false;

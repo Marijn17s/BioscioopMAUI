@@ -367,6 +367,22 @@
                                                     <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding DurationMinutes, StringFormat='{0} min'}" />
                                                     <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding StartTime, StringFormat='{0:ddd d MMM}'}" />
                                                 </HorizontalStackLayout>
+                                                <Border
+                                                    BackgroundColor="{StaticResource Secondary}"
+                                                    HorizontalOptions="Start"
+                                                    IsVisible="{Binding DiscountPercentage, Converter={StaticResource DiscountPercentageToBoolConverter}}"
+                                                    Padding="9,4"
+                                                    StrokeThickness="0">
+                                                    <Border.StrokeShape>
+                                                        <RoundRectangle CornerRadius="14" />
+                                                    </Border.StrokeShape>
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontFamily="OpenSansSemibold"
+                                                        FontSize="11"
+                                                        Text="{Binding DiscountPercentage, Converter={StaticResource DiscountPercentageToLabelConverter}}"
+                                                        TextColor="{StaticResource PrimaryDark}" />
+                                                </Border>
                                             </VerticalStackLayout>
 
                                             <Border

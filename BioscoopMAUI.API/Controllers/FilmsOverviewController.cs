@@ -27,7 +27,8 @@ public class FilmsOverviewController(BioscoopDbContext context) : ControllerBase
             s.Movie.Genres,
             s.Movie.DurationMinutes,
             s.StartTime,
-            s.Movie.PosterUrl
+            s.Movie.PosterUrl,
+            s.DiscountPercentage
         )).ToList();
 
         return Ok(result);
