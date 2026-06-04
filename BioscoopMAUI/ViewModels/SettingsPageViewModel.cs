@@ -1,4 +1,5 @@
 using BioscoopMAUI.Interfaces.Auth;
+using BioscoopMAUI.Interfaces.Feedback;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Navigation;
@@ -7,10 +8,16 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BioscoopMAUI.ViewModels;
 
-public partial class SettingsPageViewModel(IAuthService authService, INavigationService navigationService) : ObservableObject
+public partial class SettingsPageViewModel(
+    IAuthService authService,
+    INavigationService navigationService,
+    IFeedbackService feedbackService) : ObservableObject
 {
     public bool IsEmployee => string.Equals(Role, AuthConstants.EmployeeRole, StringComparison.OrdinalIgnoreCase);
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
+    public bool HasFeedbackSuccess => !string.IsNullOrWhiteSpace(FeedbackSuccessMessage);
+    public bool IsFeedbackInputEnabled => !IsBusy;
+    public bool CanSubmitFeedback => !IsBusy && !string.IsNullOrWhiteSpace(FeedbackText);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmployee))]
@@ -25,11 +32,23 @@ public partial class SettingsPageViewModel(IAuthService authService, INavigation
     private string _role = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsFeedbackInputEnabled))]
+    [NotifyPropertyChangedFor(nameof(CanSubmitFeedback))]
+    [NotifyCanExecuteChangedFor(nameof(SubmitFeedbackCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
     private string _errorMessage = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanSubmitFeedback))]
+    [NotifyCanExecuteChangedFor(nameof(SubmitFeedbackCommand))]
+    private string _feedbackText = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasFeedbackSuccess))]
+    private string _feedbackSuccessMessage = string.Empty;
 
     public async Task InitializeAsync()
     {
@@ -48,6 +67,39 @@ public partial class SettingsPageViewModel(IAuthService authService, INavigation
         Email = user.Email;
         DisplayName = user.DisplayName;
         Role = user.Role;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanSubmitFeedback))]
+    private async Task SubmitFeedbackAsync()
+    {
+        if (IsBusy)
+            return;
+
+        var feedback = FeedbackText.Trim();
+        if (string.IsNullOrWhiteSpace(feedback))
+        {
+            ErrorMessage = "Please enter your feedback before submitting.";
+            return;
+        }
+
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+        FeedbackSuccessMessage = string.Empty;
+
+        try
+        {
+            await feedbackService.SubmitFeedbackAsync(feedback);
+            FeedbackText = string.Empty;
+            FeedbackSuccessMessage = "Thank you for your feedback.";
+        }
+        catch
+        {
+            ErrorMessage = "We couldn't send your feedback. Please try again.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]

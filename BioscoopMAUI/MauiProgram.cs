@@ -1,12 +1,14 @@
 using System.Reflection;
 using Auth0.OidcClient;
 using BioscoopMAUI.Interfaces.Auth;
+using BioscoopMAUI.Interfaces.Feedback;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Reservations;
 using BioscoopMAUI.Interfaces.Showtimes;
 using BioscoopMAUI.Models.Configuration;
 using BioscoopMAUI.Services.Auth;
+using BioscoopMAUI.Services.Feedback;
 using BioscoopMAUI.Services.Movies;
 using BioscoopMAUI.Services.Navigation;
 using BioscoopMAUI.Services.Reservations;
@@ -91,6 +93,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IMovieService, MovieService>();
         builder.Services.AddSingleton<IShowtimeService, ShowtimeService>();
         builder.Services.AddSingleton<IReservationService, ReservationService>();
+        builder.Services.AddSingleton<IFeedbackService, FeedbackService>();
 
         builder.Services.AddSingleton<AppShell>();
 

@@ -36,6 +36,28 @@
                         <Label Style="{StaticResource DescriptionLabelStyle}" Text="TODO" />
                     </VerticalStackLayout>
 
+                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Feedback" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Share your thoughts or report something that could be improved." />
+                            <Editor
+                                AutoSize="TextChanges"
+                                HeightRequest="120"
+                                IsEnabled="{Binding IsFeedbackInputEnabled}"
+                                MaxLength="2000"
+                                Placeholder="Write your feedback..."
+                                Text="{Binding FeedbackText, Mode=TwoWay}" />
+                            <Label
+                                IsVisible="{Binding HasFeedbackSuccess}"
+                                Style="{StaticResource DescriptionLabelStyle}"
+                                Text="{Binding FeedbackSuccessMessage}" />
+                            <Button
+                                Command="{Binding SubmitFeedbackCommand}"
+                                IsEnabled="{Binding CanSubmitFeedback}"
+                                Text="Send feedback" />
+                        </VerticalStackLayout>
+                    </controls:GlassPanel>
+
                     <Button Command="{Binding LogoutCommand}" Text="Log out" />
                 </VerticalStackLayout>
             </ScrollView>

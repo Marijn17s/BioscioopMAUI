@@ -15,6 +15,7 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<PopcornOrder> PopcornOrders { get; set; }
     public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
+    public DbSet<UserFeedback> UserFeedback { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -116,6 +117,22 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
             .IsUnique();
 
         modelBuilder.Entity<FavoriteMovie>()
+            .HasIndex(f => f.Auth0UserId);
+
+        modelBuilder.Entity<UserFeedback>()
+            .ToTable("Feedback");
+
+        modelBuilder.Entity<UserFeedback>()
+            .Property(f => f.Auth0UserId)
+            .HasMaxLength(255)
+            .IsRequired();
+
+        modelBuilder.Entity<UserFeedback>()
+            .Property(f => f.Feedback)
+            .HasMaxLength(2000)
+            .IsRequired();
+
+        modelBuilder.Entity<UserFeedback>()
             .HasIndex(f => f.Auth0UserId);
     }
 }
