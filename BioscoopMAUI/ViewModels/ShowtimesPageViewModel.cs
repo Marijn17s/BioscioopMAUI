@@ -19,7 +19,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     private List<FilmsOverviewDto> _allShowtimes = [];
     private List<FilmsOverviewDto> _filteredShowtimes = [];
-    private int _displayedCount;
     private bool _isUpdatingSelectedCalendarDate;
 
     public ShowtimesPageViewModel(IShowtimeService showtimeService, INavigationService navigationService)
@@ -40,7 +39,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     public bool HasNoMatchingShowtimes => HasLoadedOnce && !HasError && LoadedShowtimesCount > 0 && DisplayedShowtimesCount == 0;
 
-    public bool HasMoreShowtimes => _displayedCount < _filteredShowtimes.Count;
+    public bool HasMoreShowtimes => DisplayedCount < FilteredShowtimesCount;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
@@ -71,6 +70,14 @@ public partial class ShowtimesPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasNoMatchingShowtimes))]
     [NotifyPropertyChangedFor(nameof(HasMoreShowtimes))]
     private int _displayedShowtimesCount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMoreShowtimes))]
+    private int _displayedCount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasMoreShowtimes))]
+    private int _filteredShowtimesCount;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
@@ -297,6 +304,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
     private void ApplyFiltersAndResetDisplay()
     {
         _filteredShowtimes = ApplyFilters(_allShowtimes);
+        FilteredShowtimesCount = _filteredShowtimes.Count;
         ResetDisplayedShowtimes();
     }
 
@@ -329,12 +337,10 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     private void ResetDisplayedShowtimes()
     {
-        _displayedCount = 0;
+        DisplayedCount = 0;
         Showtimes.Clear();
         DisplayedShowtimesCount = 0;
         AppendNextChunk();
-        OnPropertyChanged(nameof(HasNoMatchingShowtimes));
-        OnPropertyChanged(nameof(HasMoreShowtimes));
     }
 
     private void SetSelectedDate(DateTime? date, bool closeFilter)
@@ -364,18 +370,15 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     private void AppendNextChunk()
     {
-        var remaining = _filteredShowtimes.Count - _displayedCount;
+        var remaining = _filteredShowtimes.Count - DisplayedCount;
         if (remaining <= 0)
-        {
-            OnPropertyChanged(nameof(HasMoreShowtimes));
             return;
-        }
 
         var count = Math.Min(PageSize, remaining);
-        for (var index = _displayedCount; index < _displayedCount + count; index++)
+        for (var index = DisplayedCount; index < DisplayedCount + count; index++)
             Showtimes.Add(_filteredShowtimes[index]);
 
-        _displayedCount += count;
+        DisplayedCount += count;
         DisplayedShowtimesCount = Showtimes.Count;
     }
 }
