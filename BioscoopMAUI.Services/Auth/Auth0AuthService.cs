@@ -62,7 +62,7 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
             loginResult.User);
     }
 
-    public Task LogoutAsync()
+    public async Task LogoutAsync()
     {
         SecureStorage.Default.Remove(AccessTokenKey);
         SecureStorage.Default.Remove(RefreshTokenKey);
@@ -71,7 +71,8 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
         SecureStorage.Default.Remove(DisplayNameKey);
         SecureStorage.Default.Remove(RoleKey);
         CurrentUser = null;
-        return Task.CompletedTask;
+        
+        await auth0Client.LogoutAsync();
     }
 
     public async Task<bool> TryRefreshAccessTokenAsync()
