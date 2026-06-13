@@ -70,7 +70,7 @@
             <Grid Grid.Row="1">
                 <RefreshView
                     Command="{Binding LoadHomeCommand}"
-                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding ShowContent}">
                     <ScrollView>
                         <VerticalStackLayout Padding="20" Spacing="24">
@@ -162,7 +162,7 @@
 
                 <RefreshView
                     Command="{Binding LoadHomeCommand}"
-                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
                         <controls:GlassPanel

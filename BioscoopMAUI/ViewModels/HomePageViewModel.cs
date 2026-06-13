@@ -25,6 +25,8 @@ public partial class HomePageViewModel(
 
     public bool IsInitialLoading => IsBusy && !HasLoadedOnce;
 
+    public bool IsPullRefreshing => IsBusy && HasLoadedOnce;
+
     public bool ShowContent => HasLoadedOnce && !HasError;
 
     public bool ShowRecommendations => ShowContent && RecommendedCount > 0;
@@ -39,6 +41,7 @@ public partial class HomePageViewModel(
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     [NotifyPropertyChangedFor(nameof(ShowContent))]
     [NotifyPropertyChangedFor(nameof(ShowRecommendations))]
     [NotifyPropertyChangedFor(nameof(ShowFavoritesEmpty))]
@@ -47,6 +50,7 @@ public partial class HomePageViewModel(
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     private bool _isBusy;
 
     [ObservableProperty]

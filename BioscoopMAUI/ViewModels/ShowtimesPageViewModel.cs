@@ -49,6 +49,8 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     public bool IsInitialLoading => IsBusy && !HasLoadedOnce;
 
+    public bool IsPullRefreshing => IsBusy && HasLoadedOnce;
+
     public DateTime MinimumFilterDate { get; } = DateTime.Today;
 
     public DateTime MaximumFilterDate { get; } = DateTime.Today.AddDays(ShowtimesLookAhead.Days - 1);
@@ -58,6 +60,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasNoMatchingShowtimes))]
     [NotifyPropertyChangedFor(nameof(ShowShowtimesList))]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     private bool _hasLoadedOnce;
 
     [ObservableProperty]
@@ -83,6 +86,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
     [NotifyPropertyChangedFor(nameof(ShowShowtimesList))]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     private bool _isBusy;
 
     [ObservableProperty]

@@ -22,10 +22,13 @@ public partial class MoviesPageViewModel(IMovieService movieService, INavigation
 
     public bool IsInitialLoading => IsBusy && !HasLoadedOnce;
 
+    public bool IsPullRefreshing => IsBusy && HasLoadedOnce;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
     [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     private bool _hasLoadedOnce;
 
     [ObservableProperty]
@@ -38,6 +41,7 @@ public partial class MoviesPageViewModel(IMovieService movieService, INavigation
     [NotifyPropertyChangedFor(nameof(IsEmptyStateVisible))]
     [NotifyPropertyChangedFor(nameof(ShowMoviesList))]
     [NotifyPropertyChangedFor(nameof(IsInitialLoading))]
+    [NotifyPropertyChangedFor(nameof(IsPullRefreshing))]
     private bool _isBusy;
 
     [ObservableProperty]

@@ -21,7 +21,7 @@
             <Grid Grid.Row="1">
                 <RefreshView
                     Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding ShowMoviesList}">
                     <CollectionView ItemsSource="{Binding Movies}" SelectionMode="None">
                         <CollectionView.ItemTemplate>
@@ -119,7 +119,7 @@
 
                 <RefreshView
                     Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
                         <controls:GlassPanel
@@ -141,7 +141,7 @@
 
                 <RefreshView
                     Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding IsEmptyStateVisible}">
                     <ScrollView>
                         <controls:GlassPanel
