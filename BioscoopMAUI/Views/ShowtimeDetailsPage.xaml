@@ -179,6 +179,7 @@
 
                     <VerticalStackLayout Spacing="8">
                         <Button
+                            Command="{Binding BookTicketsCommand}"
                             IsEnabled="{Binding CanBookTickets}"
                             Style="{StaticResource SecondaryActionButtonStyle}"
                             Text="Book Tickets" />

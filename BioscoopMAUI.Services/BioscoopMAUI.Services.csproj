@@ -29,6 +29,9 @@
         <PackageReference Include="Auth0.OidcClient.MAUI" Version="1.4.0" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0-preview.4.26230.115" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
+        <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
+        <PackageReference Include="SkiaSharp" Version="3.119.4" />
     </ItemGroup>
 
     <ItemGroup>

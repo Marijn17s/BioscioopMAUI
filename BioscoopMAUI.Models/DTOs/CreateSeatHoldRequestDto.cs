@@ -2,15 +2,14 @@ namespace BioscoopMAUI.Models.DTOs;
 
 public class CreateSeatHoldRequestDto
 {
-    public int ShowtimeId { get; set; }
-    public List<int> SeatIds { get; set; } = new();
-    public List<PopcornOrderDto>? PopcornOrders { get; set; }
+    public List<int> SeatIds { get; set; } = [];
 }
 
 public class CreateSeatHoldResponseDto
 {
     public Guid HoldId { get; set; }
     public DateTime ExpiresAtUtc { get; set; }
+    public PriceQuoteDto? PriceQuote { get; set; }
 }
 
 public class SeatHoldDetailsDto

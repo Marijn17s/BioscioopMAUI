@@ -11,10 +11,14 @@ public static class NavigationRoutes
     public const string ShowtimeDetails = "showtime-details";
     public const string Reservations = "reservations";
     public const string ReservationDetails = "reservation-details";
+    public const string SeatSelection = "seat-selection";
     public const string Settings = "settings";
 
     // Parameters
     public const string MovieIdParameter = "MovieId";
     public const string ShowtimeIdParameter = "ShowtimeId";
     public const string ReservationIdParameter = "ReservationId";
+    public const string MovieTitleParameter = "MovieTitle";
+    public const string RoomNameParameter = "RoomName";
+    public const string StartTimeParameter = "StartTime";
 }

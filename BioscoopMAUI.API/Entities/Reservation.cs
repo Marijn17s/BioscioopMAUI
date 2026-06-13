@@ -1,3 +1,5 @@
+using BioscoopMAUI.Models.DTOs;
+
 namespace BioscoopMAUI.API.Entities;
 
 public class Reservation
@@ -6,6 +8,10 @@ public class Reservation
     public int ShowtimeId { get; set; }
     public string Auth0UserId { get; set; } = string.Empty;
     public decimal TotalPrice { get; set; }
+    public string Status { get; set; } = ReservationStatus.Confirmed;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? StripeSessionId { get; set; }
+    public string? StripePaymentIntentId { get; set; }
 
     // Navigation properties
     public Showtime Showtime { get; set; }

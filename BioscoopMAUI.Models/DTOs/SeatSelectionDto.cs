@@ -29,3 +29,31 @@ public record ReservationConfirmResponseDto(
     List<SeatInfoDto> ReservedSeats,
     string Message
 );
+
+public record PriceQuoteDto(
+    int ShowtimeId,
+    int SeatCount,
+    decimal BaseTicketPrice,
+    decimal SurchargePerTicket,
+    decimal TicketPriceBeforeDiscount,
+    decimal Subtotal,
+    decimal DiscountPercentage,
+    decimal DiscountAmount,
+    decimal TotalPrice
+);
+
+public record CheckoutSessionRequestDto(
+    Guid HoldId
+);
+
+public record CheckoutSessionResponseDto(
+    string SessionId,
+    string CheckoutUrl,
+    DateTime HoldExpiresAtUtc
+);
+
+public record PaymentStatusResponseDto(
+    string Status,
+    int? ReservationId,
+    string? ErrorMessage
+);

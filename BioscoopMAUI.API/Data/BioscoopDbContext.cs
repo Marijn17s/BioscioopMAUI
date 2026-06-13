@@ -1,4 +1,5 @@
 using BioscoopMAUI.API.Entities;
+using BioscoopMAUI.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BioscoopMAUI.API.Data;
@@ -93,8 +94,40 @@ public class BioscoopDbContext(DbContextOptions<BioscoopDbContext> options) : Db
         modelBuilder.Entity<ShowtimeSeat>()
             .HasIndex(ss => ss.ReservationId);
 
+        modelBuilder.Entity<ShowtimeSeat>()
+            .HasIndex(ss => ss.HoldId);
+
+        modelBuilder.Entity<ShowtimeSeat>()
+            .Property(ss => ss.HoldAuth0UserId)
+            .HasMaxLength(255);
+
         modelBuilder.Entity<Reservation>()
             .HasIndex(r => r.Auth0UserId);
+
+        modelBuilder.Entity<Reservation>()
+            .HasIndex(r => r.StripeSessionId);
+
+        modelBuilder.Entity<Reservation>()
+            .Property(r => r.Status)
+            .HasMaxLength(32)
+            .HasDefaultValue(ReservationStatus.Confirmed)
+            .IsRequired();
+
+        modelBuilder.Entity<Reservation>()
+            .Property(r => r.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+        modelBuilder.Entity<Reservation>()
+            .Property(r => r.TotalPrice)
+            .HasPrecision(10, 2);
+
+        modelBuilder.Entity<Reservation>()
+            .Property(r => r.StripeSessionId)
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<Reservation>()
+            .Property(r => r.StripePaymentIntentId)
+            .HasMaxLength(255);
 
         // Reservation belongs to Showtime
         modelBuilder.Entity<Reservation>()

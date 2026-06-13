@@ -7,13 +7,28 @@ namespace BioscoopMAUI.Models.Helpers;
 
 public class QrCodeHelper
 {
-    public string GetQrCodeString(ReservationResponseDto reservation)
+    public string GetReservationQrCodeString(ReservationResponseDto reservation)
+        => GetSeatsQrCodeString(reservation, reservation.Seats);
+
+    public string GetSeatQrCodeString(ReservationResponseDto reservation, SeatDto seat)
+        => GetSeatsQrCodeString(reservation, [seat]);
+
+    public List<List<bool>> GetQrCodeModules(string qrCodeText)
+    {
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(qrCodeText, QRCodeGenerator.ECCLevel.Q);
+        return qrCodeData.ModuleMatrix
+            .Select(row => row.Cast<bool>().ToList())
+            .ToList();
+    }
+
+    private string GetSeatsQrCodeString(ReservationResponseDto reservation, List<SeatDto> seats)
     {
         var reservationId = reservation.Id;
         var showtimeId = reservation.Showtime.Id;
         var roomId = reservation.Showtime.RoomId;
-        var seatIds = string.Join(",", reservation.Seats.Select(s => s.SeatId));
-        var checksum = CalculateChecksum(reservationId, showtimeId, roomId, reservation.Seats);
+        var seatIds = string.Join(",", seats.Select(seat => seat.SeatId));
+        var checksum = CalculateChecksum(reservationId, showtimeId, roomId, seats);
 
         var qrCodeContent = $"RE:{reservationId}|SH:{showtimeId}|RO:{roomId}|SE:{seatIds}|CH:{checksum}";
         var bytes = Encoding.UTF8.GetBytes(qrCodeContent);
@@ -81,7 +96,7 @@ public class QrCodeHelper
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(s => int.TryParse(s, out var id) ? id : (int?)null)
                     .Where(id => id.HasValue)
-                    .Select(id => id!.Value)
+                    .Select(id => id.GetValueOrDefault())
                     .ToList();
 
                 if (seatIds.Count is 0)

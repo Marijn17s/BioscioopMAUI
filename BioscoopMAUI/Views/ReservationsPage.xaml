@@ -2,8 +2,11 @@
 <ContentPage
     Shell.NavBarIsVisible="False"
     x:Class="BioscoopMAUI.Views.ReservationsPage"
+    x:DataType="viewModels:ReservationsPageViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:models="clr-namespace:BioscoopMAUI.Models.DTOs;assembly=BioscoopMAUI.Models"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*">
@@ -14,8 +17,117 @@
                 Title="Reservations" />
 
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout Padding="20" Spacing="12" />
+                <VerticalStackLayout Padding="20" Spacing="18">
+                    <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                Text="Something went wrong" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                            <Button Command="{Binding LoadReservationsCommand}" Text="Try again" />
+                        </VerticalStackLayout>
+                    </controls:GlassPanel>
+
+                    <controls:GlassPanel IsVisible="{Binding IsEmptyStateVisible}" Style="{StaticResource GlassPanelStyle}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                Text="No reservations yet" />
+                            <Label
+                                Style="{StaticResource DescriptionLabelStyle}"
+                                Text="Book a screening to see your tickets here, even when you're offline." />
+                        </VerticalStackLayout>
+                    </controls:GlassPanel>
+
+                    <VerticalStackLayout IsVisible="{Binding HasActiveReservations}" Spacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="20"
+                            Text="Active and upcoming" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ActiveReservations}" Spacing="10">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ReservationResponseDto">
+                                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenReservationCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="18"
+                                                Text="{Binding MovieTitle}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding TotalPrice, StringFormat='{0:C}'}" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding Showtime.StartTime, StringFormat='{0:ddd d MMM yyyy HH:mm}'}" />
+                                            <Label
+                                                Grid.Row="2"
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding Seats.Count, StringFormat='{0} seat(s)'}" />
+                                        </Grid>
+                                    </controls:GlassPanel>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout IsVisible="{Binding HasReservationHistory}" Spacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="20"
+                            Text="History" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding ReservationHistory}" Spacing="10">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:ReservationResponseDto">
+                                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenReservationCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontFamily="OpenSansSemibold"
+                                                FontSize="18"
+                                                Text="{Binding MovieTitle}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding Status}" />
+                                            <Label
+                                                Grid.Row="1"
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding Showtime.StartTime, StringFormat='{0:ddd d MMM yyyy HH:mm}'}" />
+                                            <Label
+                                                Grid.Row="2"
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding Seats.Count, StringFormat='{0} seat(s)'}" />
+                                        </Grid>
+                                    </controls:GlassPanel>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
             </ScrollView>
+
+            <ActivityIndicator
+                Grid.Row="1"
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center" />
         </Grid>
     </ContentPage.Content>
 </ContentPage>

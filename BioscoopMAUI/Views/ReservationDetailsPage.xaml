@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    Shell.NavBarIsVisible="True"
+    Title="Reservation"
+    x:Class="BioscoopMAUI.Views.ReservationDetailsPage"
+    x:DataType="viewModels:ReservationDetailsPageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:ui="clr-namespace:BioscoopMAUI.ViewModels.UI"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Grid>
+        <ScrollView IsVisible="{Binding HasReservation}">
+            <VerticalStackLayout Padding="20" Spacing="18">
+                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="24"
+                            Text="{Binding Reservation.MovieTitle}" />
+                        <Label
+                            Style="{StaticResource DescriptionLabelStyle}"
+                            Text="{Binding Reservation.Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy HH:mm}'}" />
+                        <Label
+                            Style="{StaticResource MutedLabelStyle}"
+                            Text="{Binding Reservation.RoomName}" />
+                        <Label
+                            FontAttributes="Bold"
+                            Text="{Binding Reservation.TotalPrice, StringFormat='Paid {0:C}'}" />
+                    </VerticalStackLayout>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            Text="Seats" />
+                        <Label
+                            FontSize="14"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding SeatSummary}"
+                            TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            Text="Ticket QR codes" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding TicketQrCodes}" Spacing="18">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="ui:TicketQrCodeViewModel">
+                                    <VerticalStackLayout Spacing="8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            HorizontalTextAlignment="Center"
+                                            Text="{Binding SeatLabel}" />
+                                        <Image
+                                            BackgroundColor="White"
+                                            HeightRequest="220"
+                                            HorizontalOptions="Center"
+                                            Source="{Binding QrCodeImage}"
+                                            WidthRequest="220" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </controls:GlassPanel>
+
+                <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            Text="Something went wrong" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                    </VerticalStackLayout>
+                </controls:GlassPanel>
+
+                <Button Command="{Binding SharePdfCommand}" Text="Share or save PDF" />
+
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="10"
+                    IsVisible="{Binding CanManage}">
+                    <Button
+                        Command="{Binding ChangeSeatsCommand}"
+                        Style="{StaticResource SecondaryActionButtonStyle}"
+                        Text="Change seats" />
+                    <Button
+                        Clicked="OnCancelReservationClicked"
+                        Grid.Column="1"
+                        Text="Cancel" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator
+            HorizontalOptions="Center"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center" />
+    </Grid>
+</ContentPage>

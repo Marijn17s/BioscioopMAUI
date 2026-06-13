@@ -4,16 +4,19 @@ using BioscoopMAUI.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BioscoopCasus.API.Migrations
+namespace BioscoopMAUI.API.Migrations
 {
     [DbContext(typeof(BioscoopDbContext))]
-    partial class BioscoopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607205922_AddReservationPaymentsAndSeatHolds")]
+    partial class AddReservationPaymentsAndSeatHolds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

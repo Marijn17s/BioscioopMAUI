@@ -81,7 +81,7 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
             .Select(reservation => reservation.Showtime.Movie)
             .ToListAsync();
 
-        if (reservedMovies.Count == 0)
+        if (reservedMovies.Count is 0)
             return Ok(Enumerable.Empty<MovieResponseDto>());
 
         var genreFrequencies = new Dictionary<string, int>();

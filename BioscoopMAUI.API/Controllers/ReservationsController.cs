@@ -13,7 +13,7 @@ namespace BioscoopMAUI.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCodeHelper) : ControllerBase
+public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCodeHelper, ITicketPricingService ticketPricingService, IStripeService stripeService) : ControllerBase
 {
     private bool IsEmployee() => User.IsInRole(AuthConstants.EmployeeRole);
 
@@ -58,7 +58,10 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
                 ),
                 seats,
                 r.Showtime.Movie.Title,
-                r.Showtime.Room.Name
+                r.Showtime.Room.Name,
+                r.TotalPrice,
+                r.Status,
+                r.CreatedAt
             );
         }).ToList();
 
@@ -108,7 +111,10 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
             ),
             seats,
             reservation.Showtime.Movie.Title,
-            reservation.Showtime.Room.Name
+            reservation.Showtime.Room.Name,
+            reservation.TotalPrice,
+            reservation.Status,
+            reservation.CreatedAt
         );
 
         return Ok(response);
@@ -153,6 +159,13 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         if (reservation is null)
             return Ok(new QrCodeValidationResponseDto(false, null, "Reservation not found"));
 
+        if (reservation.Status is ReservationStatus.Cancelled)
+            return Ok(new QrCodeValidationResponseDto(false, null, "This reservation has been cancelled."));
+
+        var reservationSeatIds = reservation.ShowtimeSeats.Select(showtimeSeat => showtimeSeat.SeatId).ToHashSet();
+        if (qrCodeData.SeatIds is null || qrCodeData.SeatIds.Any(seatId => !reservationSeatIds.Contains(seatId)))
+            return Ok(new QrCodeValidationResponseDto(false, null, "This ticket does not belong to the reservation."));
+
         if (reservation.Showtime.StartTime <= DateTime.UtcNow)
             return Ok(new QrCodeValidationResponseDto(false, null, "This ticket can no longer be viewed because the movie has already started."));
 
@@ -178,11 +191,13 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         }
 
         var showtime = await context.Showtimes
+            .Include(s => s.Movie)
             .Include(s => s.Room)
-            .ThenInclude(r => r.Rows)
+                .ThenInclude(r => r.Rows)
+            .Include(s => s.Room)
             .FirstOrDefaultAsync(s => s.Id == showtimeId);
 
-        if (showtime == null)
+        if (showtime is null)
             return NotFound("Showtime not found");
 
         var seats = await context.Seats
@@ -203,7 +218,9 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         {
             ShowtimeId = showtimeId,
             Auth0UserId = auth0UserId,
-            TotalPrice = request.TotalPrice
+            TotalPrice = (await ticketPricingService.GetPriceQuoteAsync(showtime, request.SeatIds.Count)).TotalPrice,
+            Status = ReservationStatus.Confirmed,
+            CreatedAt = DateTime.UtcNow
         };
 
         if (request.PopcornOrders is { Count: > 0 })
@@ -248,5 +265,113 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         );
 
         return Ok(response);
+    }
+
+    [HttpPut("{id:int}/seats")]
+    [Authorize]
+    public async Task<IActionResult> ChangeSeats(int id, [FromBody] ReservationSeatChangeRequestDto request)
+    {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
+        var reservation = await context.Reservations
+            .Include(r => r.Showtime)
+                .ThenInclude(s => s.Room)
+            .Include(r => r.ShowtimeSeats)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (reservation is null)
+            return NotFound();
+
+        if (!IsEmployee() && reservation.Auth0UserId != auth0UserId)
+            return NotFound();
+
+        if (reservation.Status is ReservationStatus.Cancelled)
+            return BadRequest("Cancelled reservations cannot be changed");
+
+        var currentSeatCount = reservation.ShowtimeSeats.Count;
+        if (request.SeatIds.Count != currentSeatCount)
+            return BadRequest("The number of seats cannot be changed");
+
+        var uniqueSeatIds = request.SeatIds.Distinct().ToList();
+        if (uniqueSeatIds.Count != request.SeatIds.Count)
+            return BadRequest("Duplicate seats selected");
+
+        var selectedSeats = await context.Seats
+            .Where(s => uniqueSeatIds.Contains(s.Id) && s.RoomId == reservation.Showtime.RoomId)
+            .ToListAsync();
+
+        if (selectedSeats.Count != uniqueSeatIds.Count)
+            return BadRequest("One or more selected seats do not exist or belong to a different room");
+
+        var now = DateTime.UtcNow;
+        var targetShowtimeSeats = await context.ShowtimeSeats
+            .Where(ss => ss.ShowtimeId == reservation.ShowtimeId && uniqueSeatIds.Contains(ss.SeatId))
+            .ToListAsync();
+
+        var hasUnavailableSeat = targetShowtimeSeats.Any(ss =>
+            (ss.ReservationId.HasValue && ss.ReservationId != reservation.Id)
+            || (ss.HoldId.HasValue && ss.HoldExpiresAtUtc > now && ss.HoldAuth0UserId != auth0UserId));
+
+        if (hasUnavailableSeat)
+            return BadRequest("One or more selected seats are already reserved or held");
+
+        foreach (var currentShowtimeSeat in reservation.ShowtimeSeats)
+        {
+            currentShowtimeSeat.ReservationId = null;
+            currentShowtimeSeat.HoldId = null;
+            currentShowtimeSeat.HoldAuth0UserId = null;
+            currentShowtimeSeat.HoldExpiresAtUtc = null;
+        }
+
+        foreach (var targetShowtimeSeat in targetShowtimeSeats)
+        {
+            targetShowtimeSeat.ReservationId = reservation.Id;
+            targetShowtimeSeat.HoldId = null;
+            targetShowtimeSeat.HoldAuth0UserId = null;
+            targetShowtimeSeat.HoldExpiresAtUtc = null;
+        }
+
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize]
+    public async Task<IActionResult> CancelReservation(int id)
+    {
+        var auth0UserId = User.GetAuth0UserId();
+        if (string.IsNullOrWhiteSpace(auth0UserId))
+            return Unauthorized();
+
+        var reservation = await context.Reservations
+            .Include(r => r.ShowtimeSeats)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (reservation is null)
+            return NotFound();
+
+        if (!IsEmployee() && reservation.Auth0UserId != auth0UserId)
+            return NotFound();
+
+        if (reservation.Status is ReservationStatus.Cancelled)
+            return NoContent();
+
+        if (!string.IsNullOrWhiteSpace(reservation.StripePaymentIntentId))
+            await stripeService.RefundPaymentAsync(reservation.StripePaymentIntentId);
+
+        reservation.Status = ReservationStatus.Cancelled;
+
+        foreach (var showtimeSeat in reservation.ShowtimeSeats)
+        {
+            showtimeSeat.ReservationId = null;
+            showtimeSeat.HoldId = null;
+            showtimeSeat.HoldAuth0UserId = null;
+            showtimeSeat.HoldExpiresAtUtc = null;
+        }
+
+        await context.SaveChangesAsync();
+        return NoContent();
     }
 }

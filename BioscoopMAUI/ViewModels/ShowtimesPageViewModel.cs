@@ -37,13 +37,13 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
     public bool HasShowtimes => DisplayedShowtimesCount > 0;
 
-    public bool HasNoMatchingShowtimes => HasLoadedOnce && !HasError && LoadedShowtimesCount > 0 && DisplayedShowtimesCount == 0;
+    public bool HasNoMatchingShowtimes => HasLoadedOnce && !HasError && LoadedShowtimesCount > 0 && DisplayedShowtimesCount is 0;
 
     public bool HasMoreShowtimes => DisplayedCount < FilteredShowtimesCount;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
 
-    public bool IsEmptyStateVisible => !IsBusy && !HasError && HasLoadedOnce && LoadedShowtimesCount == 0;
+    public bool IsEmptyStateVisible => !IsBusy && !HasError && HasLoadedOnce && LoadedShowtimesCount is 0;
 
     public bool ShowShowtimesList => HasLoadedOnce && !HasError && !IsEmptyStateVisible;
 
@@ -308,7 +308,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
         ResetDisplayedShowtimes();
     }
 
-    private List<FilmsOverviewDto> ApplyFilters(IReadOnlyList<FilmsOverviewDto> showtimes)
+    private List<FilmsOverviewDto> ApplyFilters(List<FilmsOverviewDto> showtimes)
     {
         IEnumerable<FilmsOverviewDto> filtered = showtimes;
 

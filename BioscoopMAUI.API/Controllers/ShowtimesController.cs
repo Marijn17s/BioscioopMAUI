@@ -59,7 +59,7 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
             return BadRequest(localizer["InvalidMovieId"].Value);
 
         var movie = await context.Movies.FindAsync(dto.MovieId);
-        if (movie == null)
+        if (movie is null)
             return BadRequest(localizer["InvalidMovieId"].Value);
 
         if (!await context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
@@ -121,7 +121,7 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
     [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<IEnumerable<ShowtimeResponseDto>>> BulkCreateShowtimes(ShowtimeBulkCreateDto bulkDto)
     {
-        if (bulkDto.Showtimes == null || !bulkDto.Showtimes.Any())
+        if (bulkDto.Showtimes is null || !bulkDto.Showtimes.Any())
             return BadRequest("No showtimes provided.");
 
         var showtimeEntities = new List<Showtime>();
@@ -230,13 +230,13 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
     public async Task<ActionResult<ShowtimeResponseDto>> UpdateShowtime(int id, ShowtimeCreateDto dto)
     {
         var showtime = await context.Showtimes.FindAsync(id);
-        if (showtime == null)
+        if (showtime is null)
         {
             return NotFound("Show not found");
         }
 
         var movie = await context.Movies.FindAsync(dto.MovieId);
-        if (movie == null)
+        if (movie is null)
             return BadRequest(localizer["InvalidMovieId"].Value);
 
         if (!await context.Rooms.AnyAsync(r => r.Id == dto.RoomId))
@@ -293,7 +293,7 @@ public class ShowtimesController(BioscoopDbContext context, IStringLocalizer<Sha
     public async Task<IActionResult> DeleteShowtime(int id)
     {
         var showtime = await context.Showtimes.FindAsync(id);
-        if (showtime == null)
+        if (showtime is null)
             return NotFound();
 
         context.Showtimes.Remove(showtime);

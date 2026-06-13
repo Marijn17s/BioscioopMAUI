@@ -8,6 +8,12 @@ public class ShowtimeSeat
 
     public int? ReservationId { get; set; }
 
+    public Guid? HoldId { get; set; }
+
+    public string? HoldAuth0UserId { get; set; }
+
+    public DateTime? HoldExpiresAtUtc { get; set; }
+
     // Navigation properties
     public Showtime Showtime { get; set; }
     public Seat Seat { get; set; }

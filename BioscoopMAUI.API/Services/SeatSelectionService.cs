@@ -28,8 +28,9 @@ public static class SeatSelectionService
     {
         var result = new SeatSelectionResult();
 
+        var now = DateTime.UtcNow;
         var occupiedSeatIds = showtimeSeats
-            .Where(ss => ss.ReservationId.HasValue)
+            .Where(ss => ss.ReservationId.HasValue || (ss.HoldId.HasValue && ss.HoldExpiresAtUtc > now))
             .Select(ss => ss.SeatId)
             .ToHashSet();
 
@@ -52,7 +53,7 @@ public static class SeatSelectionService
 
         var allocation = FindOptimalAllocation(availableSeats, groupSize, totalRows, middleRow, maxSeatsPerRow, middleSeat);
 
-        if (allocation == null || allocation.Count == 0)
+        if (allocation is null || allocation.Count is 0)
         {
             result.Message = "Could not find suitable seat configuration.";
             return result;
@@ -80,7 +81,7 @@ public static class SeatSelectionService
         var seatsByRow = availableSeats.GroupBy(s => s.Row).ToList();
 
         var singleBlockAllocation = FindContiguousBlock(availableSeats, groupSize, totalRows, middleRow, maxSeatsPerRow, middleSeat);
-        if (singleBlockAllocation != null)
+        if (singleBlockAllocation is not null)
             return new List<List<Seat>> { singleBlockAllocation };
 
         var splitAllocation = FindOptimalSplit(availableSeats, groupSize, totalRows, middleRow, maxSeatsPerRow, middleSeat);
@@ -162,7 +163,7 @@ public static class SeatSelectionService
             {
                 var block = FindBestBlockOfSize(seatsByRow, size, usedSeats, totalRows, middleRow, maxSeatsPerRow, middleSeat);
                 
-                if (block == null)
+                if (block is null)
                 {
                     valid = false;
                     break;
@@ -245,7 +246,7 @@ public static class SeatSelectionService
         int middleSeat,
         bool isSplit)
     {
-        if (block.Count == 0) return double.MaxValue;
+        if (block.Count is 0) return double.MaxValue;
 
         var seat = block[0];
         double rowDistance = Math.Abs(seat.Row - middleRow) * RowDistanceWeight;
@@ -268,7 +269,7 @@ public static class SeatSelectionService
 
     private static double CalculateOrphanPenalty(List<Seat> block, int maxSeatsPerRow)
     {
-        if (block.Count == 0) return 0;
+        if (block.Count is 0) return 0;
 
         var firstSeat = block[0];
         var lastSeat = block[block.Count - 1];
@@ -315,7 +316,7 @@ public static class SeatSelectionService
 
     private static void GeneratePartitionsHelper(int target, int max, List<int> current, List<List<int>> result)
     {
-        if (target == 0)
+        if (target is 0)
         {
             result.Add(new List<int>(current));
             return;

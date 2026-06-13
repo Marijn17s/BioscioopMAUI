@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using BioscoopMAUI.API.Data;
+using BioscoopMAUI.API.Services;
 using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Models.Helpers;
 using Microsoft.IdentityModel.Tokens;
@@ -56,6 +57,8 @@ builder.Services.AddDbContext<BioscoopDbContext>(options =>
 });
 
 builder.Services.AddScoped<QrCodeHelper>();
+builder.Services.AddScoped<ITicketPricingService, TicketPricingService>();
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 var app = builder.Build();
 

@@ -44,7 +44,7 @@ public class RoomsController(BioscoopDbContext context) : ControllerBase
             .Include(r => r.Rows)
             .FirstOrDefaultAsync(r => r.Id == id);
 
-        if (room == null)
+        if (room is null)
             return NotFound();
 
         var response = new RoomResponseDto(
@@ -124,7 +124,7 @@ public class RoomsController(BioscoopDbContext context) : ControllerBase
             .Include(r => r.Seats)
             .FirstOrDefaultAsync(r => r.Id == id);
 
-        if (room == null)
+        if (room is null)
             return NotFound();
 
         // Check if updating to a number that is already taken by ANOTHER room
@@ -185,7 +185,7 @@ public class RoomsController(BioscoopDbContext context) : ControllerBase
     public async Task<IActionResult> DeleteRoom(int id)
     {
         var room = await context.Rooms.FindAsync(id);
-        if (room == null)
+        if (room is null)
             return NotFound();
 
         context.Rooms.Remove(room);

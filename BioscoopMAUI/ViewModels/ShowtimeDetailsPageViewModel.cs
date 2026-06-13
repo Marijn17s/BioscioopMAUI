@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
 using BioscoopMAUI.Interfaces.Movies;
+using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Models.DTOs;
+using BioscoopMAUI.Navigation;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace BioscoopMAUI.ViewModels;
 
-public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : ObservableObject
+public partial class ShowtimeDetailsPageViewModel(IMovieService movieService, INavigationService navigationService) : ObservableObject
 {
     public ObservableCollection<string> Genres { get; } = [];
 
@@ -21,7 +24,7 @@ public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : 
 
     public bool HasLoadError => !string.IsNullOrWhiteSpace(LoadErrorMessage);
 
-    public bool CanBookTickets => false; // TODO: implement
+    public bool CanBookTickets => Showtime is not null && Showtime.StartTime > DateTime.Now;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasMovie))]
@@ -30,6 +33,7 @@ public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : 
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasShowtime))]
+    [NotifyPropertyChangedFor(nameof(CanBookTickets))]
     private ShowtimeResponseDto? _showtime;
 
     [ObservableProperty]
@@ -85,5 +89,25 @@ public partial class ShowtimeDetailsPageViewModel(IMovieService movieService) : 
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanBookTickets))]
+    private async Task BookTicketsAsync()
+    {
+        if (Showtime is null || Movie is null)
+            return;
+
+        await navigationService.GoToAsync(NavigationRoutes.SeatSelection, new Dictionary<string, object>
+        {
+            [NavigationRoutes.ShowtimeIdParameter] = Showtime.Id,
+            [NavigationRoutes.MovieTitleParameter] = Movie.Title,
+            [NavigationRoutes.RoomNameParameter] = Showtime.RoomName,
+            [NavigationRoutes.StartTimeParameter] = Showtime.StartTime
+        });
+    }
+
+    partial void OnShowtimeChanged(ShowtimeResponseDto? value)
+    {
+        BookTicketsCommand.NotifyCanExecuteChanged();
     }
 }

@@ -7,6 +7,7 @@ using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Reservations;
 using BioscoopMAUI.Interfaces.Showtimes;
 using BioscoopMAUI.Models.Configuration;
+using BioscoopMAUI.Models.Helpers;
 using BioscoopMAUI.Services.Auth;
 using BioscoopMAUI.Services.Feedback;
 using BioscoopMAUI.Services.Movies;
@@ -93,7 +94,12 @@ public static class MauiProgram
         builder.Services.AddSingleton<IMovieService, MovieService>();
         builder.Services.AddSingleton<IShowtimeService, ShowtimeService>();
         builder.Services.AddSingleton<IReservationService, ReservationService>();
+        builder.Services.AddSingleton<ISeatSelectionService, SeatSelectionService>();
+        builder.Services.AddSingleton<IPaymentService, PaymentService>();
+        builder.Services.AddSingleton<ILocalReservationStore, LocalReservationStore>();
+        builder.Services.AddSingleton<ITicketPdfService, TicketPdfService>();
         builder.Services.AddSingleton<IFeedbackService, FeedbackService>();
+        builder.Services.AddSingleton<QrCodeHelper>();
 
         builder.Services.AddSingleton<AppShell>();
 
@@ -103,6 +109,9 @@ public static class MauiProgram
         builder.Services.AddTransient<MovieDetailsPageViewModel>();
         builder.Services.AddTransient<ShowtimesPageViewModel>();
         builder.Services.AddTransient<ShowtimeDetailsPageViewModel>();
+        builder.Services.AddTransient<ReservationsPageViewModel>();
+        builder.Services.AddTransient<ReservationDetailsPageViewModel>();
+        builder.Services.AddTransient<SeatSelectionPageViewModel>();
         builder.Services.AddTransient<LoginPageViewModel>();
         builder.Services.AddTransient<SettingsPageViewModel>();
 
@@ -113,6 +122,9 @@ public static class MauiProgram
         builder.Services.AddTransient<MovieDetailsPage>();
         builder.Services.AddTransient<ShowtimesPage>();
         builder.Services.AddTransient<ShowtimeDetailsPage>();
+        builder.Services.AddTransient<ReservationsPage>();
+        builder.Services.AddTransient<ReservationDetailsPage>();
+        builder.Services.AddTransient<SeatSelectionPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
