@@ -14,6 +14,10 @@ public class TicketPdfService(QrCodeHelper qrCodeHelper) : ITicketPdfService
         var document = new ReservationTicketsDocument(reservation, qrCodeHelper);
         await document.SaveAsync(filePath);
 
+        var pdfFile = new FileInfo(filePath);
+        if (!pdfFile.Exists || pdfFile.Length is 0)
+            throw new InvalidOperationException("The ticket PDF could not be generated.");
+
         return filePath;
     }
 }

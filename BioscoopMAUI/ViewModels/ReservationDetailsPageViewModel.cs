@@ -92,15 +92,29 @@ public partial class ReservationDetailsPageViewModel(
     [RelayCommand]
     private async Task SharePdfAsync()
     {
-        if (Reservation is null)
+        if (Reservation is null || IsBusy)
             return;
 
-        var pdfPath = await ticketPdfService.GenerateReservationTicketsAsync(Reservation);
-        await Share.Default.RequestAsync(new ShareFileRequest
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+
+        try
         {
-            Title = "Share tickets",
-            File = new ShareFile(pdfPath)
-        });
+            var pdfPath = await ticketPdfService.GenerateReservationTicketsAsync(Reservation);
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Share tickets",
+                File = new ShareFile(pdfPath, "application/pdf")
+            });
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "We couldn't share or save these tickets. Please try again.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     [RelayCommand]
