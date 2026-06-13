@@ -186,6 +186,7 @@ public partial class SeatSelectionPageViewModel(
 
         IsBusy = true;
         ErrorMessage = string.Empty;
+        CreateSeatHoldResponseDto? hold = null;
 
         try
         {
@@ -205,19 +206,40 @@ public partial class SeatSelectionPageViewModel(
                 return;
             }
 
-            var hold = await seatSelectionService.CreateHoldAsync(ShowtimeId, selectedSeatIds);
+            hold = await seatSelectionService.CreateHoldAsync(ShowtimeId, selectedSeatIds);
             var checkoutSession = await paymentService.CreateCheckoutSessionAsync(hold.HoldId);
-            var callbackUri = await WebAuthenticator.Default.AuthenticateAsync(
-                new Uri(checkoutSession.CheckoutUrl),
-                new Uri("bioscoopmaui://payment-return"));
 
-            var sessionId = GetQueryValue(callbackUri, "session_id");
+            WebAuthenticatorResult callbackResult;
+            try
+            {
+                callbackResult = await WebAuthenticator.Default.AuthenticateAsync(
+                    new Uri(checkoutSession.CheckoutUrl),
+                    new Uri("bioscoopmaui://payment-return"));
+            }
+            catch (TaskCanceledException)
+            {
+                await ReleaseHoldAsync(hold.HoldId);
+                ErrorMessage = "Payment was cancelled. Your seats were not reserved.";
+                return;
+            }
+
+            if (string.Equals(GetQueryValue(callbackResult, "result"), "cancel", StringComparison.OrdinalIgnoreCase))
+            {
+                await ReleaseHoldAsync(hold.HoldId);
+                ErrorMessage = "Payment was cancelled. Your seats were not reserved.";
+                return;
+            }
+
+            var sessionId = GetQueryValue(callbackResult, "session_id");
             if (string.IsNullOrWhiteSpace(sessionId))
                 sessionId = checkoutSession.SessionId;
 
             var paymentStatus = await paymentService.GetPaymentStatusAsync(sessionId);
             if (paymentStatus.ReservationId is null)
             {
+                if (!string.Equals(paymentStatus.Status, "paid", StringComparison.OrdinalIgnoreCase))
+                    await ReleaseHoldAsync(hold.HoldId);
+
                 ErrorMessage = paymentStatus.ErrorMessage ?? "Payment is still being processed. Please refresh your reservations in a moment.";
                 return;
             }
@@ -227,12 +249,11 @@ public partial class SeatSelectionPageViewModel(
                 [NavigationRoutes.ReservationIdParameter] = paymentStatus.ReservationId.Value
             });
         }
-        catch (TaskCanceledException)
-        {
-            ErrorMessage = "Payment was cancelled. Your seats were not reserved.";
-        }
         catch (Exception)
         {
+            if (hold is not null)
+                await ReleaseHoldAsync(hold.HoldId);
+
             ErrorMessage = "We couldn't complete your reservation. Please try again.";
         }
         finally
@@ -303,6 +324,18 @@ public partial class SeatSelectionPageViewModel(
     private static string? GetQueryValue(WebAuthenticatorResult result, string key)
     {
         return result.Properties.GetValueOrDefault(key);
+    }
+
+    private async Task ReleaseHoldAsync(Guid holdId)
+    {
+        try
+        {
+            await seatSelectionService.ReleaseHoldAsync(holdId);
+        }
+        catch
+        {
+            // If it fails the API will release it later
+        }
     }
 
     partial void OnTicketCountChanged(int value)
