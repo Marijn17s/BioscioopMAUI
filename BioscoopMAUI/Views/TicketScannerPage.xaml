@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    Shell.NavBarIsVisible="True"
+    Title="Ticket scanner"
+    x:Class="BioscoopMAUI.Views.TicketScannerPage"
+    x:DataType="viewModels:TicketScannerPageViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:barcodeScanning="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
+    xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Grid RowDefinitions="Auto,*">
+        <controls:PageHeader
+            Grid.Row="0"
+            Style="{StaticResource PageHeaderStyle}"
+            Subtitle="Scan a customer's ticket QR code."
+            Title="Ticket scanner" />
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            Padding="24"
+            Spacing="18">
+            <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                <VerticalStackLayout Spacing="12">
+                    <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Camera" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="Point the camera at a ticket QR code" />
+                    <Border
+                        BackgroundColor="Black"
+                        HeightRequest="420"
+                        Stroke="{StaticResource AppSurfaceElevated}"
+                        StrokeShape="RoundRectangle 18"
+                        StrokeThickness="1">
+                        <Grid>
+                            <barcodeScanning:CameraView
+                                AimMode="True"
+                                CameraEnabled="{Binding IsScannerActive}"
+                                CameraFacing="Back"
+                                CaptureQuality="High"
+                                HorizontalOptions="Fill"
+                                IsVisible="{Binding IsScannerActive}"
+                                OnDetectionFinished="OnDetectionFinished"
+                                PauseScanning="{Binding IsScanningPaused}"
+                                RequestZoomFactor="2"
+                                TapToFocusEnabled="True"
+                                VerticalOptions="Fill"
+                                VibrationOnDetected="True"
+                                ViewfinderMode="True"
+                                x:Name="TicketCameraView" />
+                            <Border
+                                BackgroundColor="{StaticResource AppSurfaceElevated}"
+                                IsVisible="{Binding IsValidating}"
+                                Padding="28"
+                                StrokeShape="RoundRectangle 18">
+                                <VerticalStackLayout Spacing="14" VerticalOptions="Center">
+                                    <ActivityIndicator
+                                        HorizontalOptions="Center"
+                                        IsRunning="{Binding IsValidating}"
+                                        IsVisible="{Binding IsValidating}" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="24"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Checking ticket..."
+                                        TextColor="{StaticResource TextPrimary}" />
+                                    <Label
+                                        FontSize="14"
+                                        HorizontalTextAlignment="Center"
+                                        Text="This should only take a moment."
+                                        TextColor="{StaticResource TextSecondary}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border
+                                BackgroundColor="{Binding ResultColor}"
+                                IsVisible="{Binding HasResult}"
+                                Padding="28"
+                                StrokeShape="RoundRectangle 18">
+                                <VerticalStackLayout Spacing="14" VerticalOptions="Center">
+                                    <Label
+                                            FontFamily="MaterialIconsOutlined"
+                                            FontSize="96"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding ResultIcon}"
+                                        TextColor="White" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="28"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding ResultTitle}"
+                                        TextColor="White" />
+                                    <Label
+                                        FontSize="16"
+                                        HorizontalTextAlignment="Center"
+                                        Text="{Binding ResultMessage}"
+                                        TextColor="White" />
+                                    <Label
+                                        FontSize="14"
+                                        HorizontalTextAlignment="Center"
+                                        IsVisible="{Binding HasTicketDetails}"
+                                        Text="{Binding TicketDetails}"
+                                        TextColor="White" />
+                                    <Button
+                                        Command="{Binding ScanNextTicketCommand}"
+                                        Style="{StaticResource SecondaryActionButtonStyle}"
+                                        Text="Next ticket" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+            </controls:GlassPanel>
+
+            <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+            </controls:GlassPanel>
+
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

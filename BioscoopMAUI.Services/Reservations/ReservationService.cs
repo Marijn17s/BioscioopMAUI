@@ -45,6 +45,20 @@ public class ReservationService(IHttpClientFactory httpClientFactory, ILocalRese
         }
     }
 
+    public async Task<QrCodeValidationResponseDto> ValidateQrCodeAsync(string qrCode)
+    {
+        var client = httpClientFactory.CreateClient("BioscoopAPI");
+        using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+        var response = await client.PostAsJsonAsync(
+            "api/reservations/validate-qr",
+            new QrCodeValidationRequestDto(qrCode),
+            cancellationTokenSource.Token);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<QrCodeValidationResponseDto>(cancellationTokenSource.Token)
+            ?? new QrCodeValidationResponseDto(false, null, "We couldn't validate this ticket.");
+    }
+
     public async Task ChangeSeatsAsync(int reservationId, IEnumerable<int> seatIds)
     {
         var client = httpClientFactory.CreateClient("BioscoopAPI");

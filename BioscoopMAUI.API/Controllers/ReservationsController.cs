@@ -121,13 +121,9 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
     }
 
     [HttpPost("validate-qr")]
-    [Authorize]
+    [Authorize(Roles = AuthConstants.EmployeeRole)]
     public async Task<ActionResult<QrCodeValidationResponseDto>> ValidateQrCode([FromBody] QrCodeValidationRequestDto request)
     {
-        var auth0UserId = User.GetAuth0UserId();
-        if (string.IsNullOrWhiteSpace(auth0UserId))
-            return Unauthorized();
-
         if (string.IsNullOrWhiteSpace(request.QrCode))
             return BadRequest(new QrCodeValidationResponseDto(false, null, "QR code is required"));
 
@@ -142,19 +138,14 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         if (qrCodeData.ReservationId is null)
             return Ok(new QrCodeValidationResponseDto(false, null, "Reservation not found"));
 
-        var query = context.Reservations
+        var reservation = await context.Reservations
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
             .Include(r => r.Showtime)
                 .ThenInclude(s => s.Room)
             .Include(r => r.ShowtimeSeats)
                 .ThenInclude(ss => ss.Seat)
-            .AsQueryable();
-
-        if (!IsEmployee())
-            query = query.Where(r => r.Auth0UserId == auth0UserId);
-
-        var reservation = await query.FirstOrDefaultAsync(r => r.Id == qrCodeData.ReservationId.Value);
+            .FirstOrDefaultAsync(r => r.Id == qrCodeData.ReservationId.Value);
 
         if (reservation is null)
             return Ok(new QrCodeValidationResponseDto(false, null, "Reservation not found"));
@@ -162,14 +153,39 @@ public class ReservationsController(BioscoopDbContext context, QrCodeHelper qrCo
         if (reservation.Status is ReservationStatus.Cancelled)
             return Ok(new QrCodeValidationResponseDto(false, null, "This reservation has been cancelled."));
 
+        if (qrCodeData.ShowtimeId != reservation.ShowtimeId || qrCodeData.RoomId != reservation.Showtime.RoomId)
+            return Ok(new QrCodeValidationResponseDto(false, reservation.Id, "This ticket does not match the showtime."));
+
         var reservationSeatIds = reservation.ShowtimeSeats.Select(showtimeSeat => showtimeSeat.SeatId).ToHashSet();
         if (qrCodeData.SeatIds is null || qrCodeData.SeatIds.Any(seatId => !reservationSeatIds.Contains(seatId)))
-            return Ok(new QrCodeValidationResponseDto(false, null, "This ticket does not belong to the reservation."));
+            return Ok(new QrCodeValidationResponseDto(false, reservation.Id, "This ticket does not belong to the reservation."));
 
-        if (reservation.Showtime.StartTime <= DateTime.UtcNow)
-            return Ok(new QrCodeValidationResponseDto(false, null, "This ticket can no longer be viewed because the movie has already started."));
+        var now = DateTime.Now;
+        if (now < reservation.Showtime.StartTime.AddHours(-2))
+            return Ok(new QrCodeValidationResponseDto(false, reservation.Id, "This ticket is not valid yet."));
 
-        return Ok(new QrCodeValidationResponseDto(true, reservation.Id, null));
+        if (now >= reservation.Showtime.StartTime)
+            return Ok(new QrCodeValidationResponseDto(false, reservation.Id, "This ticket is no longer valid because the movie has already started."));
+
+        var scannedSeatIds = qrCodeData.SeatIds.ToHashSet();
+        var seats = reservation.ShowtimeSeats
+            .Where(showtimeSeat => scannedSeatIds.Contains(showtimeSeat.SeatId))
+            .Select(showtimeSeat => new SeatDto(
+                showtimeSeat.SeatId,
+                showtimeSeat.Seat.Row,
+                showtimeSeat.Seat.SeatNumber))
+            .OrderBy(seat => seat.Row)
+            .ThenBy(seat => seat.SeatNumber)
+            .ToList();
+
+        return Ok(new QrCodeValidationResponseDto(
+            true,
+            reservation.Id,
+            null,
+            reservation.Showtime.Movie.Title,
+            reservation.Showtime.Room.Name,
+            reservation.Showtime.StartTime,
+            seats));
     }
 
     [HttpPost("{showtimeId:int}/reserve")]

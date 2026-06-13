@@ -33,7 +33,8 @@
 
                     <VerticalStackLayout IsVisible="{Binding IsEmployee}" Spacing="8">
                         <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Employee" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="TODO" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Scan customer ticket QR codes at the entrance." />
+                        <Button Command="{Binding OpenTicketScannerCommand}" Text="Scan tickets" />
                     </VerticalStackLayout>
 
                     <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">

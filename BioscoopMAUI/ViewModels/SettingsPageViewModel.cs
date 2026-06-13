@@ -13,7 +13,7 @@ public partial class SettingsPageViewModel(
     INavigationService navigationService,
     IFeedbackService feedbackService) : ObservableObject
 {
-    public bool IsEmployee => string.Equals(Role, AuthConstants.EmployeeRole, StringComparison.OrdinalIgnoreCase);
+    public bool IsEmployee => string.Equals(Role, AuthConstants.EmployeeRole);
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool HasFeedbackSuccess => !string.IsNullOrWhiteSpace(FeedbackSuccessMessage);
     public bool IsFeedbackInputEnabled => !IsBusy;
@@ -100,6 +100,15 @@ public partial class SettingsPageViewModel(
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task OpenTicketScannerAsync()
+    {
+        if (!IsEmployee || IsBusy)
+            return;
+
+        await navigationService.GoToAsync(NavigationRoutes.TicketScanner);
     }
 
     [RelayCommand]

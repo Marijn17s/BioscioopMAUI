@@ -12,6 +12,7 @@ public static class NavigationRoutes
     public const string Reservations = "reservations";
     public const string ReservationDetails = "reservation-details";
     public const string SeatSelection = "seat-selection";
+    public const string TicketScanner = "ticket-scanner";
     public const string Settings = "settings";
 
     // Parameters

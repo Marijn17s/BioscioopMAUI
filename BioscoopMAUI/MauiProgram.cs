@@ -16,6 +16,7 @@ using BioscoopMAUI.Services.Reservations;
 using BioscoopMAUI.Services.Showtimes;
 using BioscoopMAUI.ViewModels;
 using BioscoopMAUI.Views;
+using BarcodeScanning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -27,6 +28,7 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder()
             .UseMauiApp<App>()
+            .UseBarcodeScanning()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -112,6 +114,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ReservationsPageViewModel>();
         builder.Services.AddTransient<ReservationDetailsPageViewModel>();
         builder.Services.AddTransient<SeatSelectionPageViewModel>();
+        builder.Services.AddTransient<TicketScannerPageViewModel>();
         builder.Services.AddTransient<LoginPageViewModel>();
         builder.Services.AddTransient<SettingsPageViewModel>();
 
@@ -125,6 +128,7 @@ public static class MauiProgram
         builder.Services.AddTransient<ReservationsPage>();
         builder.Services.AddTransient<ReservationDetailsPage>();
         builder.Services.AddTransient<SeatSelectionPage>();
+        builder.Services.AddTransient<TicketScannerPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

@@ -26,6 +26,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(NavigationRoutes.ShowtimeDetails, typeof(ShowtimeDetailsPage));
         Routing.RegisterRoute(NavigationRoutes.ReservationDetails, typeof(ReservationDetailsPage));
         Routing.RegisterRoute(NavigationRoutes.SeatSelection, typeof(SeatSelectionPage));
+        Routing.RegisterRoute(NavigationRoutes.TicketScanner, typeof(TicketScannerPage));
     }
 
     private async void OnShellLoadedAsync(object? sender, EventArgs e)
