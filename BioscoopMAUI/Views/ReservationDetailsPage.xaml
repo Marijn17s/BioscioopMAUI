@@ -12,7 +12,7 @@
     <Grid>
         <ScrollView IsVisible="{Binding HasReservation}">
             <VerticalStackLayout Padding="20" Spacing="18">
-                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="10">
                         <Label
                             FontAttributes="Bold"
@@ -29,9 +29,9 @@
                             FontAttributes="Bold"
                             Text="{Binding Reservation.TotalPrice, StringFormat='Paid {0:C}'}" />
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
-                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="12">
                         <Label
                             FontAttributes="Bold"
@@ -43,9 +43,9 @@
                             Text="{Binding SeatSummary}"
                             TextColor="{StaticResource TextSecondary}" />
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
-                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="12">
                         <Label
                             FontAttributes="Bold"
@@ -71,9 +71,9 @@
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
-                <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel IsVisible="{Binding HasError}" Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="8">
                         <Label
                             FontAttributes="Bold"
@@ -81,7 +81,7 @@
                             Text="Something went wrong" />
                         <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
                 <Button Command="{Binding SharePdfCommand}" Text="Share or save PDF" />
 

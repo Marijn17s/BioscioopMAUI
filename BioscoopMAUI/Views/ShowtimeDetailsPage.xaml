@@ -71,7 +71,7 @@
                         </FlexLayout>
                     </VerticalStackLayout>
 
-                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="12">
                             <Label
                                 FontAttributes="Bold"
@@ -108,9 +108,9 @@
                                     VerticalTextAlignment="Center" />
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
-                    <controls:GlassPanel IsVisible="{Binding HasShowtime}" Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel IsVisible="{Binding HasShowtime}" Style="{StaticResource SurfacePanelStyle}">
                         <Grid
                             ColumnDefinitions="*,Auto"
                             RowDefinitions="Auto,Auto,Auto"
@@ -175,7 +175,7 @@
                                     TextColor="{StaticResource PrimaryDark}" />
                             </Border>
                         </Grid>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
                     <VerticalStackLayout Spacing="8">
                         <Button
@@ -193,11 +193,11 @@
                 IsVisible="{Binding IsBusy}"
                 VerticalOptions="Center" />
 
-            <controls:GlassPanel
+            <controls:SurfacePanel
                 HorizontalOptions="Fill"
                 IsVisible="{Binding HasLoadError}"
                 Margin="20"
-                Style="{StaticResource GlassPanelStyle}"
+                Style="{StaticResource SurfacePanelStyle}"
                 VerticalOptions="Center">
                 <VerticalStackLayout Spacing="10">
                     <Label
@@ -207,7 +207,7 @@
                         Text="Screening unavailable" />
                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
                 </VerticalStackLayout>
-            </controls:GlassPanel>
+            </controls:SurfacePanel>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

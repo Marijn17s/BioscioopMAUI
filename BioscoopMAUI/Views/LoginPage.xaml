@@ -19,7 +19,7 @@
                 Title="Welcome" />
 
             <VerticalStackLayout Grid.Row="2" Spacing="16">
-                <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel IsVisible="{Binding HasError}" Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="10">
                         <Label
                             FontAttributes="Bold"
@@ -28,7 +28,7 @@
                             Text="Sign in failed" />
                         <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
                 <ActivityIndicator
                     HorizontalOptions="Center"

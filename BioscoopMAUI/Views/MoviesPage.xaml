@@ -122,9 +122,9 @@
                     IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
-                        <controls:GlassPanel
+                        <controls:SurfacePanel
                             Margin="20"
-                            Style="{StaticResource GlassPanelStyle}"
+                            Style="{StaticResource SurfacePanelStyle}"
                             VerticalOptions="Center">
                             <VerticalStackLayout Spacing="14">
                                 <Label
@@ -135,7 +135,7 @@
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                                 <Button Command="{Binding LoadMoviesCommand}" Text="Try again" />
                             </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
                     </ScrollView>
                 </RefreshView>
 
@@ -144,9 +144,9 @@
                     IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding IsEmptyStateVisible}">
                     <ScrollView>
-                        <controls:GlassPanel
+                        <controls:SurfacePanel
                             Margin="20"
-                            Style="{StaticResource GlassPanelStyle}"
+                            Style="{StaticResource SurfacePanelStyle}"
                             VerticalOptions="Center">
                             <VerticalStackLayout Spacing="10">
                                 <Label
@@ -156,7 +156,7 @@
                                     Text="No movies yet" />
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once movies are available." />
                             </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
                     </ScrollView>
                 </RefreshView>
             </Grid>

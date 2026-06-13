@@ -23,7 +23,7 @@
                     <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding RoomName}" />
                 </VerticalStackLayout>
 
-                <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                     <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
                         <VerticalStackLayout Spacing="2">
                             <Label
@@ -71,7 +71,7 @@
                             Style="{StaticResource SecondaryActionButtonStyle}"
                             Text="Apply" />
                     </Grid>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
 
                 <Border
                     BackgroundColor="{StaticResource AppSurfaceElevated}"
@@ -167,7 +167,7 @@
                     </ScrollView>
                 </Grid>
 
-                <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                <controls:SurfacePanel IsVisible="{Binding HasError}" Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="8">
                         <Label
                             FontAttributes="Bold"
@@ -175,14 +175,14 @@
                             Text="Something went wrong" />
                         <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                     </VerticalStackLayout>
-                </controls:GlassPanel>
+                </controls:SurfacePanel>
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:GlassPanel
+        <controls:SurfacePanel
             Grid.Row="1"
             Margin="20"
-            Style="{StaticResource GlassPanelStyle}">
+            Style="{StaticResource SurfacePanelStyle}">
             <Grid
                 ColumnDefinitions="*,Auto"
                 RowDefinitions="Auto,Auto"
@@ -203,7 +203,7 @@
                     IsEnabled="{Binding CanConfirm}"
                     Text="{Binding ConfirmButtonText}" />
             </Grid>
-        </controls:GlassPanel>
+        </controls:SurfacePanel>
 
         <ActivityIndicator
             Grid.RowSpan="2"

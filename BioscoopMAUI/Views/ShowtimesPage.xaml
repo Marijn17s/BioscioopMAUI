@@ -29,10 +29,10 @@
                         <VerticalStackLayout
                             Margin="20,0,20,20"
                             Spacing="0">
-                            <controls:GlassPanel
+                            <controls:SurfacePanel
                                 Margin="0,14,0,10"
                                 Padding="12"
-                                Style="{StaticResource GlassPanelStyle}">
+                                Style="{StaticResource SurfacePanelStyle}">
                                 <VerticalStackLayout Spacing="10">
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                                         <VerticalStackLayout Spacing="1">
@@ -303,12 +303,12 @@
                                     </Border>
                                 </Grid>
                                 </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
 
-                            <controls:GlassPanel
+                            <controls:SurfacePanel
                                 IsVisible="{Binding HasNoMatchingShowtimes}"
                                 Margin="0,8,0,20"
-                                Style="{StaticResource GlassPanelStyle}">
+                                Style="{StaticResource SurfacePanelStyle}">
                                 <VerticalStackLayout Spacing="10">
                                     <Label
                                         FontAttributes="Bold"
@@ -317,7 +317,7 @@
                                         Text="No matching screenings" />
                                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
                                 </VerticalStackLayout>
-                            </controls:GlassPanel>
+                            </controls:SurfacePanel>
 
                             <VerticalStackLayout
                                 BindableLayout.ItemsSource="{Binding Showtimes}"
@@ -430,9 +430,9 @@
                     IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
-                        <controls:GlassPanel
+                        <controls:SurfacePanel
                             Margin="20"
-                            Style="{StaticResource GlassPanelStyle}"
+                            Style="{StaticResource SurfacePanelStyle}"
                             VerticalOptions="Center">
                             <VerticalStackLayout Spacing="14">
                                 <Label
@@ -443,7 +443,7 @@
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                                 <Button Command="{Binding LoadShowtimesCommand}" Text="Try again" />
                             </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
                     </ScrollView>
                 </RefreshView>
 
@@ -452,9 +452,9 @@
                     IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding IsEmptyStateVisible}">
                     <ScrollView>
-                        <controls:GlassPanel
+                        <controls:SurfacePanel
                             Margin="20"
-                            Style="{StaticResource GlassPanelStyle}"
+                            Style="{StaticResource SurfacePanelStyle}"
                             VerticalOptions="Center">
                             <VerticalStackLayout Spacing="10">
                                 <Label
@@ -464,7 +464,7 @@
                                     Text="No screenings yet" />
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once screenings are available." />
                             </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
                     </ScrollView>
                 </RefreshView>
             </Grid>

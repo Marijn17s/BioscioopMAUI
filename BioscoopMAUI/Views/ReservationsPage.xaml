@@ -18,7 +18,7 @@
 
             <ScrollView Grid.Row="1">
                 <VerticalStackLayout Padding="20" Spacing="18">
-                    <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel IsVisible="{Binding HasError}" Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="10">
                             <Label
                                 FontAttributes="Bold"
@@ -27,9 +27,9 @@
                             <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                             <Button Command="{Binding LoadReservationsCommand}" Text="Try again" />
                         </VerticalStackLayout>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
-                    <controls:GlassPanel IsVisible="{Binding IsEmptyStateVisible}" Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel IsVisible="{Binding IsEmptyStateVisible}" Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="8">
                             <Label
                                 FontAttributes="Bold"
@@ -39,7 +39,7 @@
                                 Style="{StaticResource DescriptionLabelStyle}"
                                 Text="Book a screening to see your tickets here, even when you're offline." />
                         </VerticalStackLayout>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
                     <VerticalStackLayout IsVisible="{Binding HasActiveReservations}" Spacing="12">
                         <Label
@@ -50,7 +50,7 @@
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding ActiveReservations}" Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:ReservationResponseDto">
-                                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
                                             <Grid.GestureRecognizers>
                                                 <TapGestureRecognizer
@@ -74,7 +74,7 @@
                                                 Style="{StaticResource MutedLabelStyle}"
                                                 Text="{Binding Seats.Count, StringFormat='{0} seat(s)'}" />
                                         </Grid>
-                                    </controls:GlassPanel>
+                                    </controls:SurfacePanel>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
@@ -89,7 +89,7 @@
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding ReservationHistory}" Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:ReservationResponseDto">
-                                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
                                             <Grid.GestureRecognizers>
                                                 <TapGestureRecognizer
@@ -114,7 +114,7 @@
                                                 Style="{StaticResource MutedLabelStyle}"
                                                 Text="{Binding Seats.Count, StringFormat='{0} seat(s)'}" />
                                         </Grid>
-                                    </controls:GlassPanel>
+                                    </controls:SurfacePanel>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>

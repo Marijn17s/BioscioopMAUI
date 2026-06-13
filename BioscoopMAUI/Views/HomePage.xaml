@@ -99,9 +99,9 @@
                                         <LinearItemsLayout ItemSpacing="14" Orientation="Horizontal" />
                                     </CollectionView.ItemsLayout>
                                 </CollectionView>
-                                <controls:GlassPanel IsVisible="{Binding ShowFavoritesEmpty}" Style="{StaticResource GlassPanelStyle}">
+                                <controls:SurfacePanel IsVisible="{Binding ShowFavoritesEmpty}" Style="{StaticResource SurfacePanelStyle}">
                                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="You haven't added any favourites yet. Tap the heart on a movie to save it here." />
-                                </controls:GlassPanel>
+                                </controls:SurfacePanel>
                             </VerticalStackLayout>
 
                             <VerticalStackLayout Spacing="12">
@@ -144,9 +144,9 @@
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
                                 </VerticalStackLayout>
-                                <controls:GlassPanel IsVisible="{Binding ShowUpcomingEmpty}" Style="{StaticResource GlassPanelStyle}">
+                                <controls:SurfacePanel IsVisible="{Binding ShowUpcomingEmpty}" Style="{StaticResource SurfacePanelStyle}">
                                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="You have no upcoming reservations." />
-                                </controls:GlassPanel>
+                                </controls:SurfacePanel>
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </ScrollView>
@@ -165,9 +165,9 @@
                     IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
                     IsVisible="{Binding HasError}">
                     <ScrollView>
-                        <controls:GlassPanel
+                        <controls:SurfacePanel
                             Margin="20"
-                            Style="{StaticResource GlassPanelStyle}"
+                            Style="{StaticResource SurfacePanelStyle}"
                             VerticalOptions="Center">
                             <VerticalStackLayout Spacing="14">
                                 <Label
@@ -178,7 +178,7 @@
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
                                 <Button Command="{Binding LoadHomeCommand}" Text="Try again" />
                             </VerticalStackLayout>
-                        </controls:GlassPanel>
+                        </controls:SurfacePanel>
                     </ScrollView>
                 </RefreshView>
             </Grid>

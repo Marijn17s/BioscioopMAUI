@@ -73,12 +73,12 @@
                                     VerticalOptions="Center" />
                             </Border>
 
-                            <controls:GlassPanel
+                            <controls:SurfacePanel
                                 HorizontalOptions="Fill"
                                 IsVisible="{Binding HasFavoriteError}"
                                 Margin="12"
                                 Stroke="{StaticResource SecondaryDarkText}"
-                                Style="{StaticResource GlassPanelStyle}"
+                                Style="{StaticResource SurfacePanelStyle}"
                                 VerticalOptions="End">
                                 <VerticalStackLayout Spacing="6">
                                     <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
@@ -102,7 +102,7 @@
                                         Text="{Binding FavoriteErrorMessage}"
                                         TextColor="{StaticResource SecondaryDarkText}" />
                                 </VerticalStackLayout>
-                            </controls:GlassPanel>
+                            </controls:SurfacePanel>
                         </Grid>
                     </Border>
 
@@ -128,7 +128,7 @@
                         </FlexLayout>
                     </VerticalStackLayout>
 
-                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="14">
                             <HorizontalStackLayout Spacing="10">
                                 <Border
@@ -184,9 +184,9 @@
                                 Text="{Binding Movie.Actors}"
                                 TextColor="{StaticResource TextSecondary}" />
                         </VerticalStackLayout>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
-                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                         <Grid RowDefinitions="Auto,Auto" RowSpacing="14">
                             <Grid ColumnDefinitions="*,Auto">
                                 <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Screenings" />
@@ -281,7 +281,7 @@
                                 Style="{StaticResource MutedLabelStyle}"
                                 Text="No screenings available yet." />
                         </Grid>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
                 </VerticalStackLayout>
             </ScrollView>
 
@@ -291,11 +291,11 @@
                 IsVisible="{Binding IsBusy}"
                 VerticalOptions="Center" />
 
-            <controls:GlassPanel
+            <controls:SurfacePanel
                 HorizontalOptions="Fill"
                 IsVisible="{Binding HasLoadError}"
                 Margin="20"
-                Style="{StaticResource GlassPanelStyle}"
+                Style="{StaticResource SurfacePanelStyle}"
                 VerticalOptions="Center">
                 <VerticalStackLayout Spacing="10">
                     <Label
@@ -305,7 +305,7 @@
                         Text="Movie unavailable" />
                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
                 </VerticalStackLayout>
-            </controls:GlassPanel>
+            </controls:SurfacePanel>
         </Grid>
     </ContentPage.Content>
 </ContentPage>

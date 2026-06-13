@@ -37,7 +37,7 @@
                         <Button Command="{Binding OpenTicketScannerCommand}" Text="Scan tickets" />
                     </VerticalStackLayout>
 
-                    <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="12">
                             <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Feedback" />
                             <Label Style="{StaticResource DescriptionLabelStyle}" Text="Share your thoughts or report something that could be improved." />
@@ -57,7 +57,7 @@
                                 IsEnabled="{Binding CanSubmitFeedback}"
                                 Text="Send feedback" />
                         </VerticalStackLayout>
-                    </controls:GlassPanel>
+                    </controls:SurfacePanel>
 
                     <Button Command="{Binding LogoutCommand}" Text="Log out" />
                 </VerticalStackLayout>

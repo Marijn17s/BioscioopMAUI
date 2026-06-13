@@ -20,7 +20,7 @@
             Grid.Row="1"
             Padding="24"
             Spacing="18">
-            <controls:GlassPanel Style="{StaticResource GlassPanelStyle}">
+            <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                 <VerticalStackLayout Spacing="12">
                     <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Camera" />
                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="Point the camera at a ticket QR code" />
@@ -109,11 +109,11 @@
                         </Grid>
                     </Border>
                 </VerticalStackLayout>
-            </controls:GlassPanel>
+            </controls:SurfacePanel>
 
-            <controls:GlassPanel IsVisible="{Binding HasError}" Style="{StaticResource GlassPanelStyle}">
+            <controls:SurfacePanel IsVisible="{Binding HasError}" Style="{StaticResource SurfacePanelStyle}">
                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
-            </controls:GlassPanel>
+            </controls:SurfacePanel>
 
         </VerticalStackLayout>
     </Grid>
