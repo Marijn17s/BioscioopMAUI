@@ -100,8 +100,13 @@ public class MoviesController(BioscoopDbContext context) : ControllerBase
             .Select(movie => movie.Id)
             .ToHashSet();
 
+        var favoriteMovieIds = await context.FavoriteMovies
+            .Where(favorite => favorite.Auth0UserId == auth0UserId)
+            .Select(favorite => favorite.MovieId)
+            .ToListAsync();
+
         var candidateMovies = await context.Movies
-            .Where(movie => !reservedMovieIds.Contains(movie.Id))
+            .Where(movie => !reservedMovieIds.Contains(movie.Id) && !favoriteMovieIds.Contains(movie.Id))
             .ToListAsync();
 
         var recommendedMovies = candidateMovies
