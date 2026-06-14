@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using BioscoopMAUI.Constants;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Reservations;
@@ -120,7 +121,7 @@ public partial class HomePageViewModel(
 
             HasLoadedOnce = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             if (!HasLoadedOnce)
                 ErrorMessage = "We can't load your personalized homepage. Please check your connection and try again.";
@@ -128,6 +129,30 @@ public partial class HomePageViewModel(
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task OpenNavigationAsync()
+    {
+        var placemark = new Placemark
+        {
+            CountryName = CinemaLocation.Country,
+            Locality = CinemaLocation.City,
+            Thoroughfare = $"{CinemaLocation.Street} {CinemaLocation.StreetNumber}"
+        };
+
+        try
+        {
+            await Map.OpenAsync(placemark, new MapLaunchOptions
+            {
+                Name = CinemaLocation.Name,
+                NavigationMode = NavigationMode.Driving
+            });
+        }
+        catch
+        {
+            ErrorMessage = "We couldn't open your maps app. Please try again.";
         }
     }
 

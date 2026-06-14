@@ -6,6 +6,7 @@
     x:Name="HomePageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
     xmlns:models="clr-namespace:BioscoopMAUI.Models.DTOs;assembly=BioscoopMAUI.Models"
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
@@ -147,6 +148,24 @@
                                 <controls:SurfacePanel IsVisible="{Binding ShowUpcomingEmpty}" Style="{StaticResource SurfacePanelStyle}">
                                     <Label Style="{StaticResource DescriptionLabelStyle}" Text="You have no upcoming reservations." />
                                 </controls:SurfacePanel>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Spacing="12">
+                                <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Visit us" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Hogeschoollaan 1, Breda" />
+                                <Border
+                                    HeightRequest="220"
+                                    StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="20" />
+                                    </Border.StrokeShape>
+                                    <maps:Map
+                                        x:Name="CinemaMap"
+                                        IsShowingUser="False"
+                                        IsZoomEnabled="True"
+                                        MapType="Street" />
+                                </Border>
+                                <Button Command="{Binding OpenNavigationCommand}" Text="Navigate" />
                             </VerticalStackLayout>
                         </VerticalStackLayout>
                     </ScrollView>
