@@ -26,8 +26,8 @@
 
                     <VerticalStackLayout Spacing="8">
                         <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Account" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding DisplayName}" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Email}" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding DisplayName, StringFormat='Name: {0}'}" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Email, StringFormat='Email: {0}'}" />
                         <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Role, StringFormat='Role: {0}'}" />
                     </VerticalStackLayout>
 
