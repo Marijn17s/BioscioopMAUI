@@ -12,6 +12,7 @@ using BioscoopMAUI.Services.Auth;
 using BioscoopMAUI.Services.Feedback;
 using BioscoopMAUI.Services.Movies;
 using BioscoopMAUI.Services.Navigation;
+using BioscoopMAUI.Services.Notifications;
 using BioscoopMAUI.Services.Reservations;
 using BioscoopMAUI.Services.Showtimes;
 using BioscoopMAUI.ViewModels;
@@ -19,6 +20,9 @@ using BioscoopMAUI.Views;
 using BarcodeScanning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
+using Plugin.LocalNotification.Core.Models.AndroidOption;
+using INotificationService = BioscoopMAUI.Interfaces.Notifications.INotificationService;
 
 namespace BioscoopMAUI;
 
@@ -29,6 +33,18 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder()
             .UseMauiApp<App>()
             .UseMauiMaps()
+            .UseLocalNotification(config =>
+            {
+                config.AddAndroid(android =>
+                {
+                    android.AddChannel(new AndroidNotificationChannelRequest
+                    {
+                        Id = LocalNotificationService.ReminderChannelId,
+                        Name = "Screening reminders",
+                        Description = "Reminders before a screening starts"
+                    });
+                });
+            })
             .UseBarcodeScanning()
             .ConfigureFonts(fonts =>
             {
@@ -102,6 +118,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocalReservationStore, LocalReservationStore>();
         builder.Services.AddSingleton<ITicketPdfService, TicketPdfService>();
         builder.Services.AddSingleton<IFeedbackService, FeedbackService>();
+        builder.Services.AddSingleton<INotificationService, LocalNotificationService>();
         builder.Services.AddSingleton<QrCodeHelper>();
 
         builder.Services.AddSingleton<AppShell>();

@@ -39,6 +39,25 @@
 
                     <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                         <VerticalStackLayout Spacing="12">
+                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Notifications" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Get reminded 15 minutes before a screening starts." />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Label
+                                    Grid.Column="0"
+                                    Style="{StaticResource DescriptionLabelStyle}"
+                                    Text="Screening reminders"
+                                    VerticalOptions="Center" />
+                                <Switch Grid.Column="1" IsToggled="{Binding RemindersEnabled, Mode=TwoWay}" />
+                            </Grid>
+                            <Label
+                                IsVisible="{Binding NotificationPermissionDenied}"
+                                Style="{StaticResource DescriptionLabelStyle}"
+                                Text="Notifications are turned off for this app. Enable them in your device settings to receive reminders." />
+                        </VerticalStackLayout>
+                    </controls:SurfacePanel>
+
+                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
+                        <VerticalStackLayout Spacing="12">
                             <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Feedback" />
                             <Label Style="{StaticResource DescriptionLabelStyle}" Text="Share your thoughts or report something that could be improved." />
                             <Editor

@@ -1,6 +1,8 @@
 using BioscoopMAUI.Interfaces.Auth;
 using BioscoopMAUI.Interfaces.Feedback;
 using BioscoopMAUI.Interfaces.Navigation;
+using BioscoopMAUI.Interfaces.Notifications;
+using BioscoopMAUI.Interfaces.Reservations;
 using BioscoopMAUI.Models.Auth;
 using BioscoopMAUI.Navigation;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,8 +13,12 @@ namespace BioscoopMAUI.ViewModels;
 public partial class SettingsPageViewModel(
     IAuthService authService,
     INavigationService navigationService,
-    IFeedbackService feedbackService) : ObservableObject
+    IFeedbackService feedbackService,
+    INotificationService notificationService,
+    IReservationService reservationService) : ObservableObject
 {
+    private bool _isSyncingReminderToggle;
+
     public bool IsEmployee => string.Equals(Role, AuthConstants.EmployeeRole);
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool HasFeedbackSuccess => !string.IsNullOrWhiteSpace(FeedbackSuccessMessage);
@@ -50,6 +56,12 @@ public partial class SettingsPageViewModel(
     [NotifyPropertyChangedFor(nameof(HasFeedbackSuccess))]
     private string _feedbackSuccessMessage = string.Empty;
 
+    [ObservableProperty]
+    private bool _remindersEnabled;
+
+    [ObservableProperty]
+    private bool _notificationPermissionDenied;
+
     public async Task InitializeAsync()
     {
         ErrorMessage = string.Empty;
@@ -60,6 +72,8 @@ public partial class SettingsPageViewModel(
             return;
         }
 
+        SetReminderToggle(notificationService.AreRemindersEnabled);
+
         var user = authService.CurrentUser;
         if (user is null)
             return;
@@ -67,6 +81,42 @@ public partial class SettingsPageViewModel(
         Email = user.Email;
         DisplayName = user.DisplayName;
         Role = user.Role;
+    }
+
+    partial void OnRemindersEnabledChanged(bool value)
+    {
+        if (_isSyncingReminderToggle)
+            return;
+
+        _ = UpdateRemindersAsync(value);
+    }
+
+    private async Task UpdateRemindersAsync(bool enabled)
+    {
+        NotificationPermissionDenied = false;
+
+        if (!enabled)
+        {
+            notificationService.Disable();
+            return;
+        }
+
+        var permissionGranted = await notificationService.EnableAsync();
+        if (!permissionGranted)
+        {
+            NotificationPermissionDenied = true;
+            SetReminderToggle(false);
+            return;
+        }
+
+        await reservationService.GetReservationsAsync();
+    }
+
+    private void SetReminderToggle(bool value)
+    {
+        _isSyncingReminderToggle = true;
+        RemindersEnabled = value;
+        _isSyncingReminderToggle = false;
     }
 
     [RelayCommand(CanExecute = nameof(CanSubmitFeedback))]

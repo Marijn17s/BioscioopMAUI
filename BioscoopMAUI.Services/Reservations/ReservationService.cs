@@ -1,26 +1,30 @@
 using System.Net.Http.Json;
+using BioscoopMAUI.Interfaces.Notifications;
 using BioscoopMAUI.Interfaces.Reservations;
 using BioscoopMAUI.Models.DTOs;
 
 namespace BioscoopMAUI.Services.Reservations;
 
-public class ReservationService(IHttpClientFactory httpClientFactory, ILocalReservationStore localReservationStore) : IReservationService
+public class ReservationService(IHttpClientFactory httpClientFactory, ILocalReservationStore localReservationStore, INotificationService notificationService) : IReservationService
 {
     public async Task<IEnumerable<ReservationResponseDto>> GetReservationsAsync()
     {
+        List<ReservationResponseDto> reservations;
         try
         {
             var client = httpClientFactory.CreateClient("BioscoopAPI");
             var response = await client.GetAsync("api/reservations");
             response.EnsureSuccessStatusCode();
-            var result = (await response.Content.ReadFromJsonAsync<IEnumerable<ReservationResponseDto>>())?.ToList() ?? [];
-            await localReservationStore.SaveReservationsAsync(result);
-            return result;
+            reservations = (await response.Content.ReadFromJsonAsync<IEnumerable<ReservationResponseDto>>())?.ToList() ?? [];
+            await localReservationStore.SaveReservationsAsync(reservations);
         }
         catch (HttpRequestException)
         {
-            return await localReservationStore.GetReservationsAsync();
+            reservations = await localReservationStore.GetReservationsAsync();
         }
+
+        await notificationService.SyncRemindersAsync(reservations);
+        return reservations;
     }
 
     public async Task<ReservationResponseDto?> GetReservationAsync(int reservationId)
