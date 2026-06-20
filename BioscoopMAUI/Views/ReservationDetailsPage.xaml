@@ -78,7 +78,7 @@
                     </VerticalStackLayout>
                 </controls:SurfacePanel>
 
-                <Button Command="{Binding SharePdfCommand}" Text="Share or save PDF" />
+                <Button Command="{Binding SharePdfCommand}" Text="Share or save tickets" />
 
                 <Grid
                     ColumnDefinitions="*,*"
