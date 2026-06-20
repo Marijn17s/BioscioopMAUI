@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
+    HideSoftInputOnTapped="True"
     Shell.NavBarIsVisible="False"
     x:Class="BioscoopMAUI.Views.ShowtimesPage"
     x:DataType="viewModels:ShowtimesPageViewModel"
@@ -208,6 +209,7 @@
                                     IsVisible="{Binding IsMovieFilterExpanded}"
                                     Margin="0,-4,0,0"
                                     Placeholder="Search by movie title..."
+                                    SearchButtonPressed="OnMovieSearchButtonPressed"
                                     SearchCommand="{Binding SearchMovieCommand}"
                                     Text="{Binding PendingMovieSearchText, Mode=TwoWay}"
                                     TextChanged="OnMovieSearchTextChanged" />

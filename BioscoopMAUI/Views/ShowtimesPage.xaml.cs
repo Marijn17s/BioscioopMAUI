@@ -48,4 +48,10 @@ public partial class ShowtimesPage : ContentPage
 
         _viewModel.ClearMovieSearchCommand.Execute(null);
     }
+
+    private void OnMovieSearchButtonPressed(object? sender, EventArgs e)
+    {
+        if (sender is SearchBar searchBar)
+            searchBar.Unfocus();
+    }
 }
