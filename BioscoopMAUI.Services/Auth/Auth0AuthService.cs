@@ -24,6 +24,8 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
         "roles"
     ];
 
+    public event EventHandler? SessionExpired;
+
     public AuthenticatedUser? CurrentUser { get; private set; }
 
     public async Task<bool> IsAuthenticatedAsync()
@@ -32,6 +34,12 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
         if (string.IsNullOrWhiteSpace(accessToken))
         {
             CurrentUser = null;
+            return false;
+        }
+
+        if (IsAccessTokenExpired(accessToken))
+        {
+            ClearLocalSession();
             return false;
         }
 
@@ -64,6 +72,19 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
 
     public async Task LogoutAsync()
     {
+        ClearLocalSession();
+        await auth0Client.LogoutAsync();
+    }
+
+    public Task HandleUnauthorizedAsync()
+    {
+        ClearLocalSession();
+        SessionExpired?.Invoke(this, EventArgs.Empty);
+        return Task.CompletedTask;
+    }
+
+    private void ClearLocalSession()
+    {
         SecureStorage.Default.Remove(AccessTokenKey);
         SecureStorage.Default.Remove(RefreshTokenKey);
         SecureStorage.Default.Remove(UserIdKey);
@@ -71,26 +92,16 @@ public class Auth0AuthService(Auth0Client auth0Client, Auth0Settings auth0Settin
         SecureStorage.Default.Remove(DisplayNameKey);
         SecureStorage.Default.Remove(RoleKey);
         CurrentUser = null;
-        
-        await auth0Client.LogoutAsync();
     }
 
-    public async Task<bool> TryRefreshAccessTokenAsync()
+    private static bool IsAccessTokenExpired(string accessToken)
     {
-        var refreshToken = await SecureStorage.Default.GetAsync(RefreshTokenKey);
-        if (string.IsNullOrWhiteSpace(refreshToken))
-            return false;
+        var handler = new JwtSecurityTokenHandler();
+        if (!handler.CanReadToken(accessToken))
+            return true;
 
-        var refreshResult = await auth0Client.RefreshTokenAsync(refreshToken);
-        if (refreshResult.IsError || string.IsNullOrWhiteSpace(refreshResult.AccessToken))
-            return false;
-
-        await SecureStorage.Default.SetAsync(AccessTokenKey, refreshResult.AccessToken);
-
-        if (!string.IsNullOrWhiteSpace(refreshResult.RefreshToken))
-            await SecureStorage.Default.SetAsync(RefreshTokenKey, refreshResult.RefreshToken);
-
-        return true;
+        var jwt = handler.ReadJwtToken(accessToken);
+        return jwt.ValidTo <= DateTime.UtcNow.AddMinutes(1);
     }
 
     private async Task StoreSessionAsync(string accessToken, string? refreshToken, ClaimsPrincipal? user)

@@ -16,18 +16,9 @@ public class AuthHeaderHandler(IAuthService authService) : DelegatingHandler
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.Unauthorized)
-            return response;
+        if (response.StatusCode is HttpStatusCode.Unauthorized)
+            await authService.HandleUnauthorizedAsync();
 
-        if (!await authService.TryRefreshAccessTokenAsync())
-            return response;
-
-        var refreshedToken = await authService.GetAccessTokenAsync();
-        if (string.IsNullOrWhiteSpace(refreshedToken))
-            return response;
-
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshedToken);
-        response.Dispose();
-        return await base.SendAsync(request, cancellationToken);
+        return response;
     }
 }

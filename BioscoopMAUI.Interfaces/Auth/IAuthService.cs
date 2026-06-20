@@ -4,6 +4,8 @@ namespace BioscoopMAUI.Interfaces.Auth;
 
 public interface IAuthService
 {
+    event EventHandler? SessionExpired;
+
     Task<bool> IsAuthenticatedAsync();
 
     AuthenticatedUser? CurrentUser { get; }
@@ -14,5 +16,5 @@ public interface IAuthService
 
     Task LogoutAsync();
 
-    Task<bool> TryRefreshAccessTokenAsync();
+    Task HandleUnauthorizedAsync();
 }

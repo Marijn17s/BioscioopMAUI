@@ -16,9 +16,13 @@ public partial class AppShell : Shell
         InitializeComponent();
         
         RegisterRoutes();
+        _authService.SessionExpired += OnSessionExpired;
         Loaded += OnShellLoadedAsync;
         Navigated += OnShellNavigatedAsync;
     }
+
+    private async void OnSessionExpired(object? sender, EventArgs e)
+        => await EnsureAuthenticatedNavigationAsync();
 
     private static void RegisterRoutes()
     {
