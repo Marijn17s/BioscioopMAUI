@@ -47,13 +47,9 @@ public class LocalNotificationService : INotificationService
         foreach (var reservation in reservations.Where(reservation => reservation.Status == ReservationStatus.Confirmed))
         {
             var showtimeStart = new DateTimeOffset(reservation.Showtime.StartTime);
-            if (showtimeStart <= now)
+            var notifyTime = showtimeStart - ReminderLeadTime;
+            if (notifyTime <= now)
                 continue;
-
-            var preferredReminderTime = showtimeStart - ReminderLeadTime;
-
-            // Notify 15 minutes before when possible, else remind as soon as possible
-            var notifyTime = preferredReminderTime > now ? preferredReminderTime : now.AddSeconds(5);
 
             var notification = new NotificationRequest
             {
