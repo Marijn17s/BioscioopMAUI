@@ -158,10 +158,12 @@ public partial class SeatSelectionPageViewModel(
             if (IsEditMode)
             {
                 await reservationService.ChangeSeatsAsync(ReservationId, selectedSeatIds);
-                await navigationService.GoToAsync(NavigationRoutes.ReservationDetails, new Dictionary<string, object>
-                {
-                    [NavigationRoutes.ReservationIdParameter] = ReservationId
-                });
+                await navigationService.GoToAsync(
+                    $"//{NavigationRoutes.Reservations}/{NavigationRoutes.ReservationDetails}",
+                    new Dictionary<string, object>
+                    {
+                        [NavigationRoutes.ReservationIdParameter] = ReservationId
+                    });
                 return;
             }
 
@@ -203,10 +205,12 @@ public partial class SeatSelectionPageViewModel(
                 return;
             }
 
-            await navigationService.GoToAsync(NavigationRoutes.ReservationDetails, new Dictionary<string, object>
-            {
-                [NavigationRoutes.ReservationIdParameter] = paymentStatus.ReservationId.Value
-            });
+            await navigationService.GoToAsync(
+                $"//{NavigationRoutes.Reservations}/{NavigationRoutes.ReservationDetails}",
+                new Dictionary<string, object>
+                {
+                    [NavigationRoutes.ReservationIdParameter] = paymentStatus.ReservationId.Value
+                });
         }
         catch (Exception)
         {
