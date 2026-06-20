@@ -9,6 +9,7 @@
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
     <Grid RowDefinitions="Auto,*">
         <controls:PageHeader
             Grid.Row="0"
@@ -77,8 +78,8 @@
                                 StrokeShape="RoundRectangle 18">
                                 <VerticalStackLayout Spacing="14" VerticalOptions="Center">
                                     <Label
-                                            FontFamily="MaterialIconsOutlined"
-                                            FontSize="96"
+                                        FontFamily="MaterialIconsOutlined"
+                                        FontSize="96"
                                         HorizontalTextAlignment="Center"
                                         Text="{Binding ResultIcon}"
                                         TextColor="White" />

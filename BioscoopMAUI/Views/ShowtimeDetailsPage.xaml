@@ -9,205 +9,201 @@
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <ContentPage.Content>
-        <Grid>
-            <ScrollView IsVisible="{Binding HasMovie}">
-                <VerticalStackLayout Padding="20" Spacing="18">
-                    <Border HeightRequest="320" StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="28" />
-                        </Border.StrokeShape>
-                        <Grid>
-                            <Grid.Background>
-                                <LinearGradientBrush EndPoint="1,1">
-                                    <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
-                                    <GradientStop Color="{StaticResource Secondary}" Offset="1" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
+    <Grid>
+        <ScrollView IsVisible="{Binding HasMovie}">
+            <VerticalStackLayout Padding="20" Spacing="18">
+                <Border HeightRequest="320" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="28" />
+                    </Border.StrokeShape>
+                    <Grid>
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="1,1">
+                                <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
+                                <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
 
-                            <VerticalStackLayout
-                                Padding="28"
-                                Spacing="12"
-                                VerticalOptions="Center">
-                                <BoxView
-                                    BackgroundColor="{StaticResource Primary}"
-                                    CornerRadius="4"
-                                    HeightRequest="5"
-                                    HorizontalOptions="Center"
-                                    WidthRequest="42" />
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="22"
-                                    HorizontalTextAlignment="Center"
-                                    LineBreakMode="WordWrap"
-                                    Text="{Binding Movie.Title}"
-                                    TextColor="{StaticResource TextMuted}" />
-                            </VerticalStackLayout>
-
-                            <Image Aspect="AspectFill" Source="{Binding Movie.PosterUrl}" />
-                        </Grid>
-                    </Border>
-
-                    <VerticalStackLayout IsVisible="{Binding HasGenres}" Spacing="10">
-                        <Label
-                            FontSize="12"
-                            Text="Genres"
-                            TextColor="{StaticResource TextMuted}"
-                            TextTransform="Uppercase" />
-                        <FlexLayout
-                            AlignItems="Start"
-                            BindableLayout.ItemsSource="{Binding Genres}"
-                            Direction="Row"
-                            JustifyContent="Start"
-                            Wrap="Wrap">
-                            <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="{x:Type x:String}">
-                                    <Border Style="{StaticResource GenrePillBorderStyle}">
-                                        <Label Style="{StaticResource GenrePillLabelStyle}" Text="{Binding .}" />
-                                    </Border>
-                                </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </FlexLayout>
-                    </VerticalStackLayout>
-
-                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
-                        <VerticalStackLayout Spacing="12">
+                        <VerticalStackLayout
+                            Padding="28"
+                            Spacing="12"
+                            VerticalOptions="Center">
+                            <BoxView
+                                BackgroundColor="{StaticResource Primary}"
+                                CornerRadius="4"
+                                HeightRequest="5"
+                                HorizontalOptions="Center"
+                                WidthRequest="42" />
                             <Label
                                 FontAttributes="Bold"
                                 FontFamily="OpenSansSemibold"
-                                FontSize="13"
-                                Text="Movie"
-                                TextColor="{StaticResource TextMuted}"
-                                TextTransform="Uppercase" />
+                                FontSize="22"
+                                HorizontalTextAlignment="Center"
+                                LineBreakMode="WordWrap"
+                                Text="{Binding Movie.Title}"
+                                TextColor="{StaticResource TextMuted}" />
+                        </VerticalStackLayout>
+
+                        <Image Aspect="AspectFill" Source="{Binding Movie.PosterUrl}" />
+                    </Grid>
+                </Border>
+
+                <VerticalStackLayout IsVisible="{Binding HasGenres}" Spacing="10">
+                    <Label
+                        FontSize="12"
+                        Text="Genres"
+                        TextColor="{StaticResource TextMuted}"
+                        TextTransform="Uppercase" />
+                    <FlexLayout
+                        AlignItems="Start"
+                        BindableLayout.ItemsSource="{Binding Genres}"
+                        Direction="Row"
+                        JustifyContent="Start"
+                        Wrap="Wrap">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="{x:Type x:String}">
+                                <Border Style="{StaticResource GenrePillBorderStyle}">
+                                    <Label Style="{StaticResource GenrePillLabelStyle}" Text="{Binding .}" />
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+                </VerticalStackLayout>
+
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="13"
+                            Text="Movie"
+                            TextColor="{StaticResource TextMuted}"
+                            TextTransform="Uppercase" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="20"
+                            LineBreakMode="WordWrap"
+                            Text="{Binding Movie.Title}"
+                            TextColor="{StaticResource TextPrimary}" />
+                        <HorizontalStackLayout Spacing="10">
+                            <Border
+                                BackgroundColor="{StaticResource Secondary}"
+                                Padding="12,6"
+                                StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="18" />
+                                </Border.StrokeShape>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="13"
+                                    Text="{Binding Movie.AgeRating, StringFormat='{0}+'}"
+                                    TextColor="{StaticResource PrimaryDark}" />
+                            </Border>
+                            <Label
+                                Style="{StaticResource MutedLabelStyle}"
+                                Text="{Binding Movie.DurationMinutes, StringFormat='{0} min'}"
+                                VerticalTextAlignment="Center" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </controls:SurfacePanel>
+
+                <controls:SurfacePanel IsVisible="{Binding HasShowtime}" Style="{StaticResource SurfacePanelStyle}">
+                    <Grid
+                        ColumnDefinitions="*,Auto"
+                        RowDefinitions="Auto,Auto,Auto"
+                        RowSpacing="12">
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="13"
+                            Text="Screening"
+                            TextColor="{StaticResource TextMuted}"
+                            TextTransform="Uppercase"
+                            VerticalOptions="Center" />
+                        <Border
+                            BackgroundColor="{StaticResource Secondary}"
+                            Grid.Column="1"
+                            IsVisible="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToBoolConverter}}"
+                            Padding="12,7"
+                            StrokeThickness="0"
+                            VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="14"
+                                Text="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToLabelConverter}}"
+                                TextColor="{StaticResource PrimaryDark}" />
+                        </Border>
+
+                        <VerticalStackLayout
+                            Grid.ColumnSpan="2"
+                            Grid.Row="1"
+                            Spacing="4">
                             <Label
                                 FontAttributes="Bold"
                                 FontFamily="OpenSansSemibold"
                                 FontSize="20"
                                 LineBreakMode="WordWrap"
-                                Text="{Binding Movie.Title}"
+                                Text="{Binding Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy}'}"
                                 TextColor="{StaticResource TextPrimary}" />
-                            <HorizontalStackLayout Spacing="10">
-                                <Border
-                                    BackgroundColor="{StaticResource Secondary}"
-                                    Padding="12,6"
-                                    StrokeThickness="0">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="18" />
-                                    </Border.StrokeShape>
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontFamily="OpenSansSemibold"
-                                        FontSize="13"
-                                        Text="{Binding Movie.AgeRating, StringFormat='{0}+'}"
-                                        TextColor="{StaticResource PrimaryDark}" />
-                                </Border>
-                                <Label
-                                    Style="{StaticResource MutedLabelStyle}"
-                                    Text="{Binding Movie.DurationMinutes, StringFormat='{0} min'}"
-                                    VerticalTextAlignment="Center" />
-                            </HorizontalStackLayout>
+                            <Label Style="{StaticResource MutedLabelStyle}" Text="{Binding Showtime.RoomName}" />
                         </VerticalStackLayout>
-                    </controls:SurfacePanel>
 
-                    <controls:SurfacePanel IsVisible="{Binding HasShowtime}" Style="{StaticResource SurfacePanelStyle}">
-                        <Grid
-                            ColumnDefinitions="*,Auto"
-                            RowDefinitions="Auto,Auto,Auto"
-                            RowSpacing="12">
+                        <Border
+                            BackgroundColor="{StaticResource Secondary}"
+                            Grid.ColumnSpan="2"
+                            Grid.Row="2"
+                            HorizontalOptions="Start"
+                            Padding="12,7"
+                            StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="16" />
+                            </Border.StrokeShape>
                             <Label
                                 FontAttributes="Bold"
                                 FontFamily="OpenSansSemibold"
-                                FontSize="13"
-                                Text="Screening"
-                                TextColor="{StaticResource TextMuted}"
-                                TextTransform="Uppercase"
-                                VerticalOptions="Center" />
-                            <Border
-                                BackgroundColor="{StaticResource Secondary}"
-                                Grid.Column="1"
-                                IsVisible="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToBoolConverter}}"
-                                Padding="12,7"
-                                StrokeThickness="0"
-                                VerticalOptions="Center">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="16" />
-                                </Border.StrokeShape>
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="14"
-                                    Text="{Binding Showtime.DiscountPercentage, Converter={StaticResource DiscountPercentageToLabelConverter}}"
-                                    TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
+                                FontSize="15"
+                                Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
+                                TextColor="{StaticResource PrimaryDark}" />
+                        </Border>
+                    </Grid>
+                </controls:SurfacePanel>
 
-                            <VerticalStackLayout
-                                Grid.ColumnSpan="2"
-                                Grid.Row="1"
-                                Spacing="4">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="20"
-                                    LineBreakMode="WordWrap"
-                                    Text="{Binding Showtime.StartTime, StringFormat='{0:dddd d MMMM yyyy}'}"
-                                    TextColor="{StaticResource TextPrimary}" />
-                                <Label
-                                    Style="{StaticResource MutedLabelStyle}"
-                                    Text="{Binding Showtime.RoomName}" />
-                            </VerticalStackLayout>
-
-                            <Border
-                                BackgroundColor="{StaticResource Secondary}"
-                                Grid.ColumnSpan="2"
-                                Grid.Row="2"
-                                HorizontalOptions="Start"
-                                Padding="12,7"
-                                StrokeThickness="0">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="16" />
-                                </Border.StrokeShape>
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="15"
-                                    Text="{Binding Showtime.StartTime, StringFormat='{0:HH:mm}'}"
-                                    TextColor="{StaticResource PrimaryDark}" />
-                            </Border>
-                        </Grid>
-                    </controls:SurfacePanel>
-
-                    <VerticalStackLayout Spacing="8">
-                        <Button
-                            Command="{Binding BookTicketsCommand}"
-                            IsEnabled="{Binding CanBookTickets}"
-                            Style="{StaticResource SecondaryActionButtonStyle}"
-                            Text="Book Tickets" />
-                    </VerticalStackLayout>
+                <VerticalStackLayout Spacing="8">
+                    <Button
+                        Command="{Binding BookTicketsCommand}"
+                        IsEnabled="{Binding CanBookTickets}"
+                        Style="{StaticResource SecondaryActionButtonStyle}"
+                        Text="Book Tickets" />
                 </VerticalStackLayout>
-            </ScrollView>
+            </VerticalStackLayout>
+        </ScrollView>
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                VerticalOptions="Center" />
+        <ActivityIndicator
+            HorizontalOptions="Center"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center" />
 
-            <controls:SurfacePanel
-                HorizontalOptions="Fill"
-                IsVisible="{Binding HasLoadError}"
-                Margin="20"
-                Style="{StaticResource SurfacePanelStyle}"
-                VerticalOptions="Center">
-                <VerticalStackLayout Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
-                        FontFamily="OpenSansSemibold"
-                        FontSize="18"
-                        Text="Screening unavailable" />
-                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
-                </VerticalStackLayout>
-            </controls:SurfacePanel>
-        </Grid>
-    </ContentPage.Content>
+        <controls:SurfacePanel
+            HorizontalOptions="Fill"
+            IsVisible="{Binding HasLoadError}"
+            Margin="20"
+            Style="{StaticResource SurfacePanelStyle}"
+            VerticalOptions="Center">
+            <VerticalStackLayout Spacing="10">
+                <Label
+                    FontAttributes="Bold"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="18"
+                    Text="Screening unavailable" />
+                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding LoadErrorMessage}" />
+            </VerticalStackLayout>
+        </controls:SurfacePanel>
+    </Grid>
 </ContentPage>

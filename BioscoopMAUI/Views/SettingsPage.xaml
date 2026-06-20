@@ -7,80 +7,79 @@
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
-    <ContentPage.Content>
-        <Grid RowDefinitions="Auto,*">
-            <controls:PageHeader
-                Grid.Row="0"
-                Style="{StaticResource PageHeaderStyle}"
-                Subtitle="App preferences and account options."
-                Title="Settings" />
 
-            <ScrollView Grid.Row="1" Padding="24">
-                <VerticalStackLayout Spacing="20">
-                    <Label
-                        IsVisible="{Binding HasError}"
-                        Style="{StaticResource DescriptionLabelStyle}"
-                        Text="{Binding ErrorMessage}" />
+    <Grid RowDefinitions="Auto,*">
+        <controls:PageHeader
+            Grid.Row="0"
+            Style="{StaticResource PageHeaderStyle}"
+            Subtitle="App preferences and account options."
+            Title="Settings" />
 
-                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+        <ScrollView Grid.Row="1" Padding="24">
+            <VerticalStackLayout Spacing="20">
+                <Label
+                    IsVisible="{Binding HasError}"
+                    Style="{StaticResource DescriptionLabelStyle}"
+                    Text="{Binding ErrorMessage}" />
 
-                    <VerticalStackLayout Spacing="8">
-                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Account" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding DisplayName, StringFormat='Name: {0}'}" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Email, StringFormat='Email: {0}'}" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Role, StringFormat='Role: {0}'}" />
-                    </VerticalStackLayout>
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
-                    <VerticalStackLayout IsVisible="{Binding IsEmployee}" Spacing="8">
-                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Employee" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Scan customer ticket QR codes at the entrance." />
-                        <Button Command="{Binding OpenTicketScannerCommand}" Text="Scan tickets" />
-                    </VerticalStackLayout>
-
-                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Notifications" />
-                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Get reminded 15 minutes before a screening starts." />
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <Label
-                                    Grid.Column="0"
-                                    Style="{StaticResource DescriptionLabelStyle}"
-                                    Text="Screening reminders"
-                                    VerticalOptions="Center" />
-                                <Switch Grid.Column="1" IsToggled="{Binding RemindersEnabled, Mode=TwoWay}" />
-                            </Grid>
-                            <Label
-                                IsVisible="{Binding NotificationPermissionDenied}"
-                                Style="{StaticResource DescriptionLabelStyle}"
-                                Text="Notifications are turned off for this app. Enable them in your device settings to receive reminders." />
-                        </VerticalStackLayout>
-                    </controls:SurfacePanel>
-
-                    <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
-                        <VerticalStackLayout Spacing="12">
-                            <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Feedback" />
-                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Share your thoughts or report something that could be improved." />
-                            <Editor
-                                AutoSize="TextChanges"
-                                HeightRequest="120"
-                                IsEnabled="{Binding IsFeedbackInputEnabled}"
-                                MaxLength="2000"
-                                Placeholder="Write your feedback..."
-                                Text="{Binding FeedbackText, Mode=TwoWay}" />
-                            <Label
-                                IsVisible="{Binding HasFeedbackSuccess}"
-                                Style="{StaticResource DescriptionLabelStyle}"
-                                Text="{Binding FeedbackSuccessMessage}" />
-                            <Button
-                                Command="{Binding SubmitFeedbackCommand}"
-                                IsEnabled="{Binding CanSubmitFeedback}"
-                                Text="Send feedback" />
-                        </VerticalStackLayout>
-                    </controls:SurfacePanel>
-
-                    <Button Command="{Binding LogoutCommand}" Text="Log out" />
+                <VerticalStackLayout Spacing="8">
+                    <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Account" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding DisplayName, StringFormat='Name: {0}'}" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Email, StringFormat='Email: {0}'}" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding Role, StringFormat='Role: {0}'}" />
                 </VerticalStackLayout>
-            </ScrollView>
-        </Grid>
-    </ContentPage.Content>
+
+                <VerticalStackLayout IsVisible="{Binding IsEmployee}" Spacing="8">
+                    <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Employee" />
+                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="Scan customer ticket QR codes at the entrance." />
+                    <Button Command="{Binding OpenTicketScannerCommand}" Text="Scan tickets" />
+                </VerticalStackLayout>
+
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Notifications" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Get reminded 15 minutes before a screening starts." />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <Label
+                                Grid.Column="0"
+                                Style="{StaticResource DescriptionLabelStyle}"
+                                Text="Screening reminders"
+                                VerticalOptions="Center" />
+                            <Switch Grid.Column="1" IsToggled="{Binding RemindersEnabled, Mode=TwoWay}" />
+                        </Grid>
+                        <Label
+                            IsVisible="{Binding NotificationPermissionDenied}"
+                            Style="{StaticResource DescriptionLabelStyle}"
+                            Text="Notifications are turned off for this app. Enable them in your device settings to receive reminders." />
+                    </VerticalStackLayout>
+                </controls:SurfacePanel>
+
+                <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Feedback" />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Share your thoughts or report something that could be improved." />
+                        <Editor
+                            AutoSize="TextChanges"
+                            HeightRequest="120"
+                            IsEnabled="{Binding IsFeedbackInputEnabled}"
+                            MaxLength="2000"
+                            Placeholder="Write your feedback..."
+                            Text="{Binding FeedbackText, Mode=TwoWay}" />
+                        <Label
+                            IsVisible="{Binding HasFeedbackSuccess}"
+                            Style="{StaticResource DescriptionLabelStyle}"
+                            Text="{Binding FeedbackSuccessMessage}" />
+                        <Button
+                            Command="{Binding SubmitFeedbackCommand}"
+                            IsEnabled="{Binding CanSubmitFeedback}"
+                            Text="Send feedback" />
+                    </VerticalStackLayout>
+                </controls:SurfacePanel>
+
+                <Button Command="{Binding LogoutCommand}" Text="Log out" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

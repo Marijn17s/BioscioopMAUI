@@ -12,7 +12,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <ContentPage.Resources>
-        <DataTemplate x:Key="MoviePosterCardTemplate" x:DataType="models:MovieResponseDto">
+        <DataTemplate x:DataType="models:MovieResponseDto" x:Key="MoviePosterCardTemplate">
             <VerticalStackLayout Spacing="8" WidthRequest="120">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference HomePageRoot}}" CommandParameter="{Binding .}" />
@@ -125,8 +125,8 @@
                                                     </VerticalStackLayout>
 
                                                     <Border
-                                                        Grid.Column="1"
                                                         BackgroundColor="{StaticResource Secondary}"
+                                                        Grid.Column="1"
                                                         Padding="10,8"
                                                         StrokeThickness="0"
                                                         VerticalOptions="Center">
@@ -153,17 +153,15 @@
                             <VerticalStackLayout Spacing="12">
                                 <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Visit us" />
                                 <Label Style="{StaticResource DescriptionLabelStyle}" Text="Hogeschoollaan 1, Breda" />
-                                <Border
-                                    HeightRequest="220"
-                                    StrokeThickness="0">
+                                <Border HeightRequest="220" StrokeThickness="0">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="20" />
                                     </Border.StrokeShape>
                                     <maps:Map
-                                        x:Name="CinemaMap"
                                         IsShowingUser="False"
                                         IsZoomEnabled="True"
-                                        MapType="Street" />
+                                        MapType="Street"
+                                        x:Name="CinemaMap" />
                                 </Border>
                                 <Button Command="{Binding OpenNavigationCommand}" Text="Navigate" />
                             </VerticalStackLayout>

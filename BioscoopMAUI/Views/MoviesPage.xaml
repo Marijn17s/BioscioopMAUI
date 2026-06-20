@@ -10,156 +10,154 @@
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <ContentPage.Content>
-        <Grid RowDefinitions="Auto,*">
-            <controls:PageHeader
-                Grid.Row="0"
-                Style="{StaticResource PageHeaderStyle}"
-                Subtitle="Browse our collection of movies."
-                Title="Movies" />
+    <Grid RowDefinitions="Auto,*">
+        <controls:PageHeader
+            Grid.Row="0"
+            Style="{StaticResource PageHeaderStyle}"
+            Subtitle="Browse our collection of movies."
+            Title="Movies" />
 
-            <Grid Grid.Row="1">
-                <RefreshView
-                    Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding ShowMoviesList}">
-                    <CollectionView ItemsSource="{Binding Movies}" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:MovieResponseDto">
-                                <Border Style="{StaticResource MovieCardBorderStyle}">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference MoviesPageRoot}}" CommandParameter="{Binding .}" />
-                                    </Border.GestureRecognizers>
+        <Grid Grid.Row="1">
+            <RefreshView
+                Command="{Binding LoadMoviesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding ShowMoviesList}">
+                <CollectionView ItemsSource="{Binding Movies}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:MovieResponseDto">
+                            <Border Style="{StaticResource MovieCardBorderStyle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference MoviesPageRoot}}" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
 
-                                    <Grid ColumnDefinitions="112,*" ColumnSpacing="14">
-                                        <Border
-                                            HeightRequest="168"
-                                            StrokeThickness="0"
-                                            WidthRequest="112">
-                                            <Border.StrokeShape>
-                                                <RoundRectangle CornerRadius="20" />
-                                            </Border.StrokeShape>
-                                            <Grid>
-                                                <Grid.Background>
-                                                    <LinearGradientBrush EndPoint="1,1">
-                                                        <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
-                                                        <GradientStop Color="{StaticResource Secondary}" Offset="1" />
-                                                    </LinearGradientBrush>
-                                                </Grid.Background>
+                                <Grid ColumnDefinitions="112,*" ColumnSpacing="14">
+                                    <Border
+                                        HeightRequest="168"
+                                        StrokeThickness="0"
+                                        WidthRequest="112">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="20" />
+                                        </Border.StrokeShape>
+                                        <Grid>
+                                            <Grid.Background>
+                                                <LinearGradientBrush EndPoint="1,1">
+                                                    <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="0" />
+                                                    <GradientStop Color="{StaticResource Secondary}" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Grid.Background>
 
-                                                <VerticalStackLayout
-                                                    Padding="12"
-                                                    Spacing="8"
-                                                    VerticalOptions="Center">
-                                                    <BoxView
-                                                        BackgroundColor="{StaticResource Primary}"
-                                                        CornerRadius="3"
-                                                        HeightRequest="4"
-                                                        HorizontalOptions="Center"
-                                                        WidthRequest="28" />
-                                                    <Label Style="{StaticResource PosterPlaceholderLabelStyle}" Text="{Binding Title}" />
-                                                </VerticalStackLayout>
+                                            <VerticalStackLayout
+                                                Padding="12"
+                                                Spacing="8"
+                                                VerticalOptions="Center">
+                                                <BoxView
+                                                    BackgroundColor="{StaticResource Primary}"
+                                                    CornerRadius="3"
+                                                    HeightRequest="4"
+                                                    HorizontalOptions="Center"
+                                                    WidthRequest="28" />
+                                                <Label Style="{StaticResource PosterPlaceholderLabelStyle}" Text="{Binding Title}" />
+                                            </VerticalStackLayout>
 
-                                                <Image Aspect="AspectFill" Source="{Binding PosterUrl}" />
-                                            </Grid>
-                                        </Border>
-
-                                        <Grid
-                                            Grid.Column="1"
-                                            RowDefinitions="Auto,Auto,Auto,*,Auto"
-                                            RowSpacing="8">
-                                            <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding Title}" />
-
-                                            <HorizontalStackLayout Grid.Row="1" Spacing="8">
-                                                <Border
-                                                    BackgroundColor="{StaticResource Secondary}"
-                                                    Padding="8,4"
-                                                    StrokeThickness="0">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="14" />
-                                                    </Border.StrokeShape>
-                                                    <Label
-                                                        FontAttributes="Bold"
-                                                        FontFamily="OpenSansSemibold"
-                                                        FontSize="11"
-                                                        Text="{Binding AgeRating, StringFormat='{0}+'}"
-                                                        TextColor="{StaticResource PrimaryDark}" />
-                                                </Border>
-
-                                                <Label
-                                                    Style="{StaticResource MutedLabelStyle}"
-                                                    Text="{Binding DurationMinutes, StringFormat='{0} min'}"
-                                                    VerticalTextAlignment="Center" />
-                                            </HorizontalStackLayout>
-
-                                            <Label
-                                                Grid.Row="2"
-                                                Style="{StaticResource MutedLabelStyle}"
-                                                Text="{Binding Genres}" />
-
-                                            <Label
-                                                Grid.Row="3"
-                                                Style="{StaticResource DescriptionLabelStyle}"
-                                                Text="{Binding Description}" />
+                                            <Image Aspect="AspectFill" Source="{Binding PosterUrl}" />
                                         </Grid>
+                                    </Border>
+
+                                    <Grid
+                                        Grid.Column="1"
+                                        RowDefinitions="Auto,Auto,Auto,*,Auto"
+                                        RowSpacing="8">
+                                        <Label Style="{StaticResource MovieCardTitleLabelStyle}" Text="{Binding Title}" />
+
+                                        <HorizontalStackLayout Grid.Row="1" Spacing="8">
+                                            <Border
+                                                BackgroundColor="{StaticResource Secondary}"
+                                                Padding="8,4"
+                                                StrokeThickness="0">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="14" />
+                                                </Border.StrokeShape>
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontFamily="OpenSansSemibold"
+                                                    FontSize="11"
+                                                    Text="{Binding AgeRating, StringFormat='{0}+'}"
+                                                    TextColor="{StaticResource PrimaryDark}" />
+                                            </Border>
+
+                                            <Label
+                                                Style="{StaticResource MutedLabelStyle}"
+                                                Text="{Binding DurationMinutes, StringFormat='{0} min'}"
+                                                VerticalTextAlignment="Center" />
+                                        </HorizontalStackLayout>
+
+                                        <Label
+                                            Grid.Row="2"
+                                            Style="{StaticResource MutedLabelStyle}"
+                                            Text="{Binding Genres}" />
+
+                                        <Label
+                                            Grid.Row="3"
+                                            Style="{StaticResource DescriptionLabelStyle}"
+                                            Text="{Binding Description}" />
                                     </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </RefreshView>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
 
-                <ActivityIndicator
-                    HeightRequest="44"
-                    HorizontalOptions="Center"
-                    IsRunning="{Binding IsInitialLoading}"
-                    IsVisible="{Binding IsInitialLoading}"
-                    VerticalOptions="Center"
-                    WidthRequest="44" />
+            <ActivityIndicator
+                HeightRequest="44"
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsInitialLoading}"
+                IsVisible="{Binding IsInitialLoading}"
+                VerticalOptions="Center"
+                WidthRequest="44" />
 
-                <RefreshView
-                    Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding HasError}">
-                    <ScrollView>
-                        <controls:SurfacePanel
-                            Margin="20"
-                            Style="{StaticResource SurfacePanelStyle}"
-                            VerticalOptions="Center">
-                            <VerticalStackLayout Spacing="14">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="18"
-                                    Text="Something went wrong" />
-                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
-                                <Button Command="{Binding LoadMoviesCommand}" Text="Try again" />
-                            </VerticalStackLayout>
-                        </controls:SurfacePanel>
-                    </ScrollView>
-                </RefreshView>
+            <RefreshView
+                Command="{Binding LoadMoviesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding HasError}">
+                <ScrollView>
+                    <controls:SurfacePanel
+                        Margin="20"
+                        Style="{StaticResource SurfacePanelStyle}"
+                        VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="18"
+                                Text="Something went wrong" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                            <Button Command="{Binding LoadMoviesCommand}" Text="Try again" />
+                        </VerticalStackLayout>
+                    </controls:SurfacePanel>
+                </ScrollView>
+            </RefreshView>
 
-                <RefreshView
-                    Command="{Binding LoadMoviesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding IsEmptyStateVisible}">
-                    <ScrollView>
-                        <controls:SurfacePanel
-                            Margin="20"
-                            Style="{StaticResource SurfacePanelStyle}"
-                            VerticalOptions="Center">
-                            <VerticalStackLayout Spacing="10">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="18"
-                                    Text="No movies yet" />
-                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once movies are available." />
-                            </VerticalStackLayout>
-                        </controls:SurfacePanel>
-                    </ScrollView>
-                </RefreshView>
-            </Grid>
+            <RefreshView
+                Command="{Binding LoadMoviesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding IsEmptyStateVisible}">
+                <ScrollView>
+                    <controls:SurfacePanel
+                        Margin="20"
+                        Style="{StaticResource SurfacePanelStyle}"
+                        VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="10">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="18"
+                                Text="No movies yet" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once movies are available." />
+                        </VerticalStackLayout>
+                    </controls:SurfacePanel>
+                </ScrollView>
+            </RefreshView>
         </Grid>
-    </ContentPage.Content>
+    </Grid>
 </ContentPage>

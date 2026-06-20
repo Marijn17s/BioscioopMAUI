@@ -12,57 +12,54 @@
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <ContentPage.Content>
-        <Grid RowDefinitions="Auto,*">
-            <controls:PageHeader
-                Grid.Row="0"
-                Style="{StaticResource PageHeaderStyle}"
-                Subtitle="Find a screening by date and movie."
-                Title="Screenings" />
+    <Grid RowDefinitions="Auto,*">
+        <controls:PageHeader
+            Grid.Row="0"
+            Style="{StaticResource PageHeaderStyle}"
+            Subtitle="Find a screening by date and movie."
+            Title="Screenings" />
 
-            <Grid Grid.Row="1">
-                <RefreshView
-                    Command="{Binding LoadShowtimesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding ShowShowtimesList}">
-                    <ScrollView>
-                        <VerticalStackLayout
-                            Margin="20,0,20,20"
-                            Spacing="0">
-                            <controls:SurfacePanel
-                                Margin="0,14,0,10"
-                                Padding="12"
-                                Style="{StaticResource SurfacePanelStyle}">
-                                <VerticalStackLayout Spacing="10">
-                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                        <VerticalStackLayout Spacing="1">
-                                            <Label
-                                                FontAttributes="Bold"
-                                                FontFamily="OpenSansSemibold"
-                                                FontSize="15"
-                                                Text="Filter screenings" />
-                                            <Label
-                                                FontSize="12"
-                                                Text="Date, time, or movie"
-                                                TextColor="{StaticResource TextMuted}" />
-                                        </VerticalStackLayout>
-                                        <Border
-                                            BackgroundColor="{StaticResource Secondary}"
-                                            Grid.Column="1"
-                                            Padding="10,5"
-                                            StrokeThickness="0"
-                                            VerticalOptions="Center">
-                                            <Border.StrokeShape>
-                                                <RoundRectangle CornerRadius="14" />
-                                            </Border.StrokeShape>
-                                            <Label
-                                                FontAttributes="Bold"
-                                                FontFamily="OpenSansSemibold"
-                                                FontSize="11"
-                                                Text="{Binding Showtimes.Count, StringFormat='{0} shown'}"
-                                                TextColor="{StaticResource PrimaryDark}" />
-                                        </Border>
-                                    </Grid>
+        <Grid Grid.Row="1">
+            <RefreshView
+                Command="{Binding LoadShowtimesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding ShowShowtimesList}">
+                <ScrollView>
+                    <VerticalStackLayout Margin="20,0,20,20" Spacing="0">
+                        <controls:SurfacePanel
+                            Margin="0,14,0,10"
+                            Padding="12"
+                            Style="{StaticResource SurfacePanelStyle}">
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="1">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="15"
+                                            Text="Filter screenings" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="Date, time, or movie"
+                                            TextColor="{StaticResource TextMuted}" />
+                                    </VerticalStackLayout>
+                                    <Border
+                                        BackgroundColor="{StaticResource Secondary}"
+                                        Grid.Column="1"
+                                        Padding="10,5"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="14" />
+                                        </Border.StrokeShape>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontFamily="OpenSansSemibold"
+                                            FontSize="11"
+                                            Text="{Binding Showtimes.Count, StringFormat='{0} shown'}"
+                                            TextColor="{StaticResource PrimaryDark}" />
+                                    </Border>
+                                </Grid>
 
                                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                                     <Border
@@ -302,38 +299,36 @@
                                             VerticalOptions="Center" />
                                     </Border>
                                 </Grid>
-                                </VerticalStackLayout>
+                            </VerticalStackLayout>
                         </controls:SurfacePanel>
 
-                            <controls:SurfacePanel
-                                IsVisible="{Binding HasNoMatchingShowtimes}"
-                                Margin="0,8,0,20"
-                                Style="{StaticResource SurfacePanelStyle}">
-                                <VerticalStackLayout Spacing="10">
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontFamily="OpenSansSemibold"
-                                        FontSize="18"
-                                        Text="No matching screenings" />
-                                    <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
-                                </VerticalStackLayout>
-                            </controls:SurfacePanel>
+                        <controls:SurfacePanel
+                            IsVisible="{Binding HasNoMatchingShowtimes}"
+                            Margin="0,8,0,20"
+                            Style="{StaticResource SurfacePanelStyle}">
+                            <VerticalStackLayout Spacing="10">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="18"
+                                    Text="No matching screenings" />
+                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Try adjusting your filters or search term." />
+                            </VerticalStackLayout>
+                        </controls:SurfacePanel>
 
-                            <VerticalStackLayout
-                                BindableLayout.ItemsSource="{Binding Showtimes}"
-                                Spacing="0">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="models:FilmsOverviewDto">
-                                        <Border Style="{StaticResource ShowtimeCardStyle}">
-                                            <Border.Background>
-                                                <LinearGradientBrush EndPoint="1,1">
-                                                    <GradientStop Color="{StaticResource AppSurface}" Offset="0" />
-                                                    <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="1" />
-                                                </LinearGradientBrush>
-                                            </Border.Background>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenShowtimeDetailsCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
-                                            </Border.GestureRecognizers>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Showtimes}" Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:FilmsOverviewDto">
+                                    <Border Style="{StaticResource ShowtimeCardStyle}">
+                                        <Border.Background>
+                                            <LinearGradientBrush EndPoint="1,1">
+                                                <GradientStop Color="{StaticResource AppSurface}" Offset="0" />
+                                                <GradientStop Color="{StaticResource AppSurfaceElevated}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding BindingContext.OpenShowtimeDetailsCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
 
                                         <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="14">
                                             <Border
@@ -402,72 +397,71 @@
                                                     TextColor="{StaticResource PrimaryDark}" />
                                             </Border>
                                         </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-
-                            <Button
-                                Command="{Binding LoadMoreCommand}"
-                                IsVisible="{Binding HasMoreShowtimes}"
-                                Margin="0,4,0,0"
-                                Style="{StaticResource SecondaryActionButtonStyle}"
-                                Text="Load more" />
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-                    </ScrollView>
-                </RefreshView>
 
-                <ActivityIndicator
-                    HeightRequest="44"
-                    HorizontalOptions="Center"
-                    IsRunning="{Binding IsInitialLoading}"
-                    IsVisible="{Binding IsInitialLoading}"
-                    VerticalOptions="Center"
-                    WidthRequest="44" />
+                        <Button
+                            Command="{Binding LoadMoreCommand}"
+                            IsVisible="{Binding HasMoreShowtimes}"
+                            Margin="0,4,0,0"
+                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            Text="Load more" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
 
-                <RefreshView
-                    Command="{Binding LoadShowtimesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding HasError}">
-                    <ScrollView>
-                        <controls:SurfacePanel
-                            Margin="20"
-                            Style="{StaticResource SurfacePanelStyle}"
-                            VerticalOptions="Center">
-                            <VerticalStackLayout Spacing="14">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="18"
-                                    Text="Something went wrong" />
-                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
-                                <Button Command="{Binding LoadShowtimesCommand}" Text="Try again" />
-                            </VerticalStackLayout>
-                        </controls:SurfacePanel>
-                    </ScrollView>
-                </RefreshView>
+            <ActivityIndicator
+                HeightRequest="44"
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsInitialLoading}"
+                IsVisible="{Binding IsInitialLoading}"
+                VerticalOptions="Center"
+                WidthRequest="44" />
 
-                <RefreshView
-                    Command="{Binding LoadShowtimesCommand}"
-                    IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
-                    IsVisible="{Binding IsEmptyStateVisible}">
-                    <ScrollView>
-                        <controls:SurfacePanel
-                            Margin="20"
-                            Style="{StaticResource SurfacePanelStyle}"
-                            VerticalOptions="Center">
-                            <VerticalStackLayout Spacing="10">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontFamily="OpenSansSemibold"
-                                    FontSize="18"
-                                    Text="No screenings yet" />
-                                <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once screenings are available." />
-                            </VerticalStackLayout>
-                        </controls:SurfacePanel>
-                    </ScrollView>
-                </RefreshView>
-            </Grid>
+            <RefreshView
+                Command="{Binding LoadShowtimesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding HasError}">
+                <ScrollView>
+                    <controls:SurfacePanel
+                        Margin="20"
+                        Style="{StaticResource SurfacePanelStyle}"
+                        VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="18"
+                                Text="Something went wrong" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="{Binding ErrorMessage}" />
+                            <Button Command="{Binding LoadShowtimesCommand}" Text="Try again" />
+                        </VerticalStackLayout>
+                    </controls:SurfacePanel>
+                </ScrollView>
+            </RefreshView>
+
+            <RefreshView
+                Command="{Binding LoadShowtimesCommand}"
+                IsRefreshing="{Binding IsPullRefreshing, Mode=OneWay}"
+                IsVisible="{Binding IsEmptyStateVisible}">
+                <ScrollView>
+                    <controls:SurfacePanel
+                        Margin="20"
+                        Style="{StaticResource SurfacePanelStyle}"
+                        VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="10">
+                            <Label
+                                FontAttributes="Bold"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="18"
+                                Text="No screenings yet" />
+                            <Label Style="{StaticResource DescriptionLabelStyle}" Text="Pull to refresh once screenings are available." />
+                        </VerticalStackLayout>
+                    </controls:SurfacePanel>
+                </ScrollView>
+            </RefreshView>
         </Grid>
-    </ContentPage.Content>
+    </Grid>
 </ContentPage>

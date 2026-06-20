@@ -9,6 +9,7 @@
     xmlns:ui="clr-namespace:BioscoopMAUI.ViewModels.UI"
     xmlns:viewModels="clr-namespace:BioscoopMAUI.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
     <Grid RowDefinitions="*,Auto">
         <ScrollView>
             <VerticalStackLayout Padding="20" Spacing="18">
