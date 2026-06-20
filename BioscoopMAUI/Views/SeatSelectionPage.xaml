@@ -25,52 +25,32 @@
                 </VerticalStackLayout>
 
                 <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
-                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
                         <VerticalStackLayout Spacing="2">
                             <Label
                                 FontAttributes="Bold"
                                 FontFamily="OpenSansSemibold"
                                 Text="Tickets" />
-                            <Label Style="{StaticResource MutedLabelStyle}" Text="Auto-suggest updates with the ticket amount." />
+                            <Label Style="{StaticResource MutedLabelStyle}" Text="Choose amount" />
                         </VerticalStackLayout>
-                        <Button
-                            Command="{Binding DecreaseTicketCountCommand}"
+                        <Label
+                            FontAttributes="Bold"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="18"
                             Grid.Column="1"
-                            IsEnabled="{Binding CanDecreaseTicketCount}"
-                            Text="-" />
-                        <Border
-                            BackgroundColor="{StaticResource AppSurfaceElevated}"
+                            HorizontalTextAlignment="Center"
+                            Text="{Binding TicketCount}"
+                            VerticalOptions="Center"
+                            WidthRequest="32" />
+                        <Stepper
                             Grid.Column="2"
-                            HeightRequest="44"
-                            StrokeThickness="0"
-                            WidthRequest="58">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="8" />
-                            </Border.StrokeShape>
-                            <Entry
-                                Completed="OnTicketCountEntryCompleted"
-                                FontAttributes="Bold"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="16"
-                                HorizontalTextAlignment="Center"
-                                IsEnabled="{Binding CanEditTicketCount}"
-                                Keyboard="Numeric"
-                                Text="{Binding TicketCountText}"
-                                TextColor="{StaticResource TextPrimary}"
-                                Unfocused="OnTicketCountEntryUnfocused"
-                                VerticalOptions="Center" />
-                        </Border>
-                        <Button
-                            Command="{Binding IncreaseTicketCountCommand}"
-                            Grid.Column="3"
-                            IsEnabled="{Binding CanIncreaseTicketCount}"
-                            Text="+" />
-                        <Button
-                            Clicked="OnApplyTicketCountClicked"
-                            Grid.Column="4"
+                            Increment="1"
                             IsEnabled="{Binding CanEditTicketCount}"
-                            Style="{StaticResource SecondaryActionButtonStyle}"
-                            Text="Apply" />
+                            Maximum="20"
+                            Minimum="1"
+                            Value="{Binding TicketCount, Mode=OneWay}"
+                            ValueChanged="OnTicketCountStepperValueChanged"
+                            VerticalOptions="Center" />
                     </Grid>
                 </controls:SurfacePanel>
 

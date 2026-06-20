@@ -21,8 +21,6 @@ public partial class SeatSelectionPageViewModel(
     public bool HasDiscount => PriceQuote?.DiscountPercentage > 0;
     public bool IsEditMode => ReservationId > 0;
     public bool CanEditTicketCount => !IsEditMode && !IsBusy;
-    public bool CanDecreaseTicketCount => TicketCount > 1 && !IsEditMode && !IsBusy;
-    public bool CanIncreaseTicketCount => TicketCount < 20 && !IsEditMode && !IsBusy;
     public bool CanConfirm => SelectedSeatCount == TicketCount && !IsBusy;
     public string ConfirmButtonText => IsEditMode ? "Save seats" : $"Confirm ({SelectedSeatCount} / {TicketCount})";
     public string PriceText => PriceQuote is null ? "Price unavailable" : $"Total: {PriceQuote.TotalPrice:C}";
@@ -35,8 +33,6 @@ public partial class SeatSelectionPageViewModel(
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEditMode))]
     [NotifyPropertyChangedFor(nameof(CanEditTicketCount))]
-    [NotifyPropertyChangedFor(nameof(CanDecreaseTicketCount))]
-    [NotifyPropertyChangedFor(nameof(CanIncreaseTicketCount))]
     private int _reservationId;
 
     [ObservableProperty]
@@ -52,8 +48,6 @@ public partial class SeatSelectionPageViewModel(
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanEditTicketCount))]
-    [NotifyPropertyChangedFor(nameof(CanDecreaseTicketCount))]
-    [NotifyPropertyChangedFor(nameof(CanIncreaseTicketCount))]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyPropertyChangedFor(nameof(ConfirmButtonText))]
     private bool _isBusy;
@@ -63,14 +57,9 @@ public partial class SeatSelectionPageViewModel(
     private string _errorMessage = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanDecreaseTicketCount))]
-    [NotifyPropertyChangedFor(nameof(CanIncreaseTicketCount))]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
     [NotifyPropertyChangedFor(nameof(ConfirmButtonText))]
     private int _ticketCount = 2;
-
-    [ObservableProperty]
-    private string _ticketCountText = "2";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConfirm))]
@@ -109,45 +98,15 @@ public partial class SeatSelectionPageViewModel(
         await LoadSeatsAsync();
     }
 
-    [RelayCommand]
-    private async Task IncreaseTicketCountAsync()
-    {
-        if (!CanIncreaseTicketCount)
-            return;
-
-        TicketCount++;
-        await RefreshSuggestionAsync();
-    }
-
-    [RelayCommand]
-    private async Task DecreaseTicketCountAsync()
-    {
-        if (!CanDecreaseTicketCount)
-            return;
-
-        TicketCount--;
-        await RefreshSuggestionAsync();
-    }
-
-    public async Task ApplyTicketCountAsync()
+    public async Task OnTicketCountStepperChangedAsync(int newTicketCount)
     {
         if (IsEditMode || IsBusy)
             return;
-
-        if (!int.TryParse(TicketCountText, out var requestedTicketCount))
-        {
-            TicketCountText = TicketCount.ToString();
-            ErrorMessage = "Enter a number between 1 and 20.";
-            return;
-        }
-
-        requestedTicketCount = Math.Clamp(requestedTicketCount, 1, 20);
-        TicketCountText = requestedTicketCount.ToString();
-
-        if (requestedTicketCount == TicketCount)
+        
+        if (newTicketCount == TicketCount)
             return;
 
-        TicketCount = requestedTicketCount;
+        TicketCount = newTicketCount;
         await RefreshSuggestionAsync();
     }
 
@@ -336,10 +295,5 @@ public partial class SeatSelectionPageViewModel(
         {
             // If it fails the API will release it later
         }
-    }
-
-    partial void OnTicketCountChanged(int value)
-    {
-        TicketCountText = value.ToString();
     }
 }

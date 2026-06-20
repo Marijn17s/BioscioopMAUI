@@ -300,7 +300,6 @@ public partial class ShowtimesPageViewModel : ObservableObject
 
         TimeFilterOptions.Clear();
         TimeFilterOptions.Add(new ShowtimeFilterOption("All", "All", null) { IsSelected = true });
-        TimeFilterOptions.Add(new ShowtimeFilterOption("Morning", "Morning", null));
         TimeFilterOptions.Add(new ShowtimeFilterOption("Afternoon", "Afternoon", null));
         TimeFilterOptions.Add(new ShowtimeFilterOption("Evening", "Evening", null));
     }
@@ -319,9 +318,7 @@ public partial class ShowtimesPageViewModel : ObservableObject
         if (SelectedDate is { } targetDate)
             filtered = filtered.Where(s => s.StartTime.Date == targetDate.Date);
 
-        if (SelectedTimeFilterKey is "Morning")
-            filtered = filtered.Where(s => s.StartTime.TimeOfDay < TimeSpan.FromHours(12));
-        else if (SelectedTimeFilterKey is "Afternoon")
+        if (SelectedTimeFilterKey is "Afternoon")
         {
             filtered = filtered.Where(s =>
                 s.StartTime.TimeOfDay >= TimeSpan.FromHours(12)

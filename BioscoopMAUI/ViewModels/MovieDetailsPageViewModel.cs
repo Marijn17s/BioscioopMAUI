@@ -52,6 +52,7 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
     [NotifyPropertyChangedFor(nameof(HasMovie))]
     [NotifyPropertyChangedFor(nameof(HasGenres))]
     [NotifyPropertyChangedFor(nameof(HasTrailer))]
+    [NotifyCanExecuteChangedFor(nameof(OpenTrailerCommand))]
     private MovieResponseDto? _movie;
 
     partial void OnMovieChanged(MovieResponseDto? value)
@@ -73,6 +74,7 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanToggleFavorite))]
+    [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand))]
     private bool _isTogglingFavorite;
 
     [RelayCommand(CanExecute = nameof(HasTrailer))]
@@ -123,6 +125,8 @@ public partial class MovieDetailsPageViewModel(IMovieService movieService, INavi
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanToggleFavorite))]
+    [NotifyCanExecuteChangedFor(nameof(OpenTrailerCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ToggleFavoriteCommand))]
     private bool _isBusy;
 
     [ObservableProperty]

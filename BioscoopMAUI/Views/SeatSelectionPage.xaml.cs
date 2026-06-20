@@ -28,14 +28,8 @@ public partial class SeatSelectionPage : ContentPage, IQueryAttributable
         _ = _viewModel.InitializeAsync(showtimeId.Value, movieTitle, roomName, startTime, reservationId);
     }
 
-    private async void OnTicketCountEntryCompleted(object? sender, EventArgs e)
-        => await _viewModel.ApplyTicketCountAsync();
-
-    private async void OnTicketCountEntryUnfocused(object? sender, FocusEventArgs e)
-        => await _viewModel.ApplyTicketCountAsync();
-
-    private async void OnApplyTicketCountClicked(object? sender, EventArgs e)
-        => await _viewModel.ApplyTicketCountAsync();
+    private async void OnTicketCountStepperValueChanged(object? sender, ValueChangedEventArgs e)
+        => await _viewModel.OnTicketCountStepperChangedAsync((int)e.NewValue);
 
     private static string GetString(IDictionary<string, object> query, string key)
         => query.TryGetValue(key, out var value) ? value.ToString() ?? string.Empty : string.Empty;

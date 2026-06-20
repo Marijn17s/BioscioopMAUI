@@ -29,6 +29,7 @@
                         </Grid.Background>
 
                         <VerticalStackLayout
+                            InputTransparent="True"
                             Padding="28"
                             Spacing="12"
                             VerticalOptions="Center">
@@ -48,29 +49,32 @@
                                 TextColor="{StaticResource TextMuted}" />
                         </VerticalStackLayout>
 
-                        <Image Aspect="AspectFill" Source="{Binding Movie.PosterUrl}" />
+                        <Image
+                            Aspect="AspectFill"
+                            InputTransparent="True"
+                            Source="{Binding Movie.PosterUrl}" />
 
-                        <Border
+                        <ImageButton
                             BackgroundColor="{StaticResource AppSurfaceElevated}"
+                            Command="{Binding ToggleFavoriteCommand}"
+                            CornerRadius="20"
+                            HeightRequest="44"
                             HorizontalOptions="End"
+                            IsEnabled="{Binding CanToggleFavorite}"
                             IsVisible="{Binding HasMovie}"
                             Margin="16"
                             Padding="10"
-                            StrokeThickness="0"
-                            VerticalOptions="Start">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="20" />
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ToggleFavoriteCommand}" />
-                            </Border.GestureRecognizers>
-                            <Label
-                                FontFamily="MaterialIconsOutlined"
-                                FontSize="24"
-                                Text="{Binding FavoriteIcon}"
-                                TextColor="{StaticResource PrimaryDark}"
-                                VerticalOptions="Center" />
-                        </Border>
+                            VerticalOptions="Start"
+                            WidthRequest="44"
+                            ZIndex="1">
+                            <ImageButton.Source>
+                                <FontImageSource
+                                    Color="{StaticResource PrimaryDark}"
+                                    FontFamily="MaterialIconsOutlined"
+                                    Glyph="{Binding FavoriteIcon}"
+                                    Size="24" />
+                            </ImageButton.Source>
+                        </ImageButton>
 
                         <controls:SurfacePanel
                             HorizontalOptions="Fill"
@@ -156,26 +160,20 @@
                             Text="{Binding Movie.Description}"
                             TextColor="{StaticResource TextSecondary}" />
 
-                        <Border
+                        <Button
+                            Command="{Binding OpenTrailerCommand}"
                             HorizontalOptions="Start"
                             IsVisible="{Binding HasTrailer}"
-                            Style="{StaticResource DetailsActionBorderStyle}">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenTrailerCommand}" />
-                            </Border.GestureRecognizers>
-                            <HorizontalStackLayout Spacing="8">
-                                <Label
+                            Style="{StaticResource SecondaryActionButtonStyle}"
+                            Text="Watch trailer">
+                            <Button.ImageSource>
+                                <FontImageSource
+                                    Color="{StaticResource PrimaryDark}"
                                     FontFamily="MaterialIconsOutlined"
-                                    FontSize="18"
-                                    Text="{x:Static constants:TabIconGlyphs.PlayCircle}"
-                                    TextColor="{StaticResource PrimaryDark}"
-                                    VerticalOptions="Center" />
-                                <Label
-                                    Style="{StaticResource DetailsActionLabelStyle}"
-                                    Text="Watch trailer"
-                                    VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                        </Border>
+                                    Glyph="{x:Static constants:TabIconGlyphs.PlayCircle}"
+                                    Size="18" />
+                            </Button.ImageSource>
+                        </Button>
 
                         <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Cast" />
                         <Label

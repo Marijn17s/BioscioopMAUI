@@ -5,7 +5,6 @@
     x:DataType="viewModels:ShowtimesPageViewModel"
     x:Name="ShowtimesPageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:constants="clr-namespace:BioscoopMAUI.Constants"
     xmlns:controls="clr-namespace:BioscoopMAUI.Controls"
     xmlns:models="clr-namespace:BioscoopMAUI.Models.DTOs;assembly=BioscoopMAUI.Models"
     xmlns:ui="clr-namespace:BioscoopMAUI.ViewModels.UI"
@@ -171,41 +170,12 @@
                                     <HorizontalStackLayout BindableLayout.ItemsSource="{Binding DateFilterOptions}" Spacing="8">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate x:DataType="ui:ShowtimeFilterOption">
-                                                <Border
-                                                    BackgroundColor="{StaticResource AppSurfaceElevated}"
-                                                    Padding="11,6"
-                                                    Stroke="{StaticResource AppStroke}"
-                                                    StrokeThickness="1">
-                                                    <Border.StrokeShape>
-                                                        <RoundRectangle CornerRadius="16" />
-                                                    </Border.StrokeShape>
-                                                    <Border.Triggers>
-                                                        <DataTrigger
-                                                            Binding="{Binding IsSelected}"
-                                                            TargetType="Border"
-                                                            Value="True">
-                                                            <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
-                                                            <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
-                                                        </DataTrigger>
-                                                    </Border.Triggers>
-                                                    <Border.GestureRecognizers>
-                                                        <TapGestureRecognizer Command="{Binding BindingContext.SelectDateFilterCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
-                                                    </Border.GestureRecognizers>
-                                                    <Label
-                                                        FontFamily="OpenSansSemibold"
-                                                        FontSize="12"
-                                                        Text="{Binding Label}"
-                                                        TextColor="{StaticResource TextPrimary}">
-                                                        <Label.Triggers>
-                                                            <DataTrigger
-                                                                Binding="{Binding IsSelected}"
-                                                                TargetType="Label"
-                                                                Value="True">
-                                                                <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
-                                                            </DataTrigger>
-                                                        </Label.Triggers>
-                                                    </Label>
-                                                </Border>
+                                                <RadioButton
+                                                    CheckedChanged="OnDateFilterCheckedChanged"
+                                                    Content="{Binding Label}"
+                                                    GroupName="DateFilter"
+                                                    IsChecked="{Binding IsSelected}"
+                                                    TextColor="{StaticResource TextPrimary}" />
                                             </DataTemplate>
                                         </BindableLayout.ItemTemplate>
                                     </HorizontalStackLayout>
@@ -224,81 +194,23 @@
                                     Spacing="8">
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate x:DataType="ui:ShowtimeFilterOption">
-                                            <Border
-                                                BackgroundColor="{StaticResource AppSurfaceElevated}"
-                                                Padding="11,6"
-                                                Stroke="{StaticResource AppStroke}"
-                                                StrokeThickness="1">
-                                                <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="16" />
-                                                </Border.StrokeShape>
-                                                <Border.Triggers>
-                                                    <DataTrigger
-                                                        Binding="{Binding IsSelected}"
-                                                        TargetType="Border"
-                                                        Value="True">
-                                                        <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
-                                                        <Setter Property="Stroke" Value="{StaticResource Tertiary}" />
-                                                    </DataTrigger>
-                                                </Border.Triggers>
-                                                <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding BindingContext.SelectTimeFilterCommand, Source={x:Reference ShowtimesPageRoot}}" CommandParameter="{Binding .}" />
-                                                </Border.GestureRecognizers>
-                                                <Label
-                                                    FontFamily="OpenSansSemibold"
-                                                    FontSize="12"
-                                                    Text="{Binding Label}"
-                                                    TextColor="{StaticResource TextPrimary}">
-                                                    <Label.Triggers>
-                                                        <DataTrigger
-                                                            Binding="{Binding IsSelected}"
-                                                            TargetType="Label"
-                                                            Value="True">
-                                                            <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
-                                                        </DataTrigger>
-                                                    </Label.Triggers>
-                                                </Label>
-                                            </Border>
+                                            <RadioButton
+                                                CheckedChanged="OnTimeFilterCheckedChanged"
+                                                Content="{Binding Label}"
+                                                GroupName="TimeFilter"
+                                                IsChecked="{Binding IsSelected}"
+                                                TextColor="{StaticResource TextPrimary}" />
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
                                 </HorizontalStackLayout>
 
-                                <Grid
-                                    ColumnDefinitions="*,Auto"
-                                    ColumnSpacing="8"
+                                <SearchBar
                                     IsVisible="{Binding IsMovieFilterExpanded}"
-                                    Margin="0,-4,0,0">
-                                    <Entry
-                                        BackgroundColor="Transparent"
-                                        ClearButtonVisibility="WhileEditing"
-                                        Placeholder="Search by movie title..."
-                                        PlaceholderColor="{StaticResource TextMuted}"
-                                        ReturnCommand="{Binding SearchMovieCommand}"
-                                        Text="{Binding PendingMovieSearchText}"
-                                        TextColor="{StaticResource TextPrimary}" />
-                                    <Border
-                                        BackgroundColor="{StaticResource Secondary}"
-                                        Grid.Column="1"
-                                        HeightRequest="44"
-                                        Stroke="{StaticResource Tertiary}"
-                                        StrokeThickness="1"
-                                        VerticalOptions="Center"
-                                        WidthRequest="44">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="16" />
-                                        </Border.StrokeShape>
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding SearchMovieCommand}" />
-                                        </Border.GestureRecognizers>
-                                        <Label
-                                            FontFamily="MaterialIconsOutlined"
-                                            FontSize="20"
-                                            HorizontalOptions="Center"
-                                            Text="{x:Static constants:TabIconGlyphs.Search}"
-                                            TextColor="{StaticResource PrimaryDark}"
-                                            VerticalOptions="Center" />
-                                    </Border>
-                                </Grid>
+                                    Margin="0,-4,0,0"
+                                    Placeholder="Search by movie title..."
+                                    SearchCommand="{Binding SearchMovieCommand}"
+                                    Text="{Binding PendingMovieSearchText, Mode=TwoWay}"
+                                    TextChanged="OnMovieSearchTextChanged" />
                             </VerticalStackLayout>
                         </controls:SurfacePanel>
 
