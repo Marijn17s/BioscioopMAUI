@@ -16,7 +16,7 @@ public class ShowtimesFilterTests : BaseTest
 
         var searchBar = FindUIElement("ShowtimesSearchBar");
         searchBar.Clear();
-        searchBar.SendKeys("zzzz-no-matching-movie-title");
+        searchBar.SendKeys("random-movie-title");
         searchBar.Click();
         PressEnterKey();
 

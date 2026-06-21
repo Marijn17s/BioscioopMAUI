@@ -1,3 +1,4 @@
+using System.Text;
 using BioscoopMAUI.Models.DTOs;
 using BioscoopMAUI.Models.Helpers;
 using NUnit.Framework;
@@ -36,7 +37,7 @@ public class QrCodeHelperTests
     }
 
     [Test]
-    public void GetReservationQrCodeString_RoundTripsReservationFields()
+    public void GetReservationQrCodeString_ParsesCorrectly()
     {
         var reservation = CreateSampleReservation(11, 12);
 
@@ -72,15 +73,15 @@ public class QrCodeHelperTests
     }
 
     [Test]
-    public void ParseQrCode_ReturnsNullForMalformedInput()
+    public void ParseQrCode_ReturnsNullForInvalidInput()
     {
         Assert.Multiple(() =>
         {
             Assert.That(_helper.ParseQrCode(string.Empty), Is.Null);
             Assert.That(_helper.ParseQrCode("not-valid-base64"), Is.Null);
-            Assert.That(_helper.ParseQrCode(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("RE:1|SH:2"))), Is.Null);
-            Assert.That(_helper.ParseQrCode(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("RE:abc|SH:2|RO:3|SE:4|CH:abcd"))), Is.Null);
-            Assert.That(_helper.ParseQrCode(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("RE:1|SH:2|RO:3|SE:|CH:abcd"))), Is.Null);
+            Assert.That(_helper.ParseQrCode(Convert.ToBase64String("RE:1|SH:2"u8.ToArray())), Is.Null);
+            Assert.That(_helper.ParseQrCode(Convert.ToBase64String("RE:abc|SH:2|RO:3|SE:4|CH:abcd"u8.ToArray())), Is.Null);
+            Assert.That(_helper.ParseQrCode(Convert.ToBase64String("RE:1|SH:2|RO:3|SE:|CH:abcd"u8.ToArray())), Is.Null);
         });
     }
 }

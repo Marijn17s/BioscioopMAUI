@@ -6,7 +6,7 @@ namespace BioscoopMAUI.UITests;
 public class TabNavigationTests : BaseTest
 {
     [Test]
-    public void AuthenticatedUserCanSwitchMainTabs()
+    public void AuthenticatedUserCanSwitchNavigationTabs()
     {
         TapTab("Home");
         Assert.That(FindUIElement("PageTitle").Text, Is.EqualTo("Home"));
