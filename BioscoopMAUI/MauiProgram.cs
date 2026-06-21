@@ -104,7 +104,11 @@ public static class MauiProgram
             });
         });
 
+#if UITEST
+        builder.Services.AddSingleton<IAuthService, FakeAuthService>();
+#else
         builder.Services.AddSingleton<IAuthService, Auth0AuthService>();
+#endif
         builder.Services.AddTransient<AuthHeaderHandler>();
 
         builder.Services.AddHttpClient("BioscoopAPI", client =>

@@ -130,7 +130,6 @@
                                                 Text="{Binding SelectedTimeLabel}" />
                                         </VerticalStackLayout>
                                     </Border>
-
                                     <Border
                                         BackgroundColor="{StaticResource AppSurfaceElevated}"
                                         Grid.Column="2"
@@ -154,9 +153,14 @@
                                         </Border.GestureRecognizers>
                                         <VerticalStackLayout Spacing="1">
                                             <Label
+                                                AutomationId="ShowtimesMovieFilterToggle"
                                                 FontSize="11"
                                                 Text="Movie"
-                                                TextColor="{StaticResource TextMuted}" />
+                                                TextColor="{StaticResource TextMuted}">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ToggleMovieFilterCommand}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
                                             <Label
                                                 FontAttributes="Bold"
                                                 FontFamily="OpenSansSemibold"
@@ -206,6 +210,7 @@
                                 </HorizontalStackLayout>
 
                                 <SearchBar
+                                    AutomationId="ShowtimesSearchBar"
                                     IsVisible="{Binding IsMovieFilterExpanded}"
                                     Margin="0,-4,0,0"
                                     Placeholder="Search by movie title..."
@@ -222,6 +227,7 @@
                             Style="{StaticResource SurfacePanelStyle}">
                             <VerticalStackLayout Spacing="10">
                                 <Label
+                                    AutomationId="ShowtimesNoMatchesPanel"
                                     FontAttributes="Bold"
                                     FontFamily="OpenSansSemibold"
                                     FontSize="18"

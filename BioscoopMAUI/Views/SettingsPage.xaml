@@ -78,7 +78,7 @@
                     </VerticalStackLayout>
                 </controls:SurfacePanel>
 
-                <Button Command="{Binding LogoutCommand}" Text="Log out" />
+                <Button AutomationId="LogoutButton" Command="{Binding LogoutCommand}" Text="Log out" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

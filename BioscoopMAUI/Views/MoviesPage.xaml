@@ -25,7 +25,7 @@
                 <CollectionView ItemsSource="{Binding Movies}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:MovieResponseDto">
-                            <Border Style="{StaticResource MovieCardBorderStyle}">
+                            <Border AutomationId="MovieListItem" Style="{StaticResource MovieCardBorderStyle}">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding BindingContext.OpenMovieDetailsCommand, Source={x:Reference MoviesPageRoot}}" CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>

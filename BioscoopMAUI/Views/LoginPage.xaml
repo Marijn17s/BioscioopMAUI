@@ -35,6 +35,7 @@
                 IsVisible="{Binding IsBusy}" />
 
             <Button
+                AutomationId="LoginButton"
                 Command="{Binding LoginCommand}"
                 IsEnabled="{Binding IsLoginEnabled}"
                 Text="Log in / Sign up" />

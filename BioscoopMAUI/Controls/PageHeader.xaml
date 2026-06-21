@@ -12,6 +12,7 @@
                 Spacing="4"
                 VerticalOptions="Center">
                 <Label
+                    AutomationId="PageTitle"
                     x:Name="TitleLabel"
                     Style="{StaticResource PageHeaderTitleLabelStyle}"
                     Text="{Binding Title, Source={x:Reference PageHeaderRoot}}" />
