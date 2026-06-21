@@ -1,3 +1,5 @@
+using System.Text.Json;
+using BioscoopMAUI.Interfaces.Location;
 using BioscoopMAUI.Models.DTOs;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
@@ -5,14 +7,14 @@ using INotificationService = BioscoopMAUI.Interfaces.Notifications.INotification
 
 namespace BioscoopMAUI.Services.Notifications;
 
-public class LocalNotificationService : INotificationService
+public class LocalNotificationService(ILocationService locationService) : INotificationService
 {
-    public const string ReminderChannelId = "showtime_reminders";
+    public const string NotificationChannelId = "showtime_notifications";
+    private const string NotificationsEnabledPreferenceKey = "showtime_notifications_enabled";
+    private const string StoredNotificationsPreferenceKey = "showtime_notifications_pending";
+    private static readonly TimeSpan notificationTimeSpan = TimeSpan.FromMinutes(15);
 
-    private const string RemindersEnabledPreferenceKey = "showtime_reminders_enabled";
-    private static readonly TimeSpan ReminderLeadTime = TimeSpan.FromMinutes(15);
-
-    public bool AreRemindersEnabled => Preferences.Default.Get(RemindersEnabledPreferenceKey, false);
+    public bool AreNotificationsEnabled => Preferences.Default.Get(NotificationsEnabledPreferenceKey, false);
 
     public async Task<bool> EnableAsync()
     {
@@ -24,41 +26,76 @@ public class LocalNotificationService : INotificationService
             }
         };
 
-        var permissionGranted = await LocalNotificationCenter.Current.RequestNotificationPermission(permissionRequest);
-        Preferences.Default.Set(RemindersEnabledPreferenceKey, permissionGranted);
-        return permissionGranted;
+        var notificationPermissionGranted = await LocalNotificationCenter.Current.RequestNotificationPermission(permissionRequest);
+        if (!notificationPermissionGranted)
+        {
+            Preferences.Default.Set(NotificationsEnabledPreferenceKey, false);
+            return false;
+        }
+
+        var locationPermissionGranted = await locationService.RequestPermissionAsync();
+        Preferences.Default.Set(NotificationsEnabledPreferenceKey, locationPermissionGranted);
+        return locationPermissionGranted;
     }
 
-    public void Disable()
+    public async Task DisableAsync()
     {
-        Preferences.Default.Set(RemindersEnabledPreferenceKey, false);
+        Preferences.Default.Set(NotificationsEnabledPreferenceKey, false);
+        Preferences.Default.Remove(StoredNotificationsPreferenceKey);
+        await locationService.StopMonitoringAsync();
         LocalNotificationCenter.Current.CancelAll();
     }
 
-    public async Task SyncRemindersAsync(IEnumerable<ReservationResponseDto> reservations)
+    public async Task SyncNotificationsAsync(IEnumerable<ReservationResponseDto> reservations)
     {
-        if (!AreRemindersEnabled)
+        if (!AreNotificationsEnabled)
             return;
 
-        LocalNotificationCenter.Current.CancelAll();
+        var pendingNotifications = reservations
+            .Where(reservation => reservation.Status == ReservationStatus.Confirmed)
+            .Where(reservation => reservation.Showtime.StartTime > DateTime.Now)
+            .Select(reservation => new PendingNotification(
+                reservation.Id,
+                reservation.MovieTitle,
+                reservation.Showtime.StartTime,
+                reservation.RoomName))
+            .ToList();
 
-        var now = DateTimeOffset.Now;
+        SaveStoredNotifications(pendingNotifications);
 
-        foreach (var reservation in reservations.Where(reservation => reservation.Status == ReservationStatus.Confirmed))
+        // Notifications trigger even if the app is closed
+        await locationService.StartMonitoringAsync();
+
+        if (await locationService.IsInsideCinemaRegionAsync())
+            await ScheduleStoredNotificationsAsync();
+        else
+            CancelScheduledNotifications();
+    }
+
+    public async Task ScheduleStoredNotificationsAsync()
+    {
+        if (!AreNotificationsEnabled)
+            return;
+
+        var now = DateTime.Now;
+
+        foreach (var pendingNotification in GetStoredNotifications())
         {
-            var showtimeStart = new DateTimeOffset(reservation.Showtime.StartTime);
-            var notifyTime = showtimeStart - ReminderLeadTime;
-            if (notifyTime <= now)
+            if (pendingNotification.ShowtimeStart <= now)
                 continue;
+
+            var notifyTime = pendingNotification.ShowtimeStart - notificationTimeSpan;
+            if (notifyTime < now)
+                notifyTime = now.AddSeconds(5);
 
             var notification = new NotificationRequest
             {
-                NotificationId = reservation.Id,
-                Title = reservation.MovieTitle,
-                Description = $"Starts at {reservation.Showtime.StartTime:HH:mm} in {reservation.RoomName}.",
+                NotificationId = pendingNotification.ReservationId,
+                Title = pendingNotification.MovieTitle,
+                Description = $"Starts at {pendingNotification.ShowtimeStart:HH:mm} in {pendingNotification.RoomName}.",
                 Android =
                 {
-                    ChannelId = ReminderChannelId
+                    ChannelId = NotificationChannelId
                 },
                 Schedule = new NotificationRequestSchedule
                 {
@@ -69,4 +106,27 @@ public class LocalNotificationService : INotificationService
             await LocalNotificationCenter.Current.Show(notification);
         }
     }
+
+    public void CancelScheduledNotifications() => LocalNotificationCenter.Current.CancelAll();
+
+    private static List<PendingNotification> GetStoredNotifications()
+    {
+        var storedValue = Preferences.Default.Get(StoredNotificationsPreferenceKey, string.Empty);
+        if (string.IsNullOrWhiteSpace(storedValue))
+            return [];
+
+        return JsonSerializer.Deserialize<List<PendingNotification>>(storedValue) ?? [];
+    }
+
+    private static void SaveStoredNotifications(List<PendingNotification> pendingNotifications)
+    {
+        var storedValue = JsonSerializer.Serialize(pendingNotifications);
+        Preferences.Default.Set(StoredNotificationsPreferenceKey, storedValue);
+    }
+
+    private record PendingNotification(
+        int ReservationId,
+        string MovieTitle,
+        DateTime ShowtimeStart,
+        string RoomName);
 }

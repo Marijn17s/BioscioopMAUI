@@ -4,8 +4,10 @@ namespace BioscoopMAUI.Interfaces.Notifications;
 
 public interface INotificationService
 {
-    bool AreRemindersEnabled { get; }
+    bool AreNotificationsEnabled { get; }
     Task<bool> EnableAsync();
-    void Disable();
-    Task SyncRemindersAsync(IEnumerable<ReservationResponseDto> reservations);
+    Task DisableAsync();
+    Task SyncNotificationsAsync(IEnumerable<ReservationResponseDto> reservations);
+    Task ScheduleStoredNotificationsAsync();
+    void CancelScheduledNotifications();
 }

@@ -40,19 +40,19 @@
                 <controls:SurfacePanel Style="{StaticResource SurfacePanelStyle}">
                     <VerticalStackLayout Spacing="12">
                         <Label Style="{StaticResource SectionTitleLabelStyle}" Text="Notifications" />
-                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Get reminded 15 minutes before a screening starts." />
+                        <Label Style="{StaticResource DescriptionLabelStyle}" Text="Get reminded 15 minutes before a screening starts when you are within 1 km of the cinema." />
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                             <Label
                                 Grid.Column="0"
                                 Style="{StaticResource DescriptionLabelStyle}"
-                                Text="Screening reminders"
+                                Text="Screening notifications"
                                 VerticalOptions="Center" />
-                            <Switch Grid.Column="1" IsToggled="{Binding RemindersEnabled, Mode=TwoWay}" />
+                            <Switch Grid.Column="1" IsToggled="{Binding NotificationsEnabled, Mode=TwoWay}" />
                         </Grid>
                         <Label
                             IsVisible="{Binding NotificationPermissionDenied}"
                             Style="{StaticResource DescriptionLabelStyle}"
-                            Text="Notifications are turned off for this app. Enable them in your device settings to receive reminders." />
+                            Text="Notifications or location access are turned off for this app. Enable both in your device settings to receive notifications near the cinema." />
                     </VerticalStackLayout>
                 </controls:SurfacePanel>
 

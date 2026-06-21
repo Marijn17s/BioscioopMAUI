@@ -1,3 +1,6 @@
+using BioscoopMAUI.Interfaces.Notifications;
+using BioscoopMAUI.Interfaces.Reservations;
+
 namespace BioscoopMAUI;
 
 public partial class App : Application
@@ -14,5 +17,17 @@ public partial class App : Application
     {
         var shell = _services.GetRequiredService<AppShell>();
         return new Window(shell);
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+
+        var notificationService = _services.GetService<INotificationService>();
+        if (notificationService is null || !notificationService.AreNotificationsEnabled)
+            return;
+
+        var reservationService = _services.GetRequiredService<IReservationService>();
+        _ = reservationService.GetReservationsAsync();
     }
 }

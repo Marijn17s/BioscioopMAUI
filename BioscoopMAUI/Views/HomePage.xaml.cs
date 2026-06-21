@@ -1,7 +1,6 @@
-using BioscoopMAUI.Constants;
+using BioscoopMAUI.Models.Constants;
 using BioscoopMAUI.ViewModels;
 using Microsoft.Maui.Controls.Maps;
-using Microsoft.Maui.Devices.Sensors;
 using Microsoft.Maui.Maps;
 
 namespace BioscoopMAUI.Views;
@@ -43,7 +42,7 @@ public partial class HomePage : ContentPage
             Location = cinemaLocation
         });
 
-        CinemaMap.MoveToRegion(MapSpan.FromCenterAndRadius(cinemaLocation, Distance.FromKilometers(1)));
+        CinemaMap.MoveToRegion(MapSpan.FromCenterAndRadius(cinemaLocation, Microsoft.Maui.Maps.Distance.FromKilometers(1)));
 
         _hasConfiguredMap = true;
     }

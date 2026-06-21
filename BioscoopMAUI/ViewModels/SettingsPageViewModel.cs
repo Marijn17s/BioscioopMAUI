@@ -17,7 +17,7 @@ public partial class SettingsPageViewModel(
     INotificationService notificationService,
     IReservationService reservationService) : ObservableObject
 {
-    private bool _isSyncingReminderToggle;
+    private bool _isSyncingNotificationToggle;
 
     public bool IsEmployee => string.Equals(Role, AuthConstants.EmployeeRole);
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
@@ -57,7 +57,7 @@ public partial class SettingsPageViewModel(
     private string _feedbackSuccessMessage = string.Empty;
 
     [ObservableProperty]
-    private bool _remindersEnabled;
+    private bool _notificationsEnabled;
 
     [ObservableProperty]
     private bool _notificationPermissionDenied;
@@ -72,7 +72,7 @@ public partial class SettingsPageViewModel(
             return;
         }
 
-        SetReminderToggle(notificationService.AreRemindersEnabled);
+        SetNotificationToggle(notificationService.AreNotificationsEnabled);
 
         var user = authService.CurrentUser;
         if (user is null)
@@ -83,21 +83,21 @@ public partial class SettingsPageViewModel(
         Role = user.Role;
     }
 
-    partial void OnRemindersEnabledChanged(bool value)
+    partial void OnNotificationsEnabledChanged(bool value)
     {
-        if (_isSyncingReminderToggle)
+        if (_isSyncingNotificationToggle)
             return;
 
-        _ = UpdateRemindersAsync(value);
+        _ = UpdateNotificationsAsync(value);
     }
 
-    private async Task UpdateRemindersAsync(bool enabled)
+    private async Task UpdateNotificationsAsync(bool enabled)
     {
         NotificationPermissionDenied = false;
 
         if (!enabled)
         {
-            notificationService.Disable();
+            await notificationService.DisableAsync();
             return;
         }
 
@@ -105,18 +105,18 @@ public partial class SettingsPageViewModel(
         if (!permissionGranted)
         {
             NotificationPermissionDenied = true;
-            SetReminderToggle(false);
+            SetNotificationToggle(false);
             return;
         }
 
         await reservationService.GetReservationsAsync();
     }
 
-    private void SetReminderToggle(bool value)
+    private void SetNotificationToggle(bool value)
     {
-        _isSyncingReminderToggle = true;
-        RemindersEnabled = value;
-        _isSyncingReminderToggle = false;
+        _isSyncingNotificationToggle = true;
+        NotificationsEnabled = value;
+        _isSyncingNotificationToggle = false;
     }
 
     [RelayCommand(CanExecute = nameof(CanSubmitFeedback))]

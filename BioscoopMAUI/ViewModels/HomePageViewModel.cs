@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using BioscoopMAUI.Constants;
+using BioscoopMAUI.Models.Constants;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Reservations;

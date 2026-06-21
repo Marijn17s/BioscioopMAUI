@@ -23,7 +23,7 @@ public class ReservationService(IHttpClientFactory httpClientFactory, ILocalRese
             reservations = await localReservationStore.GetReservationsAsync();
         }
 
-        await notificationService.SyncRemindersAsync(reservations);
+        await notificationService.SyncNotificationsAsync(reservations);
         return reservations;
     }
 

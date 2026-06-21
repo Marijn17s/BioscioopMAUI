@@ -4,6 +4,12 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Employees use the camera to scan customer ticket QR codes</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
     <!-- The Mac App Store requires you specify if the app uses encryption. -->
     <!-- Please consult https://developer.apple.com/documentation/bundleresources/information_property_list/itsappusesnonexemptencryption -->
     <!-- <key>ITSAppUsesNonExemptEncryption</key> -->

@@ -1,4 +1,4 @@
-namespace BioscoopMAUI.Constants;
+namespace BioscoopMAUI.Models.Constants;
 
 public static class CinemaLocation
 {
@@ -9,4 +9,5 @@ public static class CinemaLocation
     public const string Country = "Netherlands";
     public const double Latitude = 51.5876;
     public const double Longitude = 4.7925;
+    public const double ProximityRadiusKilometers = 1.0;
 }

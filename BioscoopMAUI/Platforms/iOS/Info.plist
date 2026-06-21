@@ -4,6 +4,12 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Employees use the camera to scan customer ticket QR codes</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to send screening notifications when you are near the cinema.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIDeviceFamily</key>
@@ -33,6 +39,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>location</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

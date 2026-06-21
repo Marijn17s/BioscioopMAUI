@@ -2,6 +2,7 @@ using System.Reflection;
 using Auth0.OidcClient;
 using BioscoopMAUI.Interfaces.Auth;
 using BioscoopMAUI.Interfaces.Feedback;
+using BioscoopMAUI.Interfaces.Location;
 using BioscoopMAUI.Interfaces.Movies;
 using BioscoopMAUI.Interfaces.Navigation;
 using BioscoopMAUI.Interfaces.Reservations;
@@ -10,6 +11,7 @@ using BioscoopMAUI.Models.Configuration;
 using BioscoopMAUI.Models.Helpers;
 using BioscoopMAUI.Services.Auth;
 using BioscoopMAUI.Services.Feedback;
+using BioscoopMAUI.Services.Location;
 using BioscoopMAUI.Services.Movies;
 using BioscoopMAUI.Services.Navigation;
 using BioscoopMAUI.Services.Notifications;
@@ -32,6 +34,7 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder()
             .UseMauiApp<App>()
+            .UseShiny()
             .UseMauiMaps()
             .UseLocalNotification(config =>
             {
@@ -39,9 +42,9 @@ public static class MauiProgram
                 {
                     android.AddChannel(new AndroidNotificationChannelRequest
                     {
-                        Id = LocalNotificationService.ReminderChannelId,
-                        Name = "Screening reminders",
-                        Description = "Reminders before a screening starts"
+                        Id = LocalNotificationService.NotificationChannelId,
+                        Name = "Screening notifications",
+                        Description = "Notifications before a screening starts"
                     });
                 });
             })
@@ -118,6 +121,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocalReservationStore, LocalReservationStore>();
         builder.Services.AddSingleton<ITicketPdfService, TicketPdfService>();
         builder.Services.AddSingleton<IFeedbackService, FeedbackService>();
+        builder.Services.AddGeofencing<CinemaGeofenceDelegate>();
+        builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<INotificationService, LocalNotificationService>();
         builder.Services.AddSingleton<QrCodeHelper>();
 
