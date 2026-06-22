@@ -1,4 +1,3 @@
-using System.Text;
 using BioscoopMAUI.Models.DTOs;
 using BioscoopMAUI.Models.Helpers;
 using NUnit.Framework;
