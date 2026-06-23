@@ -9,17 +9,17 @@ public class ShowtimesFilterTests : BaseTest
     public void MovieSearchFilterShowsNoMatchesForUnknownTitle()
     {
         TapTab("Screenings");
-        Assert.That(FindUIElement("PageTitle").Text, Is.EqualTo("Screenings"));
+        Assert.That(FindUiElement("PageTitle").Text, Is.EqualTo("Screenings"));
 
         if (!IsElementVisible("ShowtimesSearchBar"))
-            FindUIElement("ShowtimesMovieFilterToggle").Click();
+            FindUiElement("ShowtimesMovieFilterToggle").Click();
 
-        var searchBar = FindUIElement("ShowtimesSearchBar");
+        var searchBar = FindUiElement("ShowtimesSearchBar");
         searchBar.Clear();
         searchBar.SendKeys("random-movie-title");
         searchBar.Click();
         PressEnterKey();
 
-        Assert.That(FindUIElement("ShowtimesNoMatchesPanel").Displayed, Is.True);
+        Assert.That(FindUiElement("ShowtimesNoMatchesPanel").Displayed, Is.True);
     }
 }

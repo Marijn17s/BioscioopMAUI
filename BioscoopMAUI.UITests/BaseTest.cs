@@ -7,7 +7,7 @@ public abstract class BaseTest
 {
     protected AppiumDriver App => AppiumSetup.App;
 
-    protected AppiumElement FindUIElement(string automationId)
+    protected AppiumElement FindUiElement(string automationId)
     {
         return App.FindElement(MobileBy.Id(automationId));
     }

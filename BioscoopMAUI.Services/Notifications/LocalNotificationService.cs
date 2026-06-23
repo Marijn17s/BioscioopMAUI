@@ -12,7 +12,7 @@ public class LocalNotificationService(ILocationService locationService) : INotif
     public const string NotificationChannelId = "showtime_notifications";
     private const string NotificationsEnabledPreferenceKey = "showtime_notifications_enabled";
     private const string StoredNotificationsPreferenceKey = "showtime_notifications_pending";
-    private static readonly TimeSpan notificationTimeSpan = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan NotificationTimeSpan = TimeSpan.FromMinutes(15);
 
     public bool AreNotificationsEnabled => Preferences.Default.Get(NotificationsEnabledPreferenceKey, false);
 
@@ -84,7 +84,7 @@ public class LocalNotificationService(ILocationService locationService) : INotif
             if (pendingNotification.ShowtimeStart <= now)
                 continue;
 
-            var notifyTime = pendingNotification.ShowtimeStart - notificationTimeSpan;
+            var notifyTime = pendingNotification.ShowtimeStart - NotificationTimeSpan;
             if (notifyTime < now)
                 notifyTime = now.AddSeconds(5);
 
